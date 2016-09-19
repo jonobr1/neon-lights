@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Neon Lights</title>
+    <style>
+      * { margin: 0; padding; 0; }
+      #lobby {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="lobby">
+      <p>Loading...</p>
+    </div>
+    <div class="scripts">
+      <script src="./third-party/three.js"></script>
+      <script src="./third-party/two.js"></script>
+      <script src="./third-party/sound.js"></script>
+      <script src="./third-party/equalizer.js"></script>
+      <script>
+
+        var vector3 = new THREE.Vector3();
+        var equalizer = new Equalizer();
+        var song = new Sound('./assets/audio/03 Under Neon Lights.mp3', setup);
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera();
+
+        var sphere = new THREE.Mesh(
+          new THREE.SphereGeometry(32, 64, 64),
+          new THREE.MeshPhongMaterial({
+            color: 0xffffff
+          })
+        );
+
+        var lights = [];
+
+        function setup() {
+
+          renderer.shadowMap.enabled = true;
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+          renderer.gammaInput = true;
+          renderer.gammaOutput = true;
+
+          for (var i = 0; i < equalizer.bands.length; i++) {
+
+            var pct = i / equalizer.bands.length;
+            var theta = Math.PI * 2 * pct;
+
+            var light = new THREE.SpotLight(
+              'rgb('
+                + Math.floor(Math.random() * 255) + ','
+                + Math.floor(Math.random() * 255) + ','
+                + Math.floor(Math.random() * 255) + ')'
+            );
+
+            light.castShadow = true;
+            light.penumbra = 1;
+            light.angle = 0.125;
+            light.shadow.mapSize.width = 128;
+            light.shadow.mapSize.height = 128;
+            light.shadow.camera.near = 1;
+            light.shadow.camera.far = 2000;
+
+            var x = 50 * Math.cos(theta);
+            var y = 0;
+            var z = 50 * Math.sin(theta);
+
+            light.position.set(x, y, z);
+
+            scene.add(light);
+            lights.push(light);
+
+          }
+
+          camera.destination = {
+            position: new THREE.Vector3(0, 0, 66)
+          };
+
+          scene.add(sphere);
+
+          equalizer.two.renderer.domElement.style.position = 'fixed';
+          equalizer.two.renderer.domElement.style.display = 'block';
+          equalizer.two.renderer.domElement.style.bottom = 20 + 'px';
+          equalizer.two.renderer.domElement.style.right = 20 + 'px';
+          equalizer.two.renderer.domElement.style.position = 'fixed';
+
+          renderer.domElement.style.position = 'fixed';
+          renderer.domElement.style.display = 'block';
+          renderer.domElement.style.top = 0;
+          renderer.domElement.style.left = 0;
+          renderer.domElement.style.right = 0;
+          renderer.domElement.style.bottom = 0;
+
+          window.addEventListener('mousemove', mousemove, false);
+          window.addEventListener('mouseout', mouseout, false);
+
+          window.addEventListener('resize', resize, false);
+          resize();
+
+          document.body.appendChild(renderer.domElement);
+          equalizer.appendTo(document.body);
+
+          song.play();
+          loop();
+
+        }
+
+        function mousemove(e) {
+
+          var x = 2 * e.clientX / window.innerWidth - 1;
+          var y = 2 * e.clientY / window.innerHeight - 1;
+
+          var radius = 33;
+
+          camera.destination.position.x = x * radius * camera.aspect;
+          camera.destination.position.y = - y * radius;
+
+        }
+
+        function mouseout() {
+
+          camera.destination.position.x = 0;
+          camera.destination.position.y = 0;
+
+        }
+
+        function resize() {
+
+          var width = window.innerWidth;
+          var height = window.innerHeight;
+
+          renderer.setSize(width, height);
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+
+        }
+
+        function loop() {
+
+          requestAnimationFrame(loop);
+
+          equalizer.update();
+          camera.lookAt(sphere.position);
+
+          camera.position.add(
+            vector3.copy(camera.destination.position)
+              .sub(camera.position)
+              .multiplyScalar(0.125)
+          );
+
+          for (var i = 0; i < lights.length; i++) {
+            var band = equalizer.bands[i];
+            var light = lights[i];
+            if (band.beat.updated) {
+              light.color.setRGB(
+                Math.random(),
+                Math.random(),
+                Math.random()
+              );
+            }
+            light.angle = band.peak.value / 255;
+            light.decay = 2 * band.value / 255 + 1;
+            light.lookAt(sphere.position);
+          }
+
+          renderer.render(scene, camera);
+
+        }
+
+      </script>
+    </div>
+  </body>
+</html>
