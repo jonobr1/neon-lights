@@ -13,7 +13,7 @@
     THREE.Group.call(this);
 
     this.floor = new Floor();
-    this.floor.scale.set(size / TWO_PI, size / TWO_PI, size);
+    this.floor.scale.set(size / TWO_PI, size / TWO_PI, size * 0.125);
     this.add(this.floor);
 
   };
@@ -57,8 +57,6 @@
   Floor.Geometry = new THREE.PlaneBufferGeometry(TWO_PI, TWO_PI, 128, 128);
   Floor.Material = new THREE.ShaderMaterial({
 
-    // wireframe: true,
-
     uniforms: {
 
       color: { type: 'c', value: new THREE.Color(0x8cc63f) },
@@ -95,7 +93,7 @@
         'float d = distance( origin, p );',
 
         'pos.z = displace( pos.x + cursor.x ) * displace( pos.y + cursor.y );',
-        'pos.z *= d;',
+        'pos.z -= displace( cursor.x ) * displace( cursor.y );',
 
         'gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );',
 
@@ -123,6 +121,6 @@
 
     ].join('\n')
 
-  })
+  });
 
 })();
