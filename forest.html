@@ -80,6 +80,8 @@
 
           annie.update();
           forest.update(annie.heading);
+          annie.rotation.x = forest.floor.material.uniforms.cursor.theta
+            * 0.2;
 
           renderer.render(scene, cameras[cameras.index]);
 

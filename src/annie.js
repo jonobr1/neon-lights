@@ -26,6 +26,8 @@
     this.camera.lookAt(cone.position);
     this.add(this.camera);
 
+    this.rotation.order = 'YXZ';
+
   };
 
   Annie.prototype = Object.create(THREE.Group.prototype);
@@ -37,7 +39,7 @@
   });
 
   Annie.prototype.headingNeedsUpdate = true;
-  Annie.prototype.step = 0.01;
+  Annie.prototype.step = 0.005;
 
   Annie.prototype.update = function() {
 

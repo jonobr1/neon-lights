@@ -30,7 +30,23 @@
 
   Forest.prototype.update = function(step) {
 
+    var displace = Floor.DisplacementAlgorithm;
+    var cx, cy, y1, y2;
+
+    cx = this.floor.material.uniforms.cursor.value.x;
+    cy = this.floor.material.uniforms.cursor.value.y;
+
+    y1 = displace(cx) * displace(cy);
+
     this.floor.material.uniforms.cursor.value.add(step);
+
+    cx = this.floor.material.uniforms.cursor.value.x;
+    cy = this.floor.material.uniforms.cursor.value.y;
+
+    y2 = displace(cx) * displace(cy);
+
+    this.floor.material.uniforms.cursor.theta = Math.atan2(y2 - y1, step.length());
+
     return this;
 
   };
@@ -49,7 +65,7 @@
   Floor.prototype = Object.create(THREE.Mesh.prototype);
   Floor.prototype.constructor = Floor;
 
-  Floor.DisplacementAlgorithm = function() {
+  Floor.DisplacementAlgorithm = function(x) {
     return (Math.sin(x) + Math.sin(2.2 * x + 5.52) + Math.sin(2.9 * x + 0.93)
       + Math.sin(4.6 * x + 8.94)) / 4.0;
   };
