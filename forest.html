@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Forest</title>
+    <style>
+      * { margin: 0; padding: 0; }
+      body { overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div class="scripts">
+      <script src="./third-party/three.js"></script>
+      <script src="./third-party/two.js"></script>
+      <script src="./third-party/sound.js"></script>
+
+      <script src="./src/annie.js"></script>
+      <script src="./src/forest.js"></script>
+
+      <script>
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
+        var scene = new THREE.Scene();
+        var cameras = [new THREE.PerspectiveCamera()];
+        cameras.index = 0;
+        cameras.next = function() {
+          var index = cameras.index;
+          cameras.index = (index + 1) % cameras.length;
+          return cameras[index];
+        };
+
+        var annie = new Annie();
+        var forest = new Forest()
+
+        cameras.push(annie.camera);
+
+        setup();
+
+        function setup() {
+
+          scene.add(annie);
+          scene.add(forest);
+
+          cameras[0].position.z = 1024;
+          cameras[0].position.y = 500;
+          cameras[0].lookAt(forest.position);
+
+          document.body.appendChild(renderer.domElement);
+          Two.Utils.extend(renderer.domElement.style, {
+            display: 'block',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          });
+
+          window.addEventListener('resize', resize, false);
+          resize();
+
+          window.addEventListener('click', function() {
+            cameras.next();
+          }, false);
+
+          window.addEventListener('mousemove', function(e) {
+            var x = e.clientX / window.innerWidth;
+            annie.rotation.y = Math.PI - x * Math.PI * 2;
+            annie.headingNeedsUpdate = true;
+          }, false);
+
+          loop();
+
+        }
+
+        function loop() {
+
+          requestAnimationFrame(loop);
+
+          annie.update();
+          forest.update(annie.heading);
+
+          renderer.render(scene, cameras[cameras.index]);
+
+        }
+
+        function resize() {
+
+          var width = window.innerWidth;
+          var height = window.innerHeight;
+
+          renderer.setSize(width, height);
+          for (var i = 0; i < cameras.length; i++) {
+            var camera = cameras[i];
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+          }
+
+        }
+
+      </script>
+    </div>
+  </body>
+</html>
