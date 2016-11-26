@@ -27,11 +27,16 @@
           cameras.index = (index + 1) % cameras.length;
           return cameras[index];
         };
+        cameras.add = function(obj) {
+          cameras.index = cameras.length;
+          cameras.push(obj);
+          return cameras;
+        };
 
         var annie = new Annie();
         var forest = new Forest()
 
-        cameras.push(annie.camera);
+        cameras.add(annie.camera);
 
         setup();
 
