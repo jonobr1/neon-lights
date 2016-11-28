@@ -177,7 +177,7 @@
 
             var points = trail.destinations;
             var step = Math.floor(
-              Math.sqrt(Math.random()) * two.height / (points.length - 3)
+              Math.sqrt(Math.random()) * two.height / points.length// (points.length - 3)
             );
             var phi = Math.random() * Math.PI / 4;
 
@@ -199,7 +199,7 @@
 
             }
 
-            trail.distance = (0.5 * Math.random() + 0.1) * step * 3;
+            trail.distance = (0.5 * Math.random() + 0.2) * step * 2;
 
             var seed = Math.floor(200 * Math.random() + 55);
             trail.fill = 'rgb('
@@ -213,16 +213,9 @@
             var limit = plane.material.uniforms.resolution.value.x / plane.material.uniforms.billboard.value.x;
 
             var ox = Math.random() * (two.width * ((limit - 1) / limit) - rect.width);
-            var oy = two.height + step * 2;
+            var oy = two.height + step;
 
-            if (phi >= 0) {
-              ox += trail.distance;
-            } else {
-              ox = Math.abs(rect.left);// - trail.distance;
-
-              // ox += trail.distance;
-            }
-
+            ox += trail.distance;
             trail.translation.set(ox, oy);
 
 
