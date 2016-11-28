@@ -18,7 +18,7 @@
 
       <script>
 
-        var renderer = new THREE.WebGLRenderer({ antialias: false });
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
         var scene = new THREE.Scene();
         var cameras = [new THREE.PerspectiveCamera()];
         cameras.index = 0;
@@ -80,8 +80,11 @@
 
           annie.update();
           forest.update(annie.heading);
-          annie.rotation.x = forest.floor.material.uniforms.cursor.theta
-            * 0.2;
+
+          var theta = forest.floor.material.uniforms.cursor.theta;
+
+          annie.rotation.x = theta * 0.2;
+          annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
 
           renderer.render(scene, cameras[cameras.index]);
 

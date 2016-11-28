@@ -10,7 +10,7 @@
 
     THREE.Group.call(this);
 
-    var cone = new THREE.Mesh(geometry, material);
+    var cone = this.cone = new THREE.Mesh(geometry, material);
     cone.rotation.x = Math.PI / 2;
     cone.rotation.z = Math.PI;
     cone.position.y += 20;

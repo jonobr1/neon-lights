@@ -73,6 +73,8 @@
   Floor.Geometry = new THREE.PlaneBufferGeometry(TWO_PI, TWO_PI, 128, 128);
   Floor.Material = new THREE.ShaderMaterial({
 
+    // wireframe: true,
+
     uniforms: {
 
       color: { type: 'c', value: new THREE.Color(0x8cc63f) },

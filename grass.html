@@ -1,0 +1,219 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Grass</title>
+  </head>
+  <body>
+    <div class="scripts">
+
+      <script src="./third-party/three.js"></script>
+      <script src="./third-party/two.js"></script>
+      <script src="./third-party/trail.js"></script>
+
+      <script>
+
+        var two = new Two({
+          type: Two.Types.canvas,
+          width: 1024,
+          height: 1024,
+          overdraw: true,
+          ratio: 1
+        });
+
+        var renderer = new THREE.WebGLRenderer();
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera();
+
+        var plane = new THREE.Mesh(
+          new THREE.PlaneBufferGeometry(1, 1, 8, 8),
+          new THREE.ShaderMaterial({
+
+            transparent: true,
+            // wireframe: true,
+
+            uniforms: {
+
+              time: { type: 'f', value: 0 },
+              map: { type: 't', value: null },
+              color: { type: 'c', value: new THREE.Color(0x8cc63f) }
+
+            },
+
+            vertexShader: [
+
+              ['const float PI = ', Math.PI, ';'].join(''),
+
+              'uniform float time;',
+              'varying vec2 vUv;',
+
+              'void main() {',
+
+                'vUv = uv;',
+
+                'vec3 pos = vec3( position );',
+                'float offset = 2.0 * ( pos.x + pos.z );',
+                'pos.x += pow( ( pos.y + 1.0 / 2.0 ), 2.0 ) * sin( time + offset ) / 8.0;',
+
+                'gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );',
+
+              '}'
+
+            ].join('\n'),
+
+            fragmentShader: [
+
+              'uniform sampler2D map;',
+              'uniform vec3 color;',
+
+              'varying vec2 vUv;',
+
+              'void main() {',
+
+                'vec4 texel = texture2D( map, vUv );',
+                'float t = ( texel.r + texel.g + texel.b ) / 3.0;',
+                'gl_FragColor = vec4( mix( texel, vec4( color, 1.0 ), t) );',
+
+              '}'
+
+            ].join('\n')
+          })
+        );
+
+        plane.material.uniforms.map.value = new THREE.Texture(two.renderer.domElement);
+
+        scene.add(plane);
+
+        setup();
+
+        function setup() {
+
+          camera.position.z = 2;
+
+          Two.Utils.extend(two.renderer.domElement.style, {
+            display: 'block',
+            position: 'absolute',
+            top: 25 + 'px',
+            left: 25 + 'px',
+            border: '1px solid #ccc',
+            width: 50 + 'px',
+            height: 50 + 'px'
+          });
+
+          Two.Utils.extend(renderer.domElement.style, {
+            display: 'block',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          });
+
+          document.body.appendChild(renderer.domElement);
+          two.appendTo(document.body);
+
+          window.addEventListener('resize', resize, false);
+          window.addEventListener('click', drawGrass, false);
+
+          resize();
+          loop();
+
+          drawGrass();
+
+        }
+
+        function resize() {
+
+          var width = window.innerWidth;
+          var height = window.innerHeight;
+
+          renderer.setSize(width, height);
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+
+        }
+
+        function drawGrass() {
+
+          two.renderer.ctx.clearRect(0, 0, two.renderer.domElement.width, two.renderer.domElement.height);
+
+          var amount = 16;
+          var range = Two.Utils.range(16);
+          var trail = new Two.Trail(Two.Utils.map(range, function(i) {
+            return new Two.Vector();
+          }));
+
+          trail.curved = true;
+          trail.closed = true;
+          trail.noStroke();
+          trail.linewidth = 3;
+
+          two.add(trail);
+
+          for (var i = 0; i < amount; i++) {
+
+            var points = trail.destinations;
+            var step = Math.floor(
+              Math.sqrt(Math.random()) * two.height / (points.length - 3)
+            );
+            var phi = Math.random() * Math.PI / 2 - Math.PI / 4;
+
+            for (var j = 0; j < points.length; j++) {
+
+              var pct = j / (points.length - 1);
+              var p = points[j - 1];
+              var theta = pct * phi - Math.PI / 2;
+
+              var x = 0;
+              var y = 0;
+
+              if (p) {
+                x = step * Math.cos(theta) + p.x;
+                y = step * Math.sin(theta) + p.y;
+              }
+
+              points[j].set(x, y);
+
+            }
+
+            trail.distance = (0.5 * Math.random() + 0.1) * step * 3;
+
+            var seed = Math.floor(200 * Math.random() + 55);
+            trail.fill = 'rgb('
+              + seed + ','
+              + seed + ','
+              + seed + ')';
+
+            trail.update();
+
+            var rect = trail.getBoundingClientRect();
+            var breadth = Math.random() * (two.width - rect.width) + rect.width / 4;
+
+            var ox = breadth + trail.distance;
+            var oy = two.height + step * 2;
+
+            trail.translation.set(ox, oy);
+
+            two.update();
+
+          }
+
+          plane.material.uniforms.map.value.needsUpdate = true;
+
+          trail.remove();
+          Two.Utils.release(trail);
+
+        }
+
+        function loop() {
+
+          requestAnimationFrame(loop);
+
+          plane.material.uniforms.time.value += 0.07;
+
+          renderer.render(scene, camera);
+
+        }
+
+      </script>
+    </div>
+  </body>
+</html>

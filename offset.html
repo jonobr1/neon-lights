@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Neon Lights</title>
+    <style>
+      * { margin: 0; padding; 0; }
+      #lobby {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="lobby">
+      <p>Loading...</p>
+    </div>
+    <div class="scripts">
+      <script src="./third-party/three.js"></script>
+      <script src="./third-party/three-obj-loader.js"></script>
+      <script src="./third-party/two.js"></script>
+      <script src="./third-party/sound.js"></script>
+      <script src="./third-party/equalizer.js"></script>
+      <script>
+
+        var vector3 = new THREE.Vector3();
+        var model;
+        var equalizer = new Equalizer();
+        var song = new Sound('./assets/audio/03 Under Neon Lights.mp3', function() {
+
+          var loader = new THREE.OBJLoader();
+          loader.load('./assets/models/pika-mouse.obj', function(obj) {
+
+            var items = [];
+            obj.traverse(function(child) {
+              if (child instanceof THREE.Mesh && !(/\d/.test(child.name))) {
+                return;
+              }
+              items.push(child);
+            });
+
+            for (var i = 0; i < items.length; i++) {
+              obj.remove(items[i])
+            }
+
+            model = obj;
+            scene.add(model);
+
+            for (var i = 0; i < images.urls.length; i++) {
+              var image = document.createElement('img');
+              image.onload = images.complete;
+              image.src = images.urls[i];
+              images.push(image);
+            }
+
+          });
+
+        });
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera();
+
+        var material = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          map: new THREE.Texture()
+        });
+
+        var images = [];
+        images.urls = [
+          './assets/textures/grass-bw.jpg',
+          './assets/textures/got-no-husband-got-no-wife.jpg',
+          './assets/textures/bw-swirl.jpg'
+        ];
+        images.index = 0;
+        images.complete = function() {
+          images.complete.index++;
+          if (images.complete.index >= images.urls.length) {
+            images._onComplete();
+          }
+        };
+        images._onComplete = setup;
+        images.complete.index = 0;
+        images.next = function() {
+          var index = images.index;
+          images.index = (images.index + 1) % images.length;
+          return images[images.index];
+        };
+
+        function setup() {
+
+          camera.destination = {
+            position: new THREE.Vector3(0, 0, 100)
+          };
+
+          material.map.image = images[images.index];
+          material.map.needsUpdate = true;
+
+          model.traverse(function(child) {
+            child.material = material;
+          });
+
+          model.position.y = - 35;
+          model.rotation.y = Math.PI;
+
+          equalizer.two.renderer.domElement.style.position = 'fixed';
+          equalizer.two.renderer.domElement.style.display = 'block';
+          equalizer.two.renderer.domElement.style.bottom = 20 + 'px';
+          equalizer.two.renderer.domElement.style.right = 20 + 'px';
+          equalizer.two.renderer.domElement.style.position = 'fixed';
+
+          renderer.domElement.style.position = 'fixed';
+          renderer.domElement.style.display = 'block';
+          renderer.domElement.style.top = 0;
+          renderer.domElement.style.left = 0;
+          renderer.domElement.style.right = 0;
+          renderer.domElement.style.bottom = 0;
+          renderer.setClearColor(0xefefef);
+
+          window.addEventListener('click', function() {
+            var texture = material.map;
+            texture.image = images.next();
+            texture.needsUpdate = true;
+          }, false);
+          window.addEventListener('mousemove', mousemove, false);
+          window.addEventListener('mouseout', mouseout, false);
+
+          window.addEventListener('resize', resize, false);
+          resize();
+
+          document.body.appendChild(renderer.domElement);
+          equalizer.appendTo(document.body);
+
+          song.play();
+          loop();
+
+        }
+
+        function mousemove(e) {
+
+          var x = 2 * e.clientX / window.innerWidth - 1;
+          var y = 2 * e.clientY / window.innerHeight - 1;
+
+          var radius = 33;
+
+          camera.destination.position.x = x * radius * camera.aspect;
+          camera.destination.position.y = - y * radius;
+
+        }
+
+        function mouseout() {
+
+          camera.destination.position.x = 0;
+          camera.destination.position.y = 0;
+
+        }
+
+        function resize() {
+
+          var width = window.innerWidth;
+          var height = window.innerHeight;
+
+          renderer.setSize(width, height);
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+
+        }
+
+        function loop() {
+
+          requestAnimationFrame(loop);
+
+          equalizer.update();
+          camera.lookAt(scene.position);
+
+          camera.position.add(
+            vector3.copy(camera.destination.position)
+              .sub(camera.position)
+              .multiplyScalar(0.125)
+          );
+
+          var texture = material.map;
+          var band = equalizer.bands[3];
+
+          if (band.beat.updated) {
+            texture.offset.y += Math.floor(20 * Math.random()) / 4 + 0.25;
+            texture.offset.x += Math.floor(20 * Math.random()) / 4 + 0.25;
+          }
+
+          band = equalizer.bands[8].peak;
+
+          var c = 0.5 * (band.value / 255) + 0.5;
+          material.color.setRGB(1, c, c);
+
+          renderer.render(scene, camera);
+
+        }
+
+      </script>
+    </div>
+  </body>
+</html>
