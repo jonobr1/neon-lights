@@ -37,8 +37,8 @@
 
             uniforms: {
               seed: { type: 'f', value: Math.PI / 4 },
-              shell: { type: 'c', value: new THREE.Color(0xff3333) },
-              stem: { type: 'c', value: new THREE.Color(0xffe1c8) },
+              top: { type: 'c', value: new THREE.Color(0xff3333) },
+              bottom: { type: 'c', value: new THREE.Color(0xffe1c8) },
               spots: { type: 't', value: null }
             },
 
@@ -70,8 +70,8 @@
 
             fragmentShader: [
 
-              'uniform vec3 stem;',
-              'uniform vec3 shell;',
+              'uniform vec3 bottom;',
+              'uniform vec3 top;',
               'uniform sampler2D spots;',
 
               'varying vec2 vUv;',
@@ -79,9 +79,9 @@
               'void main() {',
 
                 'vec4 texel = texture2D( spots, vUv );',
-                'vec3 layer = mix( stem, shell, pow( vUv.y, 2.0 ) );',
+                'vec3 layer = mix( bottom, top, pow( vUv.y, 2.0 ) );',
 
-                'layer = mix( layer, stem, texel.a );',
+                'layer = mix( layer, bottom, texel.a );',
 
                 'gl_FragColor = vec4( layer, 1.0 );',
 

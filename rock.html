@@ -21,21 +21,26 @@
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera();
 
-        var grass = new THREE.Mesh(
-          new THREE.CylinderBufferGeometry(0.5, 0.5, 6, 3, 8, true),
+        var rock = new THREE.Mesh(
+          new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 64, 64, true),
           new THREE.ShaderMaterial({
 
             // wireframe: true,
 
             uniforms: {
-              top: { type: 'c', value: new THREE.Color(0x8cc63f) },
-              bottom: { type: 'c', value: new THREE.Color(0xffffff) },
-              time: { type: 'f', value: 0 }
+              top: { type: 'c', value: new THREE.Color(0x444444) },
+              bottom: { type: 'c', value: new THREE.Color(0xcccccc) },
+              time: { type: 'f', value: 0 },
+              sharp: { type: 'f', value: 0.33 },
+              lopsided: { type: 'f', value: 2 }
             },
 
             vertexShader: [
 
               ['const float PI = ', Math.PI, ';'].join(''),
+
+              'uniform float sharp;',
+              'uniform float lopsided;',
 
               'uniform float time;',
               'varying vec2 vUv;',
@@ -45,15 +50,11 @@
                 'vUv = uv;',
 
                 'vec3 pos = vec3( position );',
-                'float y = pos.y + 3.0;',
-                'float pct = y / 6.0;',
-                'float taper = sin( pow( pct, 0.5 ) * PI );',
-
+                'float y = pos.y + 0.5;',
+                'float pct = y;',
+                'float taper = pow( sin( pow( pct, lopsided ) * PI ), sharp );',
                 'pos.x *= taper;',
                 'pos.z *= taper;',
-
-                'pos.x += pow( pct, 2.0 ) * sin( time );',
-                'pos.z += pow( pct, 2.0 ) * sin( time );',
 
                 'gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );',
 
@@ -70,7 +71,7 @@
 
               'void main() {',
 
-                'vec3 layer = mix( bottom, top, pow( vUv.y, 0.5 ) );',
+                'vec3 layer = mix( bottom, top, vUv.y );',
                 'gl_FragColor = vec4( layer, 1.0 );',
 
               '}'
@@ -80,14 +81,16 @@
           })
         );
 
-        scene.add(grass);
+        rock.scale.set(10, 10, 10);
+
+        scene.add(rock);
         setup();
 
         function setup() {
 
           camera.position.z = 20;
           camera.position.y = 10;
-          camera.lookAt(grass.position);
+          camera.lookAt(rock.position);
 
           document.body.appendChild(renderer.domElement);
 
@@ -114,10 +117,10 @@
 
           requestAnimationFrame(loop);
 
-          grass.rotation.x += 0.01;
-          grass.rotation.y += 0.01;
-          grass.rotation.z += 0.01;
-          grass.material.uniforms.time.value += 0.1;
+          rock.rotation.x += 0.01;
+          rock.rotation.y += 0.01;
+          rock.rotation.z += 0.01;
+          rock.material.uniforms.time.value += 0.1;
 
           renderer.render(scene, camera);
 
