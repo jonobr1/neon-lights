@@ -6824,7 +6824,7 @@ this.Two = (function(previousTwo) {
             last = length - 1;
           }
 
-          /** 
+          /**
            * Inner Circle
            */
           for (i = 0; i < length; i++) {

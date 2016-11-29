@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      * { margin: 0; padding: 0; }
+      canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="scripts">
+      <script src="./third-party/three.js"></script>
+      <script src="./third-party/two.js"></script>
+      <script>
+
+        var two = new Two({
+          type: Two.Types.canvas,
+          width: 256,
+          height: 256,
+          overdraw: true
+        });
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera();
+
+        var sphere = new THREE.Mesh(
+          new THREE.SphereBufferGeometry(5, 64, 64),
+          new THREE.ShaderMaterial({
+
+            // wireframe: true,
+
+            uniforms: {
+              seed: { type: 'f', value: Math.PI / 4 },
+              shell: { type: 'c', value: new THREE.Color(0xff3333) },
+              stem: { type: 'c', value: new THREE.Color(0xffe1c8) },
+              spots: { type: 't', value: null }
+            },
+
+            vertexShader: [
+
+              ['const float PI = ', Math.PI, ';'].join(''),
+
+              'uniform float seed;',
+
+              'varying vec2 vUv;',
+
+              'void main() {',
+
+                'vUv = uv;',
+
+                'vec3 direction = normalize( position );',
+                'float length = length( position );',
+                'vec3 p = direction * ( length + length * sin( position.y + seed ) / 4.0 );',
+
+                'float taper = 0.6 * ( position.y + length ) / ( length * 2.0 ) + 0.4;',
+                'p.x *= taper;',
+                'p.z *= taper;',
+
+                'gl_Position = projectionMatrix * modelViewMatrix * vec4( p, 1.0 );',
+
+              '}'
+
+            ].join('\n'),
+
+            fragmentShader: [
+
+              'uniform vec3 stem;',
+              'uniform vec3 shell;',
+              'uniform sampler2D spots;',
+
+              'varying vec2 vUv;',
+
+              'void main() {',
+
+                'vec4 texel = texture2D( spots, vUv );',
+                'vec3 layer = mix( stem, shell, pow( vUv.y, 2.0 ) );',
+
+                'layer = mix( layer, stem, texel.a );',
+
+                'gl_FragColor = vec4( layer, 1.0 );',
+
+              '}'
+
+            ].join('\n')
+
+          })
+        );
+
+        scene.add(sphere);
+        setup();
+
+        function setup() {
+
+          camera.position.z = 20;
+          camera.position.y = 10;
+          camera.lookAt(sphere.position);
+
+          document.body.appendChild(renderer.domElement);
+          two.appendTo(document.body);
+
+          window.addEventListener('resize', resize, false);
+          window.addEventListener('click', draw, false);
+
+          sphere.material.uniforms.spots.value = new THREE.Texture(two.renderer.domElement);
+
+          two.renderer.domElement.style.top = 10 + 'px';
+          two.renderer.domElement.style.left = 10 + 'px';
+          two.renderer.domElement.style.width = 100 + 'px';
+          two.renderer.domElement.style.height = 100 + 'px';
+          two.renderer.domElement.style.border = '1px solid #ccc';
+
+          resize();
+          loop();
+
+        }
+
+        function resize() {
+
+          var width = window.innerWidth;
+          var height = window.innerHeight;
+
+          renderer.setSize(width, height);
+
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+
+        }
+
+        function draw() {
+
+          two.renderer.ctx.clearRect(0, 0, two.renderer.domElement.width, two.renderer.domElement.height);
+
+          var circle = two.makeCircle(0, 0, 5);
+          var amount = Math.floor(Math.random() * 8) + 8;
+
+          circle.fill = 'white';
+          circle.noStroke();
+
+          for (var i = 0; i < amount; i++) {
+
+            var radius = Math.floor(Math.random() * 10) + 10;
+            var diameter = radius * 2;
+            var x = Math.random() * (two.width - diameter) + radius;
+            var y = Math.random() * (two.height / 2 - diameter) + radius;
+
+            circle.translation.set(x, y);
+            circle.width = radius;
+            circle.height = radius;
+
+            two.update();
+
+          }
+
+          circle.remove();
+          sphere.material.uniforms.spots.value.needsUpdate = true;
+
+        }
+
+        function loop() {
+
+          requestAnimationFrame(loop);
+
+          sphere.rotation.x += 0.01;
+          sphere.rotation.y += 0.01;
+          sphere.rotation.z += 0.01;
+
+          renderer.render(scene, camera);
+
+        }
+
+      </script>
+    </div>
+  </body>
+</html>
