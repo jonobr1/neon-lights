@@ -22,7 +22,7 @@
         var camera = new THREE.PerspectiveCamera();
 
         var tree = new THREE.Mesh(
-          new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 64, 256, true),
+          new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 8, 512, true),
           new THREE.ShaderMaterial({
 
             // wireframe: true,
@@ -33,8 +33,7 @@
               time: { type: 'f', value: 0 },
               threshold: { type: 'f', value: 0.75 },
               girth: { type: 'f', value: 0.1 },
-              resolution: { type: 'v2', value: new THREE.Vector2(64, 256) },
-              clusters: { type: 'f', value: 1 }
+              resolution: { type: 'v2', value: new THREE.Vector2(8, 512) }
             },
 
             vertexShader: [
@@ -43,7 +42,6 @@
 
               'uniform float threshold;',
               'uniform float girth;',
-              'uniform float clusters;',
 
               'uniform float time;',
               'varying vec2 vUv;',
@@ -56,8 +54,7 @@
                 'float y = abs( pos.y - 0.5 );',
                 'float pct = clamp( y, 0.0, threshold ) / threshold;',
 
-                'float phi = max( clusters, 1.0 );',
-                'float taper = phi * mod( pct, 1.0 / phi );',
+                'float taper = pow( pct, 1.0 );',
 
                 'if (y >= threshold) {',
                   'taper = girth;',
@@ -75,6 +72,7 @@
             fragmentShader: [
 
               'uniform float threshold;',
+              'uniform vec2 resolution;',
               'uniform vec3 top;',
               'uniform vec3 bottom;',
 
@@ -85,7 +83,7 @@
                 'vec3 a = mix( bottom, bottom / 2.0, vUv.y );',
                 'vec3 b = mix( top, top / 2.0, ( 1.0 - vUv.y ) / threshold );',
 
-                'float t = floor( 256.0 * ( 1.0 - threshold ) ) / 256.0;',
+                'float t = floor( resolution.y * ( 1.0 - threshold ) ) / resolution.y;',
                 'vec3 layer = mix( b, a, step( vUv.y, t ) );',
                 'gl_FragColor = vec4( layer, 1.0 );',
 
