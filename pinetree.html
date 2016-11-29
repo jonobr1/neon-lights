@@ -28,12 +28,13 @@
             // wireframe: true,
 
             uniforms: {
-              top: { type: 'c', value: new THREE.Color(0x006838) },
-              bottom: { type: 'c', value: new THREE.Color(0x8b5e3c) },
+              top: { type: 'c', value: new THREE.Color(0x39b54a) },
+              bottom: { type: 'c', value: new THREE.Color(0x3c2415) },
               time: { type: 'f', value: 0 },
               threshold: { type: 'f', value: 0.75 },
               girth: { type: 'f', value: 0.1 },
-              resolution: { type: 'v2', value: new THREE.Vector2(64, 256) }
+              resolution: { type: 'v2', value: new THREE.Vector2(64, 256) },
+              clusters: { type: 'f', value: 1 }
             },
 
             vertexShader: [
@@ -42,6 +43,7 @@
 
               'uniform float threshold;',
               'uniform float girth;',
+              'uniform float clusters;',
 
               'uniform float time;',
               'varying vec2 vUv;',
@@ -54,7 +56,8 @@
                 'float y = abs( pos.y - 0.5 );',
                 'float pct = clamp( y, 0.0, threshold ) / threshold;',
 
-                'float taper = pct;',
+                'float phi = max( clusters, 1.0 );',
+                'float taper = phi * mod( pct, 1.0 / phi );',
 
                 'if (y >= threshold) {',
                   'taper = girth;',
@@ -79,8 +82,8 @@
 
               'void main() {',
 
-                'vec3 a = mix( bottom, bottom / 2.0, vUv.y - threshold );',
-                'vec3 b = mix( top, top / 2.0, 1.0 - vUv.y );',
+                'vec3 a = mix( bottom, bottom / 2.0, vUv.y );',
+                'vec3 b = mix( top, top / 2.0, ( 1.0 - vUv.y ) / threshold );',
 
                 'float t = floor( 256.0 * ( 1.0 - threshold ) ) / 256.0;',
                 'vec3 layer = mix( b, a, step( vUv.y, t ) );',
@@ -130,13 +133,13 @@
 
           var time = tree.material.uniforms.time.value;
 
-          // tree.rotation.x += 0.01;
+          tree.rotation.x += 0.01;
           tree.rotation.y += 0.01;
-          // tree.rotation.z += 0.01;
+          tree.rotation.z += 0.01;
 
           tree.material.uniforms.time.value += 0.1;
-          tree.material.uniforms.threshold.value = (1 + Math.sin(time / 10)) / 4 + 0.25;
-          tree.material.uniforms.girth.value = (1 + Math.sin(time / 10)) * 0.08 + 0.02;
+          tree.material.uniforms.threshold.value = (1 + Math.sin(time / 5)) / 4 + 0.25;
+          tree.material.uniforms.girth.value = (1 + Math.sin(time / 5)) * 0.04 + 0.02;
 
           renderer.render(scene, camera);
 
