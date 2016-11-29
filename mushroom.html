@@ -19,9 +19,10 @@
 
         var two = new Two({
           type: Two.Types.canvas,
-          width: 256,
-          height: 256,
-          overdraw: true
+          width: 512,
+          height: 512,
+          overdraw: true,
+          ratio: 1
         });
 
         var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -136,14 +137,14 @@
           two.renderer.ctx.clearRect(0, 0, two.renderer.domElement.width, two.renderer.domElement.height);
 
           var circle = two.makeCircle(0, 0, 5);
-          var amount = Math.floor(Math.random() * 8) + 8;
+          var amount = Math.floor(Math.random() * 16) + 16;
 
           circle.fill = 'white';
           circle.noStroke();
 
           for (var i = 0; i < amount; i++) {
 
-            var radius = Math.floor(Math.random() * 10) + 10;
+            var radius = Math.floor(Math.random() * two.width / 40) + two.width / 40;
             var diameter = radius * 2;
             var x = Math.random() * (two.width - diameter) + radius;
             var y = Math.random() * (two.height / 2 - diameter) + radius;
