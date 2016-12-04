@@ -3,35 +3,39 @@
   var TWO_PI = Math.PI * 2;
   var HALF_PI = Math.PI / 2;
 
-  var Floor = Forest.Floor = function() {
+  var Floor = Forest.Floor = function(cursor, stage) {
+
+    Floor.Instances.push(this);
 
     var geometry = Floor.Geometry;
-    var material = Floor.Material;
+    var material = Floor.Instances.length <= 1
+      ? Floor.Material : Floor.Material.clone();
 
     THREE.Mesh.call(this, geometry, material);
-
     this.rotation.x = - Math.PI / 2;
+
+    this.material.uniforms.stage.value = stage;
+    this.material.uniforms.cursor.value = cursor;
 
   };
 
   Floor.prototype = Object.create(THREE.Mesh.prototype);
   Floor.prototype.constructor = Floor;
 
-  Floor.DisplacementAlgorithm = function(x) {
-    return (Math.sin(x) + Math.sin(2.2 * x + 5.52) + Math.sin(2.9 * x + 0.93)
-      + Math.sin(4.6 * x + 8.94)) / 4.0;
-  };
+  Floor.Instances = [];
 
-  Floor.Geometry = new THREE.PlaneBufferGeometry(TWO_PI, TWO_PI, 128, 128);
+  Floor.Geometry = new THREE.PlaneBufferGeometry(1, 1, 128, 128);
   Floor.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,
 
     uniforms: {
 
+      stage: { type: 'v2', value: new THREE.Vector2(Forest.defaultSize, Forest.defaultSize) },
+      cursor: { type: 'v3', value: new THREE.Vector3() },
+
       color: { type: 'c', value: new THREE.Color(0x8cc63f) },
-      fog: { type: 'c', value: new THREE.Color(0x000000) },
-      cursor: { type: 'v2', value: new THREE.Vector2() }
+      fog: { type: 'c', value: new THREE.Color(0x000000) }
 
     },
 
@@ -39,14 +43,14 @@
 
       ['const float TWO_PI = ', TWO_PI, ';'].join(''),
       ['const float PI = ', Math.PI, ';'].join(''),
-      ['const float HALF_PI = ', HALF_PI, ';'].join(''),
 
-      'uniform vec2 cursor;',
+      'uniform vec2 stage;',
+      'uniform vec3 cursor;',
 
       'varying vec2 vUv;',
 
       'float displace(float x) {',
-        Floor.DisplacementAlgorithm.toString()
+        Forest.DisplacementAlgorithm.toString()
           .replace(/[\n\r]/ig, '')
           .replace(/\s+/ig, ' ')
           .replace(/Math.sin/ig, 'sin')
@@ -58,12 +62,12 @@
         'vUv = uv;',
         'vec3 pos = vec3( position );',
 
-        'vec2 origin = vec2( 0.0, 0.0 );',
-        'vec2 p = vec2( pos.x, pos.y ) / TWO_PI;',
-        'float d = distance( origin, p );',
+        'pos.z = displace( pos.x * TWO_PI + cursor.x ) * displace( pos.y * TWO_PI + cursor.y );',
+        // Offset character position
+        'pos.z -= displace( cursor.x ) * displace( cursor.y );',
 
-        'pos.z = displace( pos.x + cursor.x ) * displace( pos.y + cursor.y );',
-        'pos.z -= displace( cursor.x ) * displace( cursor.y );',  // Offset character position
+        'pos.xy *= stage;',
+        'pos.z *= 0.125 * ( stage.x + stage.y ) / 2.0;',
 
         'gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );',
 
@@ -75,7 +79,6 @@
 
       'uniform vec3 color;',
       'uniform vec3 fog;',
-      'uniform vec2 cursor;',
 
       'varying vec2 vUv;',
 
