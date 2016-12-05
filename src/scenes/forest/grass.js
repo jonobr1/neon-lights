@@ -18,7 +18,7 @@
       Math.random() - 0.5,
       Math.random() - 0.5
     );
-    this.material.uniforms.size.value = Math.random() * 100 + 10;
+    this.material.uniforms.size.value = Math.random() * 150 + 10;
 
   };
 
@@ -91,12 +91,15 @@
         'p.y -= displace( cursor.x ) * displace( cursor.y );',
 
         'placement = vec2( p.xz );',
+        // 'float proximity = pow( 1.0 - distance( vec2( 0.0 ), placement ), 24.0 );',
 
-        'float time = 2.0 * PI * cursor.z;',
-        'float sway = wind.z * pow( pct, 2.0 ) * sin( time + ( p.x + p.z ) * TWO_PI ) / size;',
+        'float time = TWO_PI * cursor.z * ( size / 100.0 + 1.0 );',
+        'float osc = ( 1.0 + sin( time + ( origin.x + origin.y ) * TWO_PI ) ) / 2.0;',
+        // 'float osc = sin( time + ( origin.x + origin.y ) * TWO_PI );',
+        'float sway = wind.z * pow( pct, 2.0 ) * osc / size;',
 
         'pos.x += wind.x * sway;',
-        'pos.y += 0.5;',
+        'pos.y += 0.4;',
         'pos.z += wind.y * sway;',
 
         'p.xz *= stage;',

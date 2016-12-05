@@ -16,7 +16,7 @@
     this.cursor = new THREE.Vector3();
     this.wind = new THREE.Vector3(
       2 * Math.random() - 1, 2 * Math.random() - 1,
-      1);
+      10 * Math.random() + 5);
 
     this.floor = new Forest.Floor(this.cursor, this.stage);
     this.add(this.floor);
