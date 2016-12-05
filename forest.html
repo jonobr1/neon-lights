@@ -24,7 +24,7 @@
 
         var renderer = new THREE.WebGLRenderer({ antialias: true });
         var scene = new THREE.Scene();
-        var cameras = [new THREE.PerspectiveCamera()];
+        var cameras = [new THREE.PerspectiveCamera(), new THREE.PerspectiveCamera()];
         cameras.index = 0;
         cameras.next = function() {
           var index = cameras.index;
@@ -53,6 +53,9 @@
           cameras[0].position.y = 500;
           cameras[0].lookAt(forest.position);
 
+          cameras[1].position.y = 1024 * 1.5;
+          cameras[1].lookAt(forest.position);
+
           document.body.appendChild(renderer.domElement);
           Two.Utils.extend(renderer.domElement.style, {
             display: 'block',
@@ -64,9 +67,8 @@
           window.addEventListener('resize', resize, false);
           resize();
 
-          window.addEventListener('click', function() {
-            cameras.next();
-          }, false);
+          window.addEventListener('touchstart', cameras.next, false);
+          window.addEventListener('click', cameras.next, false);
 
           window.addEventListener('mousemove', function(e) {
             var x = e.clientX / window.innerWidth;

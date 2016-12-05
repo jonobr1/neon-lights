@@ -15,14 +15,23 @@
     cone.rotation.z = Math.PI;
     cone.position.y += 20;
 
-    cone.scale.set(2, 2, 2);
+    cone.outline = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+      transparent: true,
+      color: 'white',
+      depthTest: false,
+      depthWrite: false,
+      opacity: 0.33
+    }));
+
+    cone.add(cone.outline);
+    cone.scale.set(5, 5, 5);
     this.add(cone);
 
     this.heading = new THREE.Vector2();
 
     this.camera = new THREE.PerspectiveCamera(75);
-    this.camera.position.z = 40;
-    this.camera.position.y += 40;
+    this.camera.position.z = 100;
+    this.camera.position.y += this.camera.position.z * 0.75;
     this.camera.lookAt(cone.position);
     this.add(this.camera);
 
