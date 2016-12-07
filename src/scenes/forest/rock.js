@@ -14,6 +14,9 @@
     this.material.uniforms.cursor.value = cursor;
     this.material.uniforms.wind.value = wind;
 
+    this.material.uniforms.lopsided.value = Math.random() + 1;
+
+
   };
 
   Rock.prototype = Object.create(THREE.Mesh.prototype);
@@ -21,7 +24,7 @@
 
   Rock.Instances = [];
 
-  Rock.Geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 16, 16, true);
+  Rock.Geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 32, 32, true);
   Rock.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,
@@ -90,12 +93,12 @@
         'placement = vec2( p.xz );',
         // 'float proximity = pow( 1.0 - distance( vec2( 0.0 ), placement ), 24.0 );',
 
-        // 'pos.y += 0.4;',
+        // 'pos.y += 0.2;',
 
         'p.xz *= stage;',
         'p.y *= 0.125 * ( stage.x + stage.y ) / 2.0;',
 
-        'pos *= size * 0.85;',
+        'pos *= size * 0.66;',
 
         'pos.x += p.x;',
         'pos.y += p.y;',

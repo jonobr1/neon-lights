@@ -14,7 +14,7 @@
     this.material.uniforms.cursor.value = cursor;
     this.material.uniforms.wind.value = wind;
 
-    this.material.uniforms.age.value = Math.random() * Math.PI / 2 + Math.PI / 8;
+    this.material.uniforms.age.value = Math.random() * Math.PI / 4 + Math.PI / 8;
 
   };
 
@@ -23,7 +23,7 @@
 
   Mushroom.Instances = [];
 
-  Mushroom.Geometry = new THREE.SphereBufferGeometry(0.5, 32, 32);
+  Mushroom.Geometry = new THREE.SphereBufferGeometry(0.5, 16, 24);
   Mushroom.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,
@@ -92,12 +92,12 @@
 
         'placement = vec2( p.xz );',
 
-        'pos.y += 0.5;',
+        'pos.y += 0.45;',
 
         'p.xz *= stage;',
         'p.y *= 0.125 * ( stage.x + stage.y ) / 2.0;',
 
-        'pos *= size / 2.0;',
+        'pos *= size * 0.5;',
 
         'pos.x += p.x;',
         'pos.y += p.y;',

@@ -101,8 +101,8 @@
     },
     set: function(v) {
       this._wireframe = !!v;
-      for (var i = 0; i < forest.children.length; i++) {
-        forest.children[i].material.wireframe = this._wireframe;
+      for (var i = 0; i < this.children.length; i++) {
+        this.children[i].material.wireframe = this._wireframe;
       }
     }
   });
