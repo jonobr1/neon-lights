@@ -16,9 +16,12 @@ window.NeonLights = (function() {
 
   var timeline = new Equalizer.Timeline();
 
-  var sound = new Sound('assets/audio/03 Under Neon Lights.mp3', function() {
+  var isLocal = /localhost/i.test(window.location.href)
+  var root = isLocal ? './assets' : '//dev.cabrilleros.com/NEON_LIGHTS/assets';
 
-    xhr.get('./assets/json/03 Under Neon Lights 16.json', function(resp) {
+  var sound = new Sound(root + '/audio/03 Under Neon Lights.mp3', function() {
+
+    xhr.get(root + '/json/03 Under Neon Lights 16.json', function(resp) {
       var data = JSON.parse(resp);
       timeline.analyze(sound, data);
       setup();
