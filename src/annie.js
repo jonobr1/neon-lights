@@ -48,7 +48,25 @@
   });
 
   Annie.prototype.headingNeedsUpdate = true;
-  Annie.prototype.step = 0.005;
+  Annie.prototype._step = 0.005;
+
+  Object.defineProperty(Annie.prototype, 'step', {
+
+    enumerable: true,
+
+    get: function() {
+      return this._step;
+    },
+
+    set: function(v) {
+      if (v === this._step) {
+        return;
+      }
+      this._step = v;
+      this.headingNeedsUpdate = true;
+    }
+
+  });
 
   Annie.prototype.update = function() {
 

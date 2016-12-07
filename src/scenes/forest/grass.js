@@ -94,7 +94,7 @@
         // 'float proximity = pow( 1.0 - distance( vec2( 0.0 ), placement ), 24.0 );',
 
         'float time = TWO_PI * cursor.z * ( size / 100.0 + 1.0 );',
-        'float osc = ( 1.0 + sin( time + ( origin.x + origin.y ) * TWO_PI ) ) / 2.0;',
+        'float osc = ( 1.0 + sin( time / 3.0 + ( origin.x + origin.y ) * TWO_PI ) ) / 2.0;',
         // 'float osc = sin( time + ( origin.x + origin.y ) * TWO_PI );',
         'float sway = wind.z * pow( pct, 2.0 ) * osc / size;',
 
