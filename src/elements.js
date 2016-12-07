@@ -21,7 +21,7 @@
   Elements.prototype = Object.create(Object.prototype);
   Elements.prototype.constructor = Elements;
 
-  Elements.Threshold = 10;  // in Pixels
+  Elements.Threshold = 12;  // in Pixels
 
   Elements.onTap = function(elem, func, bubbles) {
 
@@ -54,7 +54,7 @@
       var dx = Math.abs(touch.pageX - mouse.x);
       var dy = Math.abs(touch.pageY - mouse.y);
 
-      if (!mouse.dragged || (dx < threshold && dy < threshold)) {
+      if (dx < threshold && dy < threshold) {
         func(e);
       }
 
