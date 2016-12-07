@@ -27,6 +27,7 @@
     cone.scale.set(5, 5, 5);
     this.add(cone);
 
+    this.controls = new THREE.DeviceOrientationControls(this);
     this.heading = new THREE.Vector2();
 
     this.camera = new THREE.PerspectiveCamera(75);
@@ -70,18 +71,14 @@
 
   Annie.prototype.update = function() {
 
-    if (this.headingNeedsUpdate) {
+    this.controls.update();
 
-      var theta = mod(this.rotation.y, TWO_PI);
+    var theta = mod(this.rotation.y, TWO_PI);
 
-      this.heading.set(
-        - this.step * Math.sin(theta),
-        this.step * Math.cos(theta)
-      );
-
-      this.headingNeedsUpdate = false;
-
-    }
+    this.heading.set(
+      - this.step * Math.sin(theta),
+      this.step * Math.cos(theta)
+    );
 
     return this;
 

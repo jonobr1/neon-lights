@@ -77,9 +77,16 @@ window.NeonLights = (function() {
       left: 0
     });
 
+    if (has.mobile) {
+      this.controls.connect();
+    }
+
     window.addEventListener('resize', resize, false);
     resize();
 
+    renderer.domElement.addEventListener('touchend', function() {
+      cameras.next();
+    }, false);
     renderer.domElement.addEventListener('click', function() {
       cameras.next();
     }, false);
