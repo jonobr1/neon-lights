@@ -125,7 +125,7 @@
 
         'vec3 layer = mix( bottom, top, 1.0 - pow( 1.0 - vUv.y, 3.0 ) );',
         'float t = 1.0 - 2.0 * distance( placement, origin );',
-        'layer = mix( fog, layer, t);',
+        'layer = mix( fog, layer, t );',
 
         'gl_FragColor = vec4( layer, 1.0 );',
 
@@ -135,6 +135,14 @@
 
   });
 
+  Forest.register(Grass);
+  Forest.register(Grass);
+  Forest.register(Grass);
+  Forest.register(Grass);
+  Forest.register(Grass);
+  Forest.register(Grass);
+  Forest.register(Grass);
+  Forest.register(Grass);
   Forest.register(Grass);
   Forest.register(Grass);
   Forest.register(Grass);

@@ -1,12 +1,12 @@
 (function() {
 
-  var Rock = Forest.Rock = function(cursor, stage, wind) {
+  var Mushroom = Forest.Mushroom = function(cursor, stage, wind) {
 
-    Rock.Instances.push(this);
+    Mushroom.Instances.push(this);
 
-    var geometry = Rock.Geometry;
-    var material = Rock.Instances.length <= 1
-      ? Rock.Material : Rock.Material.clone();
+    var geometry = Mushroom.Geometry;
+    var material = Mushroom.Instances <= 1
+      ? Mushroom.Material : Mushroom.Material.clone();
 
     THREE.Mesh.call(this, geometry, material);
 
@@ -14,15 +14,17 @@
     this.material.uniforms.cursor.value = cursor;
     this.material.uniforms.wind.value = wind;
 
+    this.material.uniforms.age.value = Math.random() * Math.PI / 2 + Math.PI / 8;
+
   };
 
-  Rock.prototype = Object.create(THREE.Mesh.prototype);
-  Rock.prototype.constructor = Rock;
+  Mushroom.prototype = Object.create(THREE.Mesh.prototype);
+  Mushroom.prototype.constructor = Mushroom;
 
-  Rock.Instances = [];
+  Mushroom.Instances = [];
 
-  Rock.Geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 16, 16, true);
-  Rock.Material = new THREE.ShaderMaterial({
+  Mushroom.Geometry = new THREE.SphereBufferGeometry(0.5, 32, 32);
+  Mushroom.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,
 
@@ -32,14 +34,13 @@
       cursor: { type: 'v3', value: new THREE.Vector3() },
       wind: { type: 'v3', value: new THREE.Vector3(1, 0, 1) },
 
+      age: { type: 'f', value: Math.PI / 4 }, // 0 - Math.PI * 2
+
       size: { type: 'f', value: 10 },
       origin: { type: 'vec2', value: new THREE.Vector2() }, // Math.random() - 0.5
 
-      sharp: { type: 'f', value: 0.33 },
-      lopsided: { type: 'f', value: 2 },
-
-      top: { type: 'c', value: new THREE.Color(0xcccccc) },
-      bottom: { type: 'c', value: new THREE.Color(0x444444) },
+      top: { type: 'c', value: new THREE.Color(0xff3333) },
+      bottom: { type: 'c', value: new THREE.Color(0xffe1c8) },
       fog: { type: 'c', value: new THREE.Color(0x000000) }
 
     },
@@ -53,11 +54,10 @@
       'uniform vec3 cursor;',
       'uniform vec3 wind;',
 
+      'uniform float age;',
+
       'uniform float size;',
       'uniform vec2 origin;',
-
-      'uniform float sharp;',
-      'uniform float lopsided;',
 
       'varying vec2 vUv;',
       'varying vec2 placement;',
@@ -74,10 +74,13 @@
 
         'vUv = uv;',
 
-        'vec3 pos = vec3( position );',
-        'float y = pos.y + 0.5;',
-        'float pct = y;',
-        'float taper = pow( sin( pow( 1.0 - pct, lopsided ) * PI ), sharp );',
+        'vec3 direction = normalize( position );',
+        'float length = length( position );',
+        'float phi = 10.0;',
+
+        'vec3 pos = direction * ( length + length * sin( position.y * phi + age ) / 4.0 );',
+
+        'float taper = 0.6 * step( 0.5, pos.y + 0.5 ) + 0.4;',
         'pos.xz *= taper;',
 
         'vec3 p = vec3( 0.0 );',
@@ -88,14 +91,13 @@
         'p.y -= displace( cursor.x ) * displace( cursor.y );',
 
         'placement = vec2( p.xz );',
-        // 'float proximity = pow( 1.0 - distance( vec2( 0.0 ), placement ), 24.0 );',
 
-        // 'pos.y += 0.4;',
+        'pos.y += 0.5;',
 
         'p.xz *= stage;',
         'p.y *= 0.125 * ( stage.x + stage.y ) / 2.0;',
 
-        'pos *= size * 0.85;',
+        'pos *= size / 2.0;',
 
         'pos.x += p.x;',
         'pos.y += p.y;',
@@ -120,7 +122,7 @@
 
         'vec2 origin = vec2( 0.0 );',
 
-        'vec3 layer = mix( bottom, top, vUv.y );',
+        'vec3 layer = mix( bottom, top, pow( vUv.y, 2.0 ) );',
         'float t = 1.0 - 2.0 * distance( placement, origin );',
         'layer = mix( fog, layer, t );',
 
@@ -132,6 +134,6 @@
 
   });
 
-  Forest.register(Rock);
+  Forest.register(Mushroom);
 
 })();

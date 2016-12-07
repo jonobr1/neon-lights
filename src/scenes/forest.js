@@ -22,7 +22,8 @@
     this.add(this.floor);
 
     for (var i = 0; i < 512; i++) {
-      var Mesh = Forest.Meshes[Math.floor(Math.random() * Forest.Meshes.length)];
+      // var Mesh = Forest.Meshes[Math.floor(Math.random() * Forest.Meshes.length)];
+      var Mesh = Forest.Meshes[i % Forest.Meshes.length];
       var mesh = new Mesh(this.cursor, this.stage, this.wind);
 
       mesh.material.uniforms.origin.value.set(
@@ -56,6 +57,8 @@
     return Forest;
 
   };
+
+  Forest.prototype._wireframe = false;
 
   Forest.prototype.addTo = function(scene) {
 
@@ -91,5 +94,17 @@
     return this;
 
   };
+
+  Object.defineProperty(Forest.prototype, 'wireframe', {
+    get: function() {
+      return this._wireframe;
+    },
+    set: function(v) {
+      this._wireframe = !!v;
+      for (var i = 0; i < forest.children.length; i++) {
+        forest.children[i].material.wireframe = this._wireframe;
+      }
+    }
+  });
 
 })();

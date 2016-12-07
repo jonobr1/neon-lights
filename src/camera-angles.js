@@ -35,6 +35,14 @@
 
   };
 
+  Object.defineProperty(CameraAngles.prototype, 'current', {
+
+    get: function() {
+      return this[this.index];
+    }
+
+  });
+
   Object.defineProperty(CameraAngles.prototype, 'aspect', {
 
     get: function() {

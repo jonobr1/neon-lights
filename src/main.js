@@ -1,4 +1,4 @@
-(function() {
+window.NeonLights = (function() {
 
   var DEBUG = url.boolean('debug', false);
 
@@ -14,7 +14,7 @@
   var annie = new Annie();
   var forest = new Forest();
 
-  var timeline = window.timeline = new Equalizer.Timeline();
+  var timeline = new Equalizer.Timeline();
 
   var sound = new Sound('assets/audio/03 Under Neon Lights.mp3', function() {
 
@@ -144,6 +144,12 @@
     renderer.setSize(width, height);
     cameras.aspect = width / height;
 
+  }
+
+  return {
+    cameras: cameras,
+    forest: forest,
+    timeline: timeline
   }
 
 })();
