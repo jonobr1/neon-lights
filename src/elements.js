@@ -25,7 +25,7 @@
 
   Elements.onTap = function(elem, func, bubbles) {
 
-    var theshold = Elements.Threshold;
+    var threshold = Elements.Threshold;
     var mouse = { x: 0, y: 0, dragged: false };
 
     var touchstart = function(e) {
@@ -66,8 +66,11 @@
 
     };
 
-    elem.addEventListener('touchstart', touchstart, !!bubbles);
-
+    if (has.mobile) {
+      elem.addEventListener('touchstart', touchstart, !!bubbles);
+    } else {
+      elem.addEventListener('click', func, !!bubbles);
+    }
 
     return Elements;
 

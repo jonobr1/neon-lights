@@ -90,9 +90,6 @@ window.NeonLights = (function() {
     Elements.onTap(renderer.domElement, function() {
       cameras.next();
     });
-    renderer.domElement.addEventListener('click', function() {
-      cameras.next();
-    }, false);
 
     renderer.render(scene, cameras[cameras.index]);
     $elems.content.classList.add('loaded');
@@ -142,7 +139,7 @@ window.NeonLights = (function() {
     annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
 
-    renderer.render(scene, cameras[cameras.index]);
+    renderer.render(scene, cameras.current);
 
   }
 
