@@ -87,9 +87,9 @@ window.NeonLights = (function() {
     window.addEventListener('resize', resize, false);
     resize();
 
-    renderer.domElement.addEventListener('touchend', function() {
+    Elements.onTap(renderer.domElement, function() {
       cameras.next();
-    }, false);
+    });
     renderer.domElement.addEventListener('click', function() {
       cameras.next();
     }, false);
