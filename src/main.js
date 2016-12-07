@@ -81,7 +81,7 @@ window.NeonLights = (function() {
     });
 
     if (has.mobile) {
-      this.controls.connect();
+      annie.controls.connect();
     }
 
     window.addEventListener('resize', resize, false);
