@@ -85,6 +85,7 @@
     }, false);
 
     renderer.render(scene, cameras[cameras.index]);
+    $elems.content.classList.add('loaded');
 
   }
 

@@ -22,8 +22,16 @@
     this.add(this.floor);
 
     for (var i = 0; i < 512; i++) {
-      var grass = new Forest.Grass(this.cursor, this.stage, this.wind);
-      this.add(grass);
+      var Mesh = Forest.Meshes[Math.floor(Math.random() * Forest.Meshes.length)];
+      var mesh = new Mesh(this.cursor, this.stage, this.wind);
+
+      mesh.material.uniforms.origin.value.set(
+        Math.random() - 0.5,
+        Math.random() - 0.5
+      );
+      mesh.material.uniforms.size.value = Math.random() * 150 + 10;
+
+      this.add(mesh);
     }
 
     this._then = Date.now();
@@ -38,6 +46,15 @@
   Forest.DisplacementAlgorithm = function(x) {
     return (Math.sin(x) + Math.sin(2.2 * x + 5.52) + Math.sin(2.9 * x + 0.93)
       + Math.sin(4.6 * x + 8.94)) / 4.0;
+  };
+
+  Forest.Meshes = [];
+
+  Forest.register = function(func) {
+
+    Forest.Meshes.push(func);
+    return Forest;
+
   };
 
   Forest.prototype.addTo = function(scene) {

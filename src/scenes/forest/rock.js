@@ -1,12 +1,12 @@
 (function() {
 
-  var Grass = Forest.Grass = function(cursor, stage, wind) {
+  var Rock = Forest.Rock = function(cursor, stage, wind) {
 
-    Grass.Instances.push(this);
+    Rock.Instances.push(this);
 
-    var geometry = Grass.Geometry;
-    var material = Grass.Instances.length <= 1
-      ? Grass.Material : Grass.Material.clone();
+    var geometry = Rock.Geometry;
+    var material = Rock.Instances.length <= 1
+      ? Rock.Material : Rock.Material.clone();
 
     THREE.Mesh.call(this, geometry, material);
 
@@ -16,13 +16,13 @@
 
   };
 
-  Grass.prototype = Object.create(THREE.Mesh.prototype);
-  Grass.prototype.constructor = Grass;
+  Rock.prototype = Object.create(THREE.Mesh.prototype);
+  Rock.prototype.constructor = Rock;
 
-  Grass.Instances = [];
+  Rock.Instances = [];
 
-  Grass.Geometry = new THREE.CylinderBufferGeometry(0.1, 0.1, 1, 16, 16, true);
-  Grass.Material = new THREE.ShaderMaterial({
+  Rock.Geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 16, 16, true);
+  Rock.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,
 
@@ -35,8 +35,11 @@
       size: { type: 'f', value: 10 },
       origin: { type: 'vec2', value: new THREE.Vector2() }, // Math.random() - 0.5
 
-      top: { type: 'c', value: new THREE.Color(0x8cc63f) },
-      bottom: { type: 'c', value: new THREE.Color(0xffffff) },
+      sharp: { type: 'f', value: 0.33 },
+      lopsided: { type: 'f', value: 2 },
+
+      top: { type: 'c', value: new THREE.Color(0xcccccc) },
+      bottom: { type: 'c', value: new THREE.Color(0x444444) },
       fog: { type: 'c', value: new THREE.Color(0x000000) }
 
     },
@@ -52,6 +55,9 @@
 
       'uniform float size;',
       'uniform vec2 origin;',
+
+      'uniform float sharp;',
+      'uniform float lopsided;',
 
       'varying vec2 vUv;',
       'varying vec2 placement;',
@@ -71,10 +77,8 @@
         'vec3 pos = vec3( position );',
         'float y = pos.y + 0.5;',
         'float pct = y;',
-        'float taper = sin( pow( pct, 0.5 ) * PI );',
-
-        'pos.x *= taper;',
-        'pos.z *= taper;',
+        'float taper = pow( sin( pow( 1.0 - pct, lopsided ) * PI ), sharp );',
+        'pos.xz *= taper;',
 
         'vec3 p = vec3( 0.0 );',
         'p.x = mod( origin.x - cursor.x / TWO_PI + 0.5, 1.0 ) - 0.5;',
@@ -86,19 +90,12 @@
         'placement = vec2( p.xz );',
         // 'float proximity = pow( 1.0 - distance( vec2( 0.0 ), placement ), 24.0 );',
 
-        'float time = TWO_PI * cursor.z * ( size / 100.0 + 1.0 );',
-        'float osc = ( 1.0 + sin( time / 3.0 + ( origin.x + origin.y ) * TWO_PI ) ) / 2.0;',
-        // 'float osc = sin( time + ( origin.x + origin.y ) * TWO_PI );',
-        'float sway = wind.z * pow( pct, 2.0 ) * osc / size;',
-
-        'pos.x += wind.x * sway;',
-        'pos.y += 0.4;',
-        'pos.z += wind.y * sway;',
+        // 'pos.y += 0.4;',
 
         'p.xz *= stage;',
         'p.y *= 0.125 * ( stage.x + stage.y ) / 2.0;',
 
-        'pos *= size;',
+        'pos *= size * 0.85;',
 
         'pos.x += p.x;',
         'pos.y += p.y;',
@@ -108,7 +105,7 @@
 
       '}'
 
-    ].join('\n'),
+    ].join(''),
 
     fragmentShader: [
 
@@ -123,7 +120,7 @@
 
         'vec2 origin = vec2( 0.0 );',
 
-        'vec3 layer = mix( bottom, top, 1.0 - pow( 1.0 - vUv.y, 3.0 ) );',
+        'vec3 layer = mix( bottom, top, vUv.y );',
         'float t = 1.0 - 2.0 * distance( placement, origin );',
         'layer = mix( fog, layer, t);',
 
@@ -131,13 +128,10 @@
 
       '}'
 
-    ].join('\n')
+    ].join('')
 
   });
 
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass); // Weight grass
+  Forest.register(Rock);
 
 })();

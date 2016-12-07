@@ -19,7 +19,7 @@
   };
 
   Elements.prototype = Object.create(Object.prototype);
-  Elements.constructor = Elements;
+  Elements.prototype.constructor = Elements;
 
   Elements.prototype.forEach = function(func, context) {
     var ctx = context || this;
