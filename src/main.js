@@ -2,6 +2,10 @@
 
   var DEBUG = url.boolean('debug', false);
 
+  var $elems = new Elements({
+    play: document.createElement('div')
+  }).appendTo(document.body);
+
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   var scene = new THREE.Scene();
   var cameras = new CameraAngles(
@@ -36,7 +40,7 @@
     cameras[1].position.y = 1024 * 1.5;
     cameras[1].lookAt(forest.position);
 
-    document.body.appendChild(renderer.domElement);
+    $elems.append(renderer.domElement);
 
     if (DEBUG) {
 
@@ -52,9 +56,17 @@
       });
 
       timeline.appendTo(timeline.container, true);
-      document.body.appendChild(timeline.container);
+      $elems.append(timeline.container);
 
     }
+
+    $elems.forEach(function(elem, property) {
+      if (elem.isContainer) {
+        return;
+      }
+      elem.classList.add(property);
+      $elems.append(elem);
+    });
 
     Two.Utils.extend(renderer.domElement.style, {
       display: 'block',
@@ -70,8 +82,18 @@
       cameras.next();
     }, false);
 
-    loop();
+  }
 
+  function play() {
+    if (sound.playing) {
+      return;
+    }
+    $elems.play.classList.add('hidden');
+    sound.play();
+  }
+
+  function pause() {
+    sound.pause();
   }
 
   function loop() {
