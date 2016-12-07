@@ -68,6 +68,8 @@
       $elems.append(elem);
     });
 
+    $elems.play.addEventListener('click', play, false);
+
     Two.Utils.extend(renderer.domElement.style, {
       display: 'block',
       position: 'absolute',
@@ -82,6 +84,8 @@
       cameras.next();
     }, false);
 
+    renderer.render(scene, cameras[cameras.index]);
+
   }
 
   function play() {
@@ -90,6 +94,10 @@
     }
     $elems.play.classList.add('hidden');
     sound.play();
+    if (!loop.init) {
+      loop();
+      loop.init = true;
+    }
   }
 
   function pause() {
@@ -106,6 +114,7 @@
       timeline.update();
     } else {
       // TODO: Update timeline track data based on current time...
+      // Maybe not necessary?
     }
 
     annie.update();

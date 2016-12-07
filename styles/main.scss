@@ -1,8 +1,35 @@
+@import "bourbon/bourbon";
+
 * {
   margin: 0;
   padding: 0;
 }
 
 .content {
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
+
+  .play {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    cursor: pointer;
+    background: url(../images/play-circle.svg) center center no-repeat;
+    background-size: 25%;
+    @include transition(opacity 0.35s $ease-in-out-circ);
+  }
+
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
