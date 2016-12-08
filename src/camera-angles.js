@@ -17,7 +17,7 @@
   CameraAngles.prototype = Object.create(Array.prototype);
   CameraAngles.prototype.constructor = CameraAngles;
 
-  CameraAngles.fov = 60;
+  CameraAngles.fov = 75;
 
   CameraAngles.prototype.index = 0;
   CameraAngles.prototype.aspect = 1;
