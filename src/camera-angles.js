@@ -9,12 +9,15 @@
 
     for (var i = 0; i < arguments.length; i++) {
       this.add(arguments[i]);
+      arguments[i].fov = CameraAngles.fov;
     }
 
   };
 
   CameraAngles.prototype = Object.create(Array.prototype);
   CameraAngles.prototype.constructor = CameraAngles;
+
+  CameraAngles.fov = 60;
 
   CameraAngles.prototype.index = 0;
   CameraAngles.prototype.aspect = 1;
@@ -23,6 +26,7 @@
 
     this.index = this.length;
     this.push(el);
+    el.fov = CameraAngles.fov;
     return this;
 
   };
