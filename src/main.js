@@ -91,21 +91,28 @@ window.NeonLights = (function() {
       cameras.next();
     });
 
+    renderer.effect = renderer;
     renderer.render(scene, cameras[cameras.index]);
     $elems.content.classList.add('loaded');
 
   }
 
   function play() {
+
     if (sound.playing) {
       return;
     }
+
+    requestStereo();
+
     $elems.play.classList.add('hidden');
     sound.play();
+
     if (!loop.init) {
       loop();
       loop.init = true;
     }
+
   }
 
   function pause() {
@@ -139,7 +146,7 @@ window.NeonLights = (function() {
     annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
 
-    renderer.render(scene, cameras.current);
+    renderer.effect.render(scene, cameras.current);
 
   }
 
@@ -149,7 +156,29 @@ window.NeonLights = (function() {
     var height = window.innerHeight;
 
     renderer.setSize(width, height);
+    if (renderer.effect && renderer.effect.setSize) {
+      renderer.effect.setSize(width, height);
+    }
+
+    renderer.width = width;
+    renderer.height = height;
+
     cameras.aspect = width / height;
+
+  }
+
+  function requestStereo() {
+
+    if (has.mobile && has.Android) {
+      screenfull.request(renderer.domElement);
+    }
+
+    if (has.Safari || has.iOS) {
+      return;
+    }
+
+    renderer.effect = new THREE[!navigator.getVRDisplays ? 'StereoEffect' : 'VREffect'](renderer);
+    resize();
 
   }
 
@@ -157,6 +186,6 @@ window.NeonLights = (function() {
     cameras: cameras,
     forest: forest,
     timeline: timeline
-  }
+  };
 
 })();
