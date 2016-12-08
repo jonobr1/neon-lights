@@ -139,7 +139,7 @@ window.NeonLights = (function() {
       // Maybe not necessary?
     }
 
-    annie.update();
+    // annie.update();
     forest.update(annie.heading);
 
     var theta = forest.cursor.theta;
