@@ -14,6 +14,7 @@ window.NeonLights = (function() {
   var annie = new Annie();
   var forest = new Forest();
 
+  Equalizer.Resolution = 8;
   var timeline = new Equalizer.Timeline();
 
   var isLocal = /localhost/i.test(window.location.href)
@@ -21,7 +22,7 @@ window.NeonLights = (function() {
 
   var sound = new Sound(root + '/audio/03 Under Neon Lights.mp3', function() {
 
-    xhr.get(root + '/json/03 Under Neon Lights 16.json', function(resp) {
+    xhr.get(root + '/json/03 Under Neon Lights ' + Equalizer.Resolution + '.json', function(resp) {
       var data = JSON.parse(resp);
       timeline.analyze(sound, data);
       setup();
@@ -122,7 +123,7 @@ window.NeonLights = (function() {
 
   function loop() {
 
-    var track, unit;
+    var track, unit, currentTime = sound.currentTime;
 
     if (renderer.effect.requestAnimationFrame) {
       renderer.effect.requestAnimationFrame(loop);
@@ -142,11 +143,17 @@ window.NeonLights = (function() {
 
     var theta = forest.cursor.theta;
 
-    track = timeline.tracks[0];
+    track = timeline.tracks[1];
 
-    // annie.step = sound.playing
-    //   ? (track.isOn(sound.currentTime) ? 0.05 : 0.005)
-    //   : 0;
+    annie.step = sound.playing
+      ? (track.isOn(currentTime) ? 0.08 : 0.02)
+      : 0;
+
+    track = timeline.tracks[3];
+
+    forest.speed.destination = sound.playing
+      ? (track.isOn(currentTime) ? 3 : 1)
+      : 1;
 
     annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;

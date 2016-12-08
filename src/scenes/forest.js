@@ -15,14 +15,13 @@
     this.stage = new THREE.Vector2(size, size);
     this.cursor = new THREE.Vector3();
     this.wind = new THREE.Vector3(
-      2 * Math.random() - 1, 2 * Math.random() - 1,
-      10 * Math.random() + 5);
+      2 * Math.random() - 1, 2 * Math.random() - 1, 20);
 
     this.floor = new Forest.Floor(this.cursor, this.stage);
     this.add(this.floor);
 
     for (var i = 0; i < 512; i++) {
-      // var Mesh = Forest.Meshes[Math.floor(Math.random() * Forest.Meshes.length)];
+
       var Mesh = Forest.Meshes[i % Forest.Meshes.length];
       var mesh = new Mesh(this.cursor, this.stage, this.wind);
 
@@ -33,9 +32,11 @@
       mesh.material.uniforms.size.value = Math.random() * 150 + 10;
 
       this.add(mesh);
+
     }
 
     this._then = Date.now();
+    this.speed = new Transition(1);
 
   };
 
@@ -78,9 +79,11 @@
 
     y1 = displace(cx) * displace(cy);
 
+    this.speed.update();
+
     this.cursor.x += step.x;
     this.cursor.y += step.y;
-    this.cursor.z += (now - this._then) / 1000;
+    this.cursor.z += this.speed.value * (now - this._then) / 1000;
 
     this._then = now;
 

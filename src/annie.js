@@ -45,31 +45,16 @@
   Annie.prototype = Object.create(THREE.Group.prototype);
   Annie.prototype.constructor = Annie;
 
+  Annie.Drag = 0.125;
+
   Annie.Geometry = new THREE.CylinderGeometry(0, 1, 3, 16);
   Annie.Material = new THREE.MeshBasicMaterial({
     color: 0xffffff
   });
 
   Annie.prototype.headingNeedsUpdate = true;
-  Annie.prototype._step = 0.005;
-
-  Object.defineProperty(Annie.prototype, 'step', {
-
-    enumerable: true,
-
-    get: function() {
-      return this._step;
-    },
-
-    set: function(v) {
-      if (v === this._step) {
-        return;
-      }
-      this._step = v;
-      this.headingNeedsUpdate = true;
-    }
-
-  });
+  Annie.prototype._step = 0.02;
+  Annie.prototype.step = Annie.prototype._step;
 
   Annie.prototype.update = function() {
 
@@ -77,9 +62,11 @@
 
     var theta = mod(this.rotation.y, TWO_PI);
 
+    this._step += (this.step - this._step) * Annie.Drag;
+
     this.heading.set(
-      - this.step * Math.sin(theta),
-      this.step * Math.cos(theta)
+      - this._step * Math.sin(theta),
+      this._step * Math.cos(theta)
     );
 
     return this;
