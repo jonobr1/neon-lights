@@ -106,6 +106,6 @@ THREE.DeviceOrientationControls = function( object ) {
 
 	};
 
-	this.connect();
+	// this.connect();
 
 };
