@@ -82,6 +82,16 @@
         'p.x = mod( origin.x - cursor.x / TWO_PI + 0.5, 1.0 ) - 0.5;',
         'p.z = mod( origin.y - cursor.y / TWO_PI + 0.5, 1.0 ) - 0.5;',
 
+        /**
+         * Make elements get out of the way of Annie
+         */
+        // 'vec2 cur = vec2( 0.0 );',
+        // 'float theta = atan( p.z - cur.y, p.x - cur.x );',
+        // 'float amp = 0.033;',
+        // 'vec2 n = vec2( amp * cos( theta ), amp * sin( theta ) );',
+        // 'float dist = abs( distance( p.xz, cur ) );',
+        // 'p.xz = mix( n, p.xz, smoothstep( 0.0, amp, dist ) );',
+
         'p.y = displace( p.x * TWO_PI + cursor.x ) * displace( p.z * TWO_PI + cursor.y );',
         'p.y -= displace( cursor.x ) * displace( cursor.y );',
 
@@ -139,17 +149,11 @@
 
   });
 
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass);
-  Forest.register(Grass); // Weight grass
+  // Weighting
+  (function() {
+    for (var i = 0; i < 12; i++) {
+      Forest.register(Grass);
+    }
+  })();
 
 })();

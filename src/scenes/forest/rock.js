@@ -139,6 +139,11 @@
 
   });
 
-  Forest.register(Rock);
+  // Weighting
+  (function() {
+    for (var i = 0; i < 1; i++) {
+      Forest.register(Rock);
+    }
+  })();
 
 })();

@@ -139,6 +139,11 @@
 
   });
 
-  Forest.register(Mushroom);
+  // Weighting
+  (function() {
+    for (var i = 0; i < 1; i++) {
+      Forest.register(Mushroom);
+    }
+  })();
 
 })();
