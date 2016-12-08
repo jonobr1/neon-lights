@@ -14,7 +14,7 @@ window.NeonLights = (function() {
   var annie = new Annie();
   var forest = new Forest();
 
-  Equalizer.Resolution = 8;
+  Equalizer.Resolution = 16;
   var timeline = new Equalizer.Timeline();
 
   var isLocal = /localhost/i.test(window.location.href)
@@ -143,13 +143,13 @@ window.NeonLights = (function() {
 
     var theta = forest.cursor.theta;
 
-    track = timeline.tracks[1];
+    track = timeline.tracks[2];
 
     annie.step = sound.playing
       ? (track.isOn(currentTime) ? 0.08 : 0.02)
       : 0;
 
-    track = timeline.tracks[3];
+    track = timeline.tracks[6];
 
     forest.speed.destination = sound.playing
       ? (track.isOn(currentTime) ? 3 : 1)

@@ -14,7 +14,7 @@
     this.material.uniforms.cursor.value = cursor;
     this.material.uniforms.wind.value = wind;
 
-    this.material.uniforms.age.value = Math.random() * Math.PI / 4 + Math.PI / 8;
+    this.material.uniforms.age.value = Math.random() * Math.PI * 2;
 
   };
 
@@ -47,7 +47,7 @@
 
     vertexShader: [
 
-      'precision mediump float;',
+      'precision highp float;',
 
       ['const float TWO_PI = ', Math.PI * 2, ';'].join(''),
       ['const float PI = ', Math.PI, ';'].join(''),
@@ -114,7 +114,7 @@
 
     fragmentShader: [
 
-      'precision mediump float;',
+      'precision highp float;',
 
       'uniform vec3 top;',
       'uniform vec3 bottom;',
