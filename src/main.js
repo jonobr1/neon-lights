@@ -9,8 +9,7 @@ window.NeonLights = (function() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   var scene = new THREE.Scene();
   var cameras = new CameraAngles(
-    new THREE.PerspectiveCamera(),
-    new THREE.PerspectiveCamera());
+    new THREE.PerspectiveCamera(), new THREE.PerspectiveCamera());
 
   var annie = new Annie();
   var forest = new Forest();
@@ -82,16 +81,16 @@ window.NeonLights = (function() {
       left: 0
     });
 
-    // if (has.mobile || navigator.getVRDisplays) {
-    //   annie.controls.connect();
-    // }
+    if (has.mobile || navigator.getVRDisplays) {
+      annie.controls.connect();
+    }
 
     window.addEventListener('resize', resize, false);
     resize();
 
-    // Elements.onTap(renderer.domElement, function() {
-    //   cameras.next();
-    // });
+    Elements.onTap(renderer.domElement, function() {
+      cameras.next();
+    });
 
     renderer.effect = renderer;
 
@@ -139,29 +138,27 @@ window.NeonLights = (function() {
       // Maybe not necessary?
     }
 
-    // annie.update();
+    annie.update();
     forest.update(annie.heading);
 
     var theta = forest.cursor.theta;
 
-    track = timeline.tracks[2];
-
+    // track = timeline.tracks[2];
+    //
     // annie.step = sound.playing
     //   ? (track.isOn(currentTime) ? 0.08 : 0.02)
     //   : 0;
-    annie.step = 0;
-
-    track = timeline.tracks[6];
-
-    forest.speed.destination = sound.playing
-      ? (track.isOn(currentTime) ? 3 : 1)
-      : 1;
+    //
+    // track = timeline.tracks[6];
+    //
+    // forest.speed.destination = sound.playing
+    //   ? (track.isOn(currentTime) ? 3 : 1)
+    //   : 1;
 
     annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
 
-    // renderer.effect.render(scene, annie.camera);
-    renderer.render(scene, annie.camera);
+    renderer.effect.render(scene, cameras.current);
 
   }
 
@@ -188,7 +185,7 @@ window.NeonLights = (function() {
       screenfull.request(renderer.domElement);
     }
 
-    if (has.iOS || !navigator.getVRDisplays && !has.mobile) {
+    if (!navigator.getVRDisplays && !has.mobile) {
       return;
     }
 
