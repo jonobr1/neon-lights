@@ -146,9 +146,10 @@ window.NeonLights = (function() {
 
     track = timeline.tracks[2];
 
-    annie.step = sound.playing
-      ? (track.isOn(currentTime) ? 0.08 : 0.02)
-      : 0;
+    // annie.step = sound.playing
+    //   ? (track.isOn(currentTime) ? 0.08 : 0.02)
+    //   : 0;
+    annie.step = 0;
 
     track = timeline.tracks[6];
 
