@@ -144,9 +144,9 @@ window.NeonLights = (function() {
 
     track = timeline.tracks[0];
 
-    annie.step = sound.playing
-      ? (track.isOn(sound.currentTime) ? 0.05 : 0.005)
-      : 0;
+    // annie.step = sound.playing
+    //   ? (track.isOn(sound.currentTime) ? 0.05 : 0.005)
+    //   : 0;
 
     annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
