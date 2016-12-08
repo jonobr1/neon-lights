@@ -94,13 +94,13 @@
 
     this.cursor.theta = Math.atan2(y2 - y1, step.length());
 
-    this.cursor.x = this.cursor.x.toFixed(3);
-    this.cursor.y = this.cursor.y.toFixed(3);
-    this.cursor.z = this.cursor.z.toFixed(3);
+    this.cursor.x = parseFloat(this.cursor.x.toFixed(3));
+    this.cursor.y = parseFloat(this.cursor.y.toFixed(3));
+    this.cursor.z = parseFloat(this.cursor.z.toFixed(3));
 
-    this.wind.x = this.wind.x.toFixed(3);
-    this.wind.y = this.wind.y.toFixed(3);
-    this.wind.z = this.wind.z.toFixed(3);
+    this.wind.x = parseFloat(this.wind.x.toFixed(3));
+    this.wind.y = parseFloat(this.wind.y.toFixed(3));
+    this.wind.z = parseFloat(this.wind.z.toFixed(3));
 
     return this;
 
