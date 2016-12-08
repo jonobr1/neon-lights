@@ -45,6 +45,8 @@ THREE.VRControls = function ( object, onError ) {
 
 	}
 
+	this.enabled = false;
+
 	// the Rift SDK returns the position in meters
 	// this scale factor allows the user to define how meters
 	// are converted to scene units.
@@ -58,6 +60,20 @@ THREE.VRControls = function ( object, onError ) {
 	// Distance from the users eyes to the floor in meters. Used when
 	// standing=true but the VRDisplay doesn't provide stageParameters.
 	this.userHeight = 1.6;
+
+	this.connect = function() {
+
+		this.enabled = true;
+		return this;
+
+	};
+
+	this.disconnect = function() {
+
+		this.enabled = false;
+		return this;
+
+	}
 
 	this.getVRDisplay = function () {
 
@@ -85,6 +101,10 @@ THREE.VRControls = function ( object, onError ) {
 	};
 
 	this.update = function () {
+
+		if ( !this.enabled ) {
+			return this;
+		}
 
 		if ( vrDisplay ) {
 

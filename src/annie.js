@@ -27,7 +27,9 @@
     cone.scale.set(5, 5, 5);
     this.add(cone);
 
-    this.controls = new THREE.DeviceOrientationControls(this);
+    var condition = !navigator.getVRDisplays;
+
+    this.controls = new THREE[condition ? 'DeviceOrientationControls' : 'VRControls'](this);
     this.heading = new THREE.Vector2();
 
     this.camera = new THREE.PerspectiveCamera(75);

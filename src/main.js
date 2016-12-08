@@ -92,6 +92,7 @@ window.NeonLights = (function() {
     });
 
     renderer.effect = renderer;
+
     renderer.render(scene, cameras[cameras.index]);
     $elems.content.classList.add('loaded');
 
@@ -123,7 +124,11 @@ window.NeonLights = (function() {
 
     var track, unit;
 
-    requestAnimationFrame(loop);
+    if (renderer.effect.requestAnimationFrame) {
+      renderer.effect.requestAnimationFrame(loop);
+    } else {
+      requestAnimationFrame(loop);
+    }
 
     if (DEBUG) {
       timeline.update();
@@ -178,7 +183,12 @@ window.NeonLights = (function() {
     }
 
     renderer.effect = new THREE[!navigator.getVRDisplays ? 'StereoEffect' : 'VREffect'](renderer);
-    resize();
+
+    if (renderer.effect instanceof THREE.VREffect) {
+      renderer.effect.setFullScreen(true);
+    } else {
+      resize();
+    }
 
   }
 
