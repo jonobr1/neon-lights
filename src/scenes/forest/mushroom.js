@@ -78,7 +78,8 @@
         'float length = length( position );',
         'float phi = 10.0;',
 
-        'vec3 pos = direction * ( length + length * sin( position.y * phi + age ) / 4.0 );',
+        'float time = cursor.z * 2.0;',
+        'vec3 pos = direction * ( length + length * sin( position.y * phi + age + time ) / 4.0 );',
 
         'float taper = 0.6 * step( 0.5, pos.y + 0.5 ) + 0.4;',
         'pos.xz *= taper;',
