@@ -143,17 +143,17 @@ window.NeonLights = (function() {
 
     var theta = forest.cursor.theta;
 
-    // track = timeline.tracks[2];
-    //
-    // annie.step = sound.playing
-    //   ? (track.isOn(currentTime) ? 0.08 : 0.02)
-    //   : 0;
-    //
-    // track = timeline.tracks[6];
-    //
-    // forest.speed.destination = sound.playing
-    //   ? (track.isOn(currentTime) ? 3 : 1)
-    //   : 1;
+    track = timeline.tracks[2];
+
+    annie.step = sound.playing
+      ? (track.isOn(currentTime) ? 0.08 : 0.02)
+      : 0;
+
+    track = timeline.tracks[6];
+
+    forest.speed.destination = sound.playing
+      ? (track.isOn(currentTime) ? 3 : 1)
+      : 1;
 
     annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
