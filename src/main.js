@@ -159,7 +159,8 @@ window.NeonLights = (function() {
     annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
 
-    renderer.effect.render(scene, annie.camera);
+    // renderer.effect.render(scene, annie.camera);
+    renderer.render(scene, annie.camera);
 
   }
 
