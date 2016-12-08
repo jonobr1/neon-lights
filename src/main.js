@@ -82,9 +82,9 @@ window.NeonLights = (function() {
       left: 0
     });
 
-    if (has.mobile || navigator.getVRDisplays) {
-      annie.controls.connect();
-    }
+    // if (has.mobile || navigator.getVRDisplays) {
+    //   annie.controls.connect();
+    // }
 
     window.addEventListener('resize', resize, false);
     resize();
