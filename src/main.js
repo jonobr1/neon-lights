@@ -9,7 +9,8 @@ window.NeonLights = (function() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   var scene = new THREE.Scene();
   var cameras = new CameraAngles(
-    new THREE.PerspectiveCamera(), new THREE.PerspectiveCamera());
+    new THREE.PerspectiveCamera(),
+    new THREE.PerspectiveCamera());
 
   var annie = new Annie();
   var forest = new Forest();
@@ -88,9 +89,9 @@ window.NeonLights = (function() {
     window.addEventListener('resize', resize, false);
     resize();
 
-    Elements.onTap(renderer.domElement, function() {
-      cameras.next();
-    });
+    // Elements.onTap(renderer.domElement, function() {
+    //   cameras.next();
+    // });
 
     renderer.effect = renderer;
 
