@@ -145,14 +145,17 @@ window.NeonLights = (function() {
 
     track = timeline.tracks[2];
 
+    // TODO: Calculate step based on the an arbitrary "total distance"
+    // that's tied to sound.duration and sound.currentTime to give
+    // illusion of tied specifically to space.
     annie.step = sound.playing
-      ? (track.isOn(currentTime) ? 0.08 : 0.02)
+      ? (track.isOn(currentTime) ? 0.06 : 0.02)
       : 0;
 
     track = timeline.tracks[6];
 
     forest.speed.destination = sound.playing
-      ? (track.isOn(currentTime) ? 3 : 1)
+      ? (track.isOn(currentTime) ? 2 : 1)
       : 1;
 
     annie.rotation.x = theta * 0.2;
@@ -200,6 +203,7 @@ window.NeonLights = (function() {
   }
 
   return {
+    annie: annie,
     cameras: cameras,
     forest: forest,
     timeline: timeline

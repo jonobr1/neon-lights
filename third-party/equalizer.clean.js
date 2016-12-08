@@ -1510,6 +1510,10 @@
       var ref = this.elements[index];
       var unit, a, b;
 
+      if (!ref) {
+        return false;
+      }
+
       if (ref.time > time) {
 
         while (index > 0 && elements[index].time > time
@@ -1518,6 +1522,10 @@
         }
 
         unit = elements[index];
+
+        if (!unit) {
+          return false;
+        }
 
         a = time - unit.time;
         b = time - unit.value;
@@ -1533,6 +1541,10 @@
       }
 
       unit = elements[index];
+
+      if (!unit) {
+        return false;
+      }
 
       a = time - unit.time;
       b = time - unit.value;
