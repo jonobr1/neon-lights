@@ -47,6 +47,8 @@
 
     vertexShader: [
 
+      'precision mediump float;',
+
       ['const float TWO_PI = ', Math.PI * 2, ';'].join(''),
       ['const float PI = ', Math.PI, ';'].join(''),
 
@@ -111,6 +113,8 @@
     ].join('\n'),
 
     fragmentShader: [
+
+      'precision mediump float;',
 
       'uniform vec3 top;',
       'uniform vec3 bottom;',
