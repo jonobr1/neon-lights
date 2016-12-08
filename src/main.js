@@ -16,6 +16,7 @@ window.NeonLights = (function() {
 
   Equalizer.Resolution = 16;
   var timeline = new Equalizer.Timeline();
+  var time = 0;
 
   var isLocal = /localhost/i.test(window.location.href)
   var root = isLocal ? './assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
@@ -124,6 +125,8 @@ window.NeonLights = (function() {
   function loop() {
 
     var track, unit, currentTime = sound.currentTime;
+    var dt = currentTime - time;
+    time = currentTime;
 
     if (renderer.effect.requestAnimationFrame) {
       renderer.effect.requestAnimationFrame(loop);
@@ -145,12 +148,7 @@ window.NeonLights = (function() {
 
     track = timeline.tracks[2];
 
-    // TODO: Calculate step based on the an arbitrary "total distance"
-    // that's tied to sound.duration and sound.currentTime to give
-    // illusion of tied specifically to space.
-    annie.step = sound.playing
-      ? (track.isOn(currentTime) ? 0.06 : 0.02)
-      : 0;
+    annie.step = sound.playing && track.isOn(currentTime) ? (0.06 + dt) : dt;
 
     track = timeline.tracks[6];
 
