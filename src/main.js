@@ -80,7 +80,7 @@ window.NeonLights = (function() {
       left: 0
     });
 
-    if (has.mobile) {
+    if (has.mobile || navigator.getVRDisplays) {
       annie.controls.connect();
     }
 
