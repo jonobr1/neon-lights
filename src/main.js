@@ -186,7 +186,7 @@ window.NeonLights = (function() {
       screenfull.request(renderer.domElement);
     }
 
-    if (!navigator.getVRDisplays && !has.mobile) {
+    if (has.iOS || !navigator.getVRDisplays && !has.mobile) {
       return;
     }
 
