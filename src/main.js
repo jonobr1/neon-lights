@@ -182,7 +182,7 @@ window.NeonLights = (function() {
 
   function requestStereo() {
 
-    if (!navigator.getVRDisplays && !has.mobile) {
+    if (!navigator.getVRDisplays && (!has.mobile || has.iOS)) {
       return;
     }
 
