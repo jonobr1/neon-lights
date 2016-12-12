@@ -20,10 +20,16 @@ window.NeonLights = (function() {
 
   var isLocal = /localhost/i.test(window.location.href)
   var root = isLocal ? './assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+  var filetype = has.Chromium ? 'ogg' : 'mp3';
+  var path = [root, '/audio/03 Under Neon Lights.', filetype]
+    .join('');
 
-  var sound = new Sound(root + '/audio/03 Under Neon Lights.mp3', function() {
+  var sound = new Sound(path, function() {
 
-    xhr.get(root + '/json/03 Under Neon Lights ' + Equalizer.Resolution + '.json', function(resp) {
+    var path = [root, '/json/03 Under Neon Lights ', Equalizer.Resolution,
+      '.json'].join('');
+
+    xhr.get(path, function(resp) {
       var data = JSON.parse(resp);
       timeline.analyze(sound, data);
       setup();
@@ -93,7 +99,11 @@ window.NeonLights = (function() {
       cameras.next();
     });
 
-    renderer.effect = renderer;
+    if (navigator.getVRDisplays || has.mobile) {
+      renderer.effect = new THREE[!navigator.getVRDisplays ? 'StereoEffect' : 'VREffect'](renderer);
+    } else {
+      renderer.effect = renderer;
+    }
 
     renderer.render(scene, cameras[cameras.index]);
     $elems.content.classList.add('loaded');
@@ -181,12 +191,6 @@ window.NeonLights = (function() {
   }
 
   function requestStereo() {
-
-    if (!navigator.getVRDisplays && (!has.mobile || has.iOS)) {
-      return;
-    }
-
-    renderer.effect = new THREE[!navigator.getVRDisplays ? 'StereoEffect' : 'VREffect'](renderer);
 
     if (renderer.effect instanceof THREE.VREffect) {
       renderer.effect.requestPresent();
