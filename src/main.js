@@ -188,8 +188,8 @@ window.NeonLights = (function() {
 
     renderer.effect = new THREE[!navigator.getVRDisplays ? 'StereoEffect' : 'VREffect'](renderer);
 
-    if (renderer.effect instanceof THREE.VREffect && !has.mobile) {
-      renderer.effect.setFullScreen(true);
+    if (renderer.effect instanceof THREE.VREffect) {
+      renderer.effect.requestPresent();
     } else {
       resize();
     }
