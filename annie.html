@@ -29,8 +29,9 @@
 
             uniforms: {
               time: { type: 'f', value: 0.0 },
-              top: { type: 'c', value: new THREE.Color(0xcccccc) },
-              bottom: { type: 'c', value: new THREE.Color(0x444444) }
+              coat: { type: 'c', value: new THREE.Color(0xff6464) },
+              skin: { type: 'c', value: new THREE.Color(0xffdbc7) },
+              blouse: { type: 'c', value: new THREE.Color(0xffffff) }
             },
 
             vertexShader: [
@@ -75,18 +76,28 @@
 
               ['const float PI = ', Math.PI, ';'].join(''),
 
-              'uniform vec3 top;',
-              'uniform vec3 bottom;',
+              'uniform vec3 coat;',
+              'uniform vec3 skin;',
+              'uniform vec3 blouse;',
 
               'varying vec2 vUv;',
               'varying vec3 pos;',
 
               'void main() {',
 
-                'float ypct = ( pos.y + 0.5 );',
-                'vec3 layer = mix( bottom, top, ypct );',
-                // 'gl_FragColor = vec4( layer, 1.0 );',
-                'gl_FragColor = vec4( 0.5, sin( vUv.x * PI ), vUv.y, 1.0 );',
+                'vec4 layer = vec4( 1.0 );',
+
+                'float y = vUv.y;',
+                'float x = mod( vUv.x - 0.33 / 4.0, 1.0 );',
+                'float t = step( x, 0.33 );',
+
+                'layer.xyz = mix( coat, blouse, t );',
+
+                't = step( x, 0.33 ) * step( 1.0 - y, 0.3 );',
+
+                'layer.xyz = mix( layer.xyz, skin, t );',
+
+                'gl_FragColor = layer;',
 
               '}'
 
