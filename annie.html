@@ -88,11 +88,12 @@
                 'vec4 layer = vec4( 1.0 );',
 
                 'float y = vUv.y;',
-                'float x = mod( vUv.x - 0.33 / 4.0, 1.0 );',
-                'float t = step( x, 0.33 );',
+                'float x = mod( vUv.x - 0.25 / 2.0, 1.0 );',
+                'float t = step( x, 0.25 );',
 
                 'layer.xyz = mix( coat, blouse, t );',
 
+                'x = mod( vUv.x - 0.33 / 4.0, 1.0 );',
                 't = step( x, 0.33 ) * step( 1.0 - y, 0.3 );',
 
                 'layer.xyz = mix( layer.xyz, skin, t );',
@@ -116,7 +117,7 @@
           camera.position.z = 20;
           camera.lookAt(annie.position);
 
-          // annie.rotation.y = - Math.PI / 2;
+          annie.rotation.y = - Math.PI / 2;
 
           document.body.appendChild(renderer.domElement);
 
