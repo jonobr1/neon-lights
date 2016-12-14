@@ -22,10 +22,10 @@
         var camera = new THREE.PerspectiveCamera();
 
         var annie = new THREE.Mesh(
-          new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 12, 64, true),
+          new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 32, 64, true),
           new THREE.ShaderMaterial({
 
-            // wireframe: true,
+            wireframe: true,
 
             uniforms: {
               time: { type: 'f', value: 0.0 },
@@ -53,18 +53,19 @@
                 'float yw = pow( ypct, 3.0 );',
 
                 'float form = abs( sin( yw * PI * 1.5 + PI * 0.5 ) );',
-                'form = pow( form, 0.66 );',
-
                 'pos.x *= form;',
-                'pos.x *= 1.0 - ( step( 1.0 - xpct, 0.33 ) ) * 0.66;',
-                'pos.x *= 1.0 - step( pos.x, 0.0 ) * step( ypct, 0.66 ) * ypct;',
+                'pos.x *= 1.0 - ( step( 1.0 - xpct, 0.33 ) ) * 0.85;',
+                'pos.x *= 1.0 - step( pos.x, 0.0 ) * step( ypct, 0.66 ) * pow( ypct, 0.75 );',
 
                 'float hood = step( pos.x, 0.0 ) * step( 1.0 - ypct, 0.3 );',
                 'pos.y += hood * ( cos( pos.x * PI ) - 1.0 ) * 0.33;',
 
+                'form = abs( sin( pow( ypct, 3.0 ) * PI * 1.5 + PI * 0.5 ) );',
+                'form = pow( form, 0.5 );',
+
                 'pos.z *= form;',
-                'pos.z *= 1.0 - pow( step( 1.0 - ypct, 0.3 ), 2.0 ) * 0.1;',
-                'pos.z *= 0.33 + ( 1.0 - ypct ) * 0.17;',
+                'pos.z *= 1.0 - step( 1.0 - ypct, 0.3 ) * 0.125;',
+                'pos.z *= 0.25 + ( 1.0 - ypct ) * 0.17;',
 
                 'gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );',
 
@@ -117,7 +118,7 @@
           camera.position.z = 20;
           camera.lookAt(annie.position);
 
-          annie.rotation.y = - Math.PI / 2;
+          // annie.rotation.y = - Math.PI / 2;
 
           document.body.appendChild(renderer.domElement);
 
