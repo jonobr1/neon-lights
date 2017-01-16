@@ -8,8 +8,8 @@ window.NeonLights = (function() {
 
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   var scene = new THREE.Scene();
-  var cameras = new CameraAngles(
-    new THREE.PerspectiveCamera(), new THREE.PerspectiveCamera());
+  var cameras = new CameraAngles(new THREE.PerspectiveCamera());
+    // new THREE.PerspectiveCamera(), new THREE.PerspectiveCamera());
 
   var annie = new Annie();
   var forest = new Forest();
@@ -39,17 +39,17 @@ window.NeonLights = (function() {
 
   function setup() {
 
-    cameras.add(annie.camera);
+    // cameras.add(annie.camera);
 
     scene.add(annie);
     scene.add(forest);
 
-    cameras[0].position.z = 1024;
-    cameras[0].position.y = 500;
+    cameras[0].position.z = 512;
+    cameras[0].position.y = 256;
     cameras[0].lookAt(forest.position);
 
-    cameras[1].position.y = 1024 * 1.5;
-    cameras[1].lookAt(forest.position);
+    // cameras[1].position.y = 1024 * 1.5;
+    // cameras[1].lookAt(forest.position);
 
     $elems.append(renderer.domElement);
 
