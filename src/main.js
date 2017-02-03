@@ -9,7 +9,6 @@ window.NeonLights = (function() {
   var renderer = new THREE.WebGLRenderer({ antialias: true });
   var scene = new THREE.Scene();
   var cameras = new CameraAngles(new THREE.PerspectiveCamera());
-    // new THREE.PerspectiveCamera(), new THREE.PerspectiveCamera());
 
   var annie = new Annie();
   var forest = new Forest();
@@ -39,17 +38,13 @@ window.NeonLights = (function() {
 
   function setup() {
 
-    // cameras.add(annie.camera);
-
     scene.add(annie);
     scene.add(forest);
 
-    cameras[0].position.z = 512;
-    cameras[0].position.y = 256;
-    cameras[0].lookAt(forest.position);
-
-    // cameras[1].position.y = 1024 * 1.5;
-    // cameras[1].lookAt(forest.position);
+    cameras.current.position.z = 512;
+    cameras.current.position.y = 256;
+    cameras.current.lookAt(forest.position);
+    annie.add(cameras.current);
 
     $elems.append(renderer.domElement);
 
@@ -88,16 +83,10 @@ window.NeonLights = (function() {
       left: 0
     });
 
-    if (has.mobile || navigator.getVRDisplays) {
-      annie.controls.connect();
-    }
+    annie.controls.connect();
 
     window.addEventListener('resize', resize, false);
     resize();
-
-    Elements.onTap(renderer.domElement, function() {
-      cameras.next();
-    });
 
     if (navigator.getVRDisplays || has.mobile) {
       renderer.effect = new THREE[!navigator.getVRDisplays ? 'StereoEffect' : 'VREffect'](renderer);
@@ -105,7 +94,7 @@ window.NeonLights = (function() {
       renderer.effect = renderer;
     }
 
-    renderer.render(scene, cameras[cameras.index]);
+    renderer.render(scene, cameras.current);
     $elems.content.classList.add('loaded');
 
   }
@@ -156,17 +145,17 @@ window.NeonLights = (function() {
 
     var theta = forest.cursor.theta;
 
-    track = timeline.tracks[2];
+    // track = timeline.tracks[2];
+    //
+    // annie.step = sound.playing && track.isOn(currentTime) ? (0.06 + dt) : dt;
 
-    annie.step = sound.playing && track.isOn(currentTime) ? (0.06 + dt) : dt;
+    // track = timeline.tracks[6];
 
-    track = timeline.tracks[6];
+    // forest.speed.destination = sound.playing
+    //   ? (track.isOn(currentTime) ? 2 : 1)
+    //   : 1;
 
-    forest.speed.destination = sound.playing
-      ? (track.isOn(currentTime) ? 2 : 1)
-      : 1;
-
-    annie.rotation.x = theta * 0.2;
+    // annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
 
     renderer.effect.render(scene, cameras.current);

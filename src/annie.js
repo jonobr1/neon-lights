@@ -2,6 +2,7 @@
 
   var root = this;
   var TWO_PI = Math.PI * 2;
+  var euler = new THREE.Euler(0, 0, 0, 'YXZ');
 
   var Annie = root.Annie = function() {
 
@@ -29,16 +30,14 @@
 
     var condition = !navigator.getVRDisplays;
 
-    this.controls = new THREE[condition ? 'DeviceOrientationControls' : 'VRControls'](this);
+    this.ghost = new THREE.Object3D();
+    this.ghost.rotation.previous = new THREE.Euler();
+
     this.heading = new THREE.Vector2();
+    this.controls = new THREE[condition ? 'DeviceOrientationControls' : 'VRControls'](this.ghost);
 
-    this.camera = new THREE.PerspectiveCamera(75);
-    this.camera.position.z = 100;
-    this.camera.position.y += this.camera.position.z * 0.75;
-    this.camera.lookAt(cone.position);
-    this.add(this.camera);
-
-    this.rotation.order = 'YXZ';
+    this.ghost.theta = 0;
+    this.rotation.order = this.ghost.rotation.order = 'YXZ';
 
   };
 
@@ -60,14 +59,22 @@
 
     this.controls.update();
 
-    var theta = mod(this.rotation.y, TWO_PI);
+    euler.x = this.ghost.rotation.x - this.ghost.rotation.previous.x;
+    euler.y = this.ghost.rotation.y - this.ghost.rotation.previous.y;
+    euler.z = this.ghost.rotation.z - this.ghost.rotation.previous.z;
+
+    var theta = mod(this.ghost.rotation.y, TWO_PI);
 
     this._step += (this.step - this._step) * Annie.Drag;
+
+    this.rotation.y = theta;
 
     this.heading.set(
       - this._step * Math.sin(theta),
       this._step * Math.cos(theta)
     );
+
+    this.ghost.rotation.previous.copy(this.ghost.rotation);
 
     return this;
 
