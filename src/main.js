@@ -44,7 +44,7 @@ window.NeonLights = (function() {
     cameras.current.position.z = 512;
     cameras.current.position.y = 256;
     cameras.current.lookAt(forest.position);
-    annie.add(cameras.current);
+    annie.setCamera(cameras.current);
 
     $elems.append(renderer.domElement);
 

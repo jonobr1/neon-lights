@@ -55,13 +55,16 @@
   Annie.prototype._step = 0.02;
   Annie.prototype.step = Annie.prototype._step;
 
+  Annie.prototype.setCamera = function(camera) {
+    this.add(camera);
+    this.camera = camera;
+    this.camera.rotation.order = 'YXZ';
+    return this;
+  };
+
   Annie.prototype.update = function() {
 
     this.controls.update();
-
-    euler.x = this.ghost.rotation.x - this.ghost.rotation.previous.x;
-    euler.y = this.ghost.rotation.y - this.ghost.rotation.previous.y;
-    euler.z = this.ghost.rotation.z - this.ghost.rotation.previous.z;
 
     var theta = mod(this.ghost.rotation.y, TWO_PI);
 
@@ -74,7 +77,12 @@
       this._step * Math.cos(theta)
     );
 
-    this.ghost.rotation.previous.copy(this.ghost.rotation);
+    if (!this.camera) {
+      return;
+    }
+
+    this.camera.rotation.x = this.ghost.rotation.x;
+    // this.camera.rotation.z = this.ghost.rotation.z;
 
     return this;
 
