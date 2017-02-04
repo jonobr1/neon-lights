@@ -43,8 +43,8 @@ window.NeonLights = (function() {
     scene.add(annie);
     scene.add(forest);
 
-    cameras.current.position.z = 512;
-    cameras.current.position.y = 256;
+    cameras.current.position.z = 512 * 1.5;
+    cameras.current.position.y = 256 * 1.5;
     cameras.current.lookAt(forest.position);
     annie.setCamera(cameras.current);
 

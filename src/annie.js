@@ -47,7 +47,7 @@
   Annie.Drag = 0.125;
   Annie.IdealStep = 0.03;
 
-  Annie.Geometry = new THREE.CylinderGeometry(0, 1, 3, 16);
+  Annie.Geometry = new THREE.CylinderGeometry(0, 1 * 2, 3 * 2, 16);
   Annie.Material = new THREE.MeshBasicMaterial({
     color: 0xffffff
   });
