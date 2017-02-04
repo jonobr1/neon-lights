@@ -397,7 +397,9 @@ this.Two = (function(previousTwo) {
     this.scene = this.renderer.scene;
 
     Two.Instances.push(this);
-    raf.init();
+    if (params.autostart) {
+      raf.init();
+    }
 
   };
 
@@ -609,6 +611,9 @@ this.Two = (function(previousTwo) {
       setPlaying: function(b) {
 
         this.playing = !!b;
+        if (this.playing) {
+          raf.init();
+        }
         return this;
 
       },

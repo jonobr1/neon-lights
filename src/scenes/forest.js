@@ -20,7 +20,9 @@
     this.floor = new Forest.Floor(this.cursor, this.stage);
     this.add(this.floor);
 
-    for (var i = 0; i < 512; i++) {
+    var amount = has.mobile ? 256: 512;
+
+    for (var i = 0; i < amount; i++) {
 
       var Mesh = Forest.Meshes[i % Forest.Meshes.length];
       var mesh = new Mesh(this.cursor, this.stage, this.wind);

@@ -12,7 +12,7 @@ THREE.DeviceOrientationControls = function( object ) {
 	this.object = object;
 	this.object.rotation.reorder( "YXZ" );
 
-	this.enabled = true;
+	this.enabled = false;
 
 	this.deviceOrientation = {};
 	this.screenOrientation = 0;

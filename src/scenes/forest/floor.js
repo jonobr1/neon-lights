@@ -24,7 +24,9 @@
 
   Floor.Instances = [];
 
-  Floor.Geometry = new THREE.PlaneBufferGeometry(1, 1, 128, 128);
+  var resolution = has.mobile ? 0.5 : 1;
+
+  Floor.Geometry = new THREE.PlaneBufferGeometry(1, 1, 128 * resolution, 128 * resolution);
   Floor.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,

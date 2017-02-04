@@ -10,6 +10,8 @@ window.NeonLights = (function() {
   var scene = new THREE.Scene();
   var cameras = new CameraAngles(new THREE.PerspectiveCamera());
 
+  renderer.setPixelRatio( has.mobile ? Math.min(2, window.devicePixelRatio) : window.devicePixelRatio );
+
   var annie = new Annie();
   var forest = new Forest();
 
@@ -75,6 +77,7 @@ window.NeonLights = (function() {
     });
 
     $elems.play.addEventListener('click', play, false);
+    Elements.onTap(renderer.domElement, requestStereo);
 
     Two.Utils.extend(renderer.domElement.style, {
       display: 'block',
@@ -83,7 +86,7 @@ window.NeonLights = (function() {
       left: 0
     });
 
-    annie.controls.connect();
+    annie.connect();
 
     window.addEventListener('resize', resize, false);
     resize();
@@ -140,22 +143,12 @@ window.NeonLights = (function() {
       // Maybe not necessary?
     }
 
+    annie.step = Annie.IdealStep * 60 * dt;
     annie.update();
+
     forest.update(annie.heading);
 
     var theta = forest.cursor.theta;
-
-    // track = timeline.tracks[2];
-    //
-    // annie.step = sound.playing && track.isOn(currentTime) ? (0.06 + dt) : dt;
-
-    // track = timeline.tracks[6];
-
-    // forest.speed.destination = sound.playing
-    //   ? (track.isOn(currentTime) ? 2 : 1)
-    //   : 1;
-
-    // annie.rotation.x = theta * 0.2;
     annie.cone.rotation.x = theta * 0.5 + Math.PI / 2;
 
     renderer.effect.render(scene, cameras.current);
@@ -181,8 +174,10 @@ window.NeonLights = (function() {
 
   function requestStereo() {
 
-    if (renderer.effect instanceof THREE.VREffect) {
+    if (renderer.effect instanceof THREE.VREffect && !renderer.effect.isPresenting) {
       renderer.effect.requestPresent();
+    } else if (has.mobile && screenfull.enabled) {
+      screenfull.request(renderer.domElement);
     } else {
       resize();
     }
@@ -190,6 +185,8 @@ window.NeonLights = (function() {
   }
 
   return {
+    renderer: renderer,
+    scene: scene,
     annie: annie,
     cameras: cameras,
     forest: forest,

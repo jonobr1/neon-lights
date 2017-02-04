@@ -21,7 +21,9 @@
 
   Grass.Instances = [];
 
-  Grass.Geometry = new THREE.CylinderBufferGeometry(0.1, 0.1, 1, 16, 16, true);
+  var resolution = has.mobile ? 0.5 : 1;
+
+  Grass.Geometry = new THREE.CylinderBufferGeometry(0.1, 0.1, 1, 16 * resolution, 16 * resolution, true);
   Grass.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,

@@ -45,6 +45,7 @@
   Annie.prototype.constructor = Annie;
 
   Annie.Drag = 0.125;
+  Annie.IdealStep = 0.03;
 
   Annie.Geometry = new THREE.CylinderGeometry(0, 1, 3, 16);
   Annie.Material = new THREE.MeshBasicMaterial({
@@ -55,11 +56,25 @@
   Annie.prototype._step = 0.02;
   Annie.prototype.step = Annie.prototype._step;
 
+  Annie.prototype.connect = function() {
+
+    if (has.mobile && this.controls instanceof THREE.DeviceOrientationControls
+      || this.controls instanceof THREE.VRControls) {
+      this.controls.connect();
+    }
+
+    return this;
+
+  };
+
   Annie.prototype.setCamera = function(camera) {
+
     this.add(camera);
     this.camera = camera;
     this.camera.rotation.order = 'YXZ';
+
     return this;
+
   };
 
   Annie.prototype.update = function() {
@@ -77,12 +92,11 @@
       this._step * Math.cos(theta)
     );
 
-    if (!this.camera) {
+    if (!this.camera || !this.controls.enabled) {
       return;
     }
 
     this.camera.rotation.x = this.ghost.rotation.x;
-    // this.camera.rotation.z = this.ghost.rotation.z;
 
     return this;
 

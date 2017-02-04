@@ -24,7 +24,9 @@
 
   Rock.Instances = [];
 
-  Rock.Geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 32, 32, true);
+  var resolution = has.mobile ? 0.5 : 1;
+
+  Rock.Geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, resolution, resolution, true);
   Rock.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,

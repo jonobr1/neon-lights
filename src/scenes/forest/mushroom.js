@@ -23,7 +23,9 @@
 
   Mushroom.Instances = [];
 
-  Mushroom.Geometry = new THREE.SphereBufferGeometry(0.5, 16, 24);
+  var resolution = has.mobile ? 0.5 : 1;
+
+  Mushroom.Geometry = new THREE.SphereBufferGeometry(0.5, 16 * resolution, 24 * resolution);
   Mushroom.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,
