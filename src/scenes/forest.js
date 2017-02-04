@@ -47,10 +47,16 @@
 
   Forest.defaultSize = 1024;
 
-  Forest.DisplacementAlgorithm = function(x) {
-    return (Math.sin(x) + Math.sin(2.2 * x + 5.52) + Math.sin(2.9 * x + 0.93)
-      + Math.sin(4.6 * x + 8.94)) / 4.0;
-  };
+  if (url.boolean('flat')) {
+    Forest.DisplacementAlgorithm = function(x) {
+      return 0.0;
+    };
+  } else {
+    Forest.DisplacementAlgorithm = function(x) {
+      return (Math.sin(x) + Math.sin(2.2 * x + 5.52) + Math.sin(2.9 * x + 0.93)
+        + Math.sin(4.6 * x + 8.94)) / 4.0;
+    };
+  }
 
   Forest.Meshes = [];
 
