@@ -24,13 +24,13 @@ A WebVR interactive music video only on Within. With music by Cheimcal Brothers.
     + On Mac open up the *Terminal* application
     + On Windows open up the *Git Bash* application
   2. Select a directory you'd like to place this project.
-    __I like to put things in `~/Documents` for Mac or `/c/Documents` for Windows
+    __I like to put things in `~/Documents` for Mac or `/c/Documents` for Windows__
   3. Go to this in your Command-Line Interface
     This is done by opening the CLI and running `cd some-path` and hitting enter
   4. Clone the project by pasting: `git clone https://github.com/within-unlimited/neon-lights.git` into the CLI and hitting enter
 4. Now run `npm install` to install all dependencies for the project
 5. Sync with s3 bucket
-  1. Download the project assets by clicking [here](http://player-dev.cabrilleros.com/NEON-LIGHTS/assets/assets.zip)
+  1. Download the project assets by clicking [here](http://media-dev.vrse.com/NEON_LIGHTS/assets/assets.zip)
   2. Unzip file
   3. Place at the root of the Neon Lights project
 6. Go to your project in a CLI and run `http-server`
