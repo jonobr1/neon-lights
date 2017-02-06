@@ -1,0 +1,29 @@
+{
+  "name": "neon-lights",
+  "version": "1.0.0",
+  "description": "A WebVR interactive music video only on Within",
+  "main": "index.html",
+  "scripts": {
+    "test": "http-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/within-unlimited/neon-lights.git"
+  },
+  "keywords": [
+    "music",
+    "video",
+    "3d",
+    "webgl",
+    "three.js"
+  ],
+  "author": "@jonobr1",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/within-unlimited/neon-lights/issues"
+  },
+  "homepage": "https://github.com/within-unlimited/neon-lights#readme",
+  "dependencies": {
+    "http-server": "^0.9.0"
+  }
+}

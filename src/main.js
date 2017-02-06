@@ -19,7 +19,7 @@ window.NeonLights = (function() {
   var timeline = new Equalizer.Timeline();
   var time = 0;
 
-  var isLocal = /localhost/i.test(window.location.href)
+  var isLocal = /localhost/i.test(window.location.href);
   var root = isLocal ? './assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
   var filetype = has.Chromium ? 'ogg' : 'mp3';
   var path = [root, '/audio/03 Under Neon Lights.', filetype]
