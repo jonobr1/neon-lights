@@ -10,7 +10,6 @@ A WebVR interactive music video only on Within. With music by Cheimcal Brothers.
 3. Clone this project
 4. Go to your project in a CLI and run `npm install`
 5. Remotely sync with s3 bucket for assets
----
 6. Go to your project in a CLI and run `http-server`
 7. Go to `localhost:8080/` in a web browser
 
@@ -34,13 +33,13 @@ A WebVR interactive music video only on Within. With music by Cheimcal Brothers.
   1. Download the project assets by clicking [here](http://player-dev.cabrilleros.com/NEON-LIGHTS/assets/assets.zip)
   2. Unzip file
   3. Place at the root of the Neon Lights project
----
 6. Go to your project in a CLI and run `http-server`
 7. Go to `localhost:8080/` in a web browser
----
 8. For web developers that want to edit scss
   1. Make sure Ruby is installed
   2. `gem install bourbon`
   3. `cd neon-lights/styles`
   4. `bourbon install`
   5. `scss --watch .`
+
+Once setup initially only steps 6 and 7 need to be run.
