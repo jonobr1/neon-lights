@@ -35,6 +35,8 @@ A WebVR interactive music video only on Within. With music by Cheimcal Brothers.
   3. Place at the root of the Neon Lights project
 6. Go to your project in a CLI and run `http-server`
 7. Go to `localhost:8080/` in a web browser
+  + For use with HTC Vive or Oculus Rift please download the specified version of Chrome from: https://webvr.info/get-chrome/
+    Don't forget to follow the instructions! e.g: Enable WebVR and Gamepad Flags
 8. For web developers that want to edit scss
   1. Make sure Ruby is installed
   2. `gem install bourbon`
