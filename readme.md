@@ -8,7 +8,7 @@ A WebVR interactive music video only on Within. With music by Cheimcal Brothers.
 1. Download and install Git (Windows Only)
 2. Download and install Node.js and `npm` on your computer
 3. Clone this project
-4. Go to your project in a CLI and run `npm install`
+4. Go to your project in a CLI and run `npm install -g http-server`
 5. Remotely sync with s3 bucket for assets
 6. Go to your project in a CLI and run `http-server`
 7. Go to `localhost:8080/` in a web browser
@@ -28,7 +28,7 @@ A WebVR interactive music video only on Within. With music by Cheimcal Brothers.
   3. Go to this in your Command-Line Interface
     This is done by opening the CLI and running `cd some-path` and hitting enter
   4. Clone the project by pasting: `git clone https://github.com/within-unlimited/neon-lights.git` into the CLI and hitting enter
-4. Now run `npm install` to install all dependencies for the project
+4. Now run `npm install -g http-server` to install the local web server
 5. Sync with s3 bucket
   1. Download the project assets by clicking [here](http://media-dev.vrse.com/NEON_LIGHTS/assets/assets.zip)
   2. Unzip file
