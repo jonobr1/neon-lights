@@ -26,7 +26,7 @@
 
   var resolution = has.mobile ? 0.5 : 1;
 
-  Rock.Geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, resolution, resolution, true);
+  Rock.Geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 1, 16 * resolution, 16 * resolution, true);
   Rock.Material = new THREE.ShaderMaterial({
 
     // wireframe: true,
