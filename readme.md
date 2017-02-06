@@ -37,11 +37,12 @@ A WebVR interactive music video only on Within. With music by Cheimcal Brothers.
 7. Go to `localhost:8080/` in a web browser
   + For use with HTC Vive or Oculus Rift please download the specified version of Chrome from: https://webvr.info/get-chrome/
     Don't forget to follow the instructions! e.g: Enable WebVR and Gamepad Flags
-8. For web developers that want to edit scss
+8. _Extra:_ For web developers that want to edit sass
   1. Make sure Ruby is installed
   2. `gem install bourbon`
+  3. `gem install sass`
   3. `cd neon-lights/styles`
   4. `bourbon install`
-  5. `scss --watch .`
+  5. `sass --watch .`
 
 Once setup initially only steps 6 and 7 need to be run.
