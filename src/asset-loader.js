@@ -14,22 +14,42 @@
     fbx: new THREE.FBXLoader()
   };
 
-  var controls = new THREE.OrbitControls(cameras.current);
+  var controls = new THREE.OrbitControls(cameras.current, renderer.domElement);
+  controls.enableDamping = true;
 
   loaders[filetype].load(path, function(object) {
+
+    var radius = 0;
+
+    var expose = function(object) {
+      for (var i = 0; i < object.children.length; i++) {
+        var child = object.children[i];
+        if (child instanceof THREE.Mesh) {
+          child.material = new THREE.MeshNormalMaterial();
+          child.geometry.computeBoundingSphere();
+          radius = Math.max(child.geometry.boundingSphere.radius, radius);
+        } else if (child.children.length > 0) {
+          expose(child);
+        }
+      }
+    };
+
+    expose(object);
     scene.add(object);
-    setup();
+    setup(radius);
+
   });
 
-  function setup() {
+  function setup(radius) {
 
     document.body.appendChild(renderer.domElement);
     renderer.domElement.style.position = 'absolute';
     renderer.domElement.style.top = 0;
     renderer.domElement.style.left = 0;
 
-    cameras.current.position.z = 5;
-    cameras.current.position.y = 2.5;
+    cameras.current.position.z = radius * 2;
+    cameras.current.position.y = radius;
+    cameras.current.far = 10000;
     cameras.current.lookAt(new THREE.Vector3());
 
     var light = new THREE.PointLight();
