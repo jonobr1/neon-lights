@@ -46,3 +46,11 @@ A WebVR interactive music video only on Within. With music by Cheimcal Brothers.
   5. `sass --watch .`
 
 Once setup initially only steps 6 and 7 need to be run.
+
+## Asset Viewer
+
+_Work in Progress_: Once developing locally head to `http://localhost:8080/asset-viewer/` to view assets. By default no asset will be loaded. In order to do that you have add a *query parameter* to the URL. Like so: `http://localhost:8080/asset-viewer/?filename=Tree3`. The `?filename=NAME` references the name of an FBX model in the `/assets/models/` directory of your project.
+
+Throw in as many or as few assets as you'd like. If you'd like to use an OBJ than add an additional query parameter to name that filetype explicitly like so: `http://localhost:8080/?filename=Tree&filetype=obj`.
+
+N.B: These query parameters are __case sensitive__, so if your model isn't showing up that could be a potential pitfall.
