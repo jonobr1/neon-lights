@@ -20,12 +20,16 @@
   loaders[filetype].load(path, function(object) {
 
     var radius = 0;
+    console.log(object);
 
     var expose = function(object) {
       for (var i = 0; i < object.children.length; i++) {
         var child = object.children[i];
         if (child instanceof THREE.Mesh) {
-          child.material = new THREE.MeshNormalMaterial();
+          child.material = new THREE.MeshBasicMaterial({
+            color: 'white', 
+            vertexColors: THREE.VertexColors
+          });
           child.geometry.computeBoundingSphere();
           radius = Math.max(child.geometry.boundingSphere.radius, radius);
         } else if (child.children.length > 0) {
@@ -51,10 +55,6 @@
     cameras.current.position.y = radius;
     cameras.current.far = 10000;
     cameras.current.lookAt(new THREE.Vector3());
-
-    var light = new THREE.PointLight();
-    cameras.current.add(light);
-    scene.add(cameras.current);
 
     window.addEventListener('resize', resize, false);
     resize();

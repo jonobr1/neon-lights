@@ -598,6 +598,12 @@
 
               }
 
+              if ( 'LayerElementColor' in geometryNode.subNodes ) {
+
+                var colorInfo = getColors( geometryNode );
+
+              }
+
               if ( 'LayerElementMaterial' in geometryNode.subNodes ) {
 
                 var materialInfo = getMaterials( geometryNode );
@@ -697,6 +703,12 @@
 
                 }
 
+                if ( colorInfo ) {
+
+                  vertex.color.fromArray( getData( polygonVertexIndex, polygonIndex, vertexIndex, colorInfo ) );
+
+                }
+
                 faceVertexBuffer.push( vertex );
 
                 if ( endOfFace ) {
@@ -733,6 +745,13 @@
                 geo.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( bufferInfo.uvBuffer ), 2 ) );
 
               }
+              if ( bufferInfo.colorsBuffer.length > 0 ) {
+
+                geo.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( bufferInfo.colorsBuffer ), 4 ) );
+
+              }
+              // console.log(geometry, geometryNode, bufferInfo);
+              // if ( bufferInfo.)
 
               if ( deformer ) {
 
@@ -819,6 +838,30 @@
 
                 return {
                   dataSize: 2,
+                  buffer: buffer,
+                  indices: indexBuffer,
+                  mappingType: mappingType,
+                  referenceType: referenceType
+                };
+
+              }
+
+              function getColors( geometryNode ) {
+
+                var ColorNode = geometryNode.subNodes.LayerElementColor[ 0 ];
+
+                var mappingType = ColorNode.properties.MappingInformationType;
+                var referenceType = ColorNode.properties.ReferenceInformationType;
+                var buffer = parseFloatArray( ColorNode.subNodes.Colors.properties.a );
+                var indexBuffer = [];
+                if ( referenceType === 'IndexToDirect' ) {
+
+                  indexBuffer = parseFloatArray( ColorNode.subNodes.ColorIndex.properties.a );
+
+                }
+
+                return {
+                  dataSize: 4,
                   buffer: buffer,
                   indices: indexBuffer,
                   mappingType: mappingType,
@@ -3079,6 +3122,12 @@
     this.uv = new THREE.Vector2( );
 
     /**
+     * Color of the vertex
+     * @type {THREE.Vector4}
+     */
+    this.color = new THREE.Vector4();
+
+    /**
      * Indices of the bones vertex is influenced by.
      * @type {THREE.Vector4}
      */
@@ -3113,6 +3162,7 @@
       var vertexBuffer = this.position.toArray();
       var normalBuffer = this.normal.toArray();
       var uvBuffer = this.uv.toArray();
+      var colorsBuffer = this.color.toArray();
       var skinIndexBuffer = this.skinIndices.toArray();
       var skinWeightBuffer = this.skinWeights.toArray();
 
@@ -3120,6 +3170,7 @@
         vertexBuffer: vertexBuffer,
         normalBuffer: normalBuffer,
         uvBuffer: uvBuffer,
+        colorsBuffer: colorsBuffer,
         skinIndexBuffer: skinIndexBuffer,
         skinWeightBuffer: skinWeightBuffer,
       };
@@ -3161,6 +3212,7 @@
       var vertexBuffer = [];
       var normalBuffer = [];
       var uvBuffer = [];
+      var colorsBuffer = [];
       var skinIndexBuffer = [];
       var skinWeightBuffer = [];
 
@@ -3172,6 +3224,7 @@
         vertexBuffer = vertexBuffer.concat( flatVertex.vertexBuffer );
         normalBuffer = normalBuffer.concat( flatVertex.normalBuffer );
         uvBuffer = uvBuffer.concat( flatVertex.uvBuffer );
+        colorsBuffer = colorsBuffer.concat( flatVertex.colorsBuffer );
         skinIndexBuffer = skinIndexBuffer.concat( flatVertex.skinIndexBuffer );
         skinWeightBuffer = skinWeightBuffer.concat( flatVertex.skinWeightBuffer );
 
@@ -3181,6 +3234,7 @@
         vertexBuffer: vertexBuffer,
         normalBuffer: normalBuffer,
         uvBuffer: uvBuffer,
+        colorsBuffer: colorsBuffer,
         skinIndexBuffer: skinIndexBuffer,
         skinWeightBuffer: skinWeightBuffer,
       };
@@ -3239,6 +3293,7 @@
       var vertexBuffer = [];
       var normalBuffer = [];
       var uvBuffer = [];
+      var colorsBuffer = [];
       var skinIndexBuffer = [];
       var skinWeightBuffer = [];
 
@@ -3253,6 +3308,7 @@
         vertexBuffer = vertexBuffer.concat( flatTriangle.vertexBuffer );
         normalBuffer = normalBuffer.concat( flatTriangle.normalBuffer );
         uvBuffer = uvBuffer.concat( flatTriangle.uvBuffer );
+        colorsBuffer = colorsBuffer.concat( flatTriangle.colorsBuffer );
         skinIndexBuffer = skinIndexBuffer.concat( flatTriangle.skinIndexBuffer );
         skinWeightBuffer = skinWeightBuffer.concat( flatTriangle.skinWeightBuffer );
         materialIndexBuffer = materialIndexBuffer.concat( [ materialIndex, materialIndex, materialIndex ] );
@@ -3263,6 +3319,7 @@
         vertexBuffer: vertexBuffer,
         normalBuffer: normalBuffer,
         uvBuffer: uvBuffer,
+        colorsBuffer: colorsBuffer,
         skinIndexBuffer: skinIndexBuffer,
         skinWeightBuffer: skinWeightBuffer,
         materialIndexBuffer: materialIndexBuffer
@@ -3299,6 +3356,7 @@
       var vertexBuffer = [];
       var normalBuffer = [];
       var uvBuffer = [];
+      var colorsBuffer = [];
       var skinIndexBuffer = [];
       var skinWeightBuffer = [];
 
@@ -3311,6 +3369,7 @@
         vertexBuffer = vertexBuffer.concat( flatFace.vertexBuffer );
         normalBuffer = normalBuffer.concat( flatFace.normalBuffer );
         uvBuffer = uvBuffer.concat( flatFace.uvBuffer );
+        colorsBuffer = colorsBuffer.concat( flatFace.colorsBuffer );
         skinIndexBuffer = skinIndexBuffer.concat( flatFace.skinIndexBuffer );
         skinWeightBuffer = skinWeightBuffer.concat( flatFace.skinWeightBuffer );
         materialIndexBuffer = materialIndexBuffer.concat( flatFace.materialIndexBuffer );
@@ -3321,6 +3380,7 @@
         vertexBuffer: vertexBuffer,
         normalBuffer: normalBuffer,
         uvBuffer: uvBuffer,
+        colorsBuffer: colorsBuffer,
         skinIndexBuffer: skinIndexBuffer,
         skinWeightBuffer: skinWeightBuffer,
         materialIndexBuffer: materialIndexBuffer
