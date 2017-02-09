@@ -6,7 +6,7 @@
 
   var isLocal = /localhost/i.test(window.location.href);
   var root = isLocal ? '/assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
-  var filetype = url.filetype || 'obj';
+  var filetype = url.filetype || 'fbx';
   var path = [root, '/models', '/', url.filename, '.', filetype].join('');
 
   var loaders = {
