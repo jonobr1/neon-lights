@@ -27,7 +27,6 @@
         var child = object.children[i];
         if (child instanceof THREE.Mesh) {
           child.material = new THREE.MeshBasicMaterial({
-            color: 'white', 
             vertexColors: THREE.VertexColors
           });
           child.geometry.computeBoundingSphere();

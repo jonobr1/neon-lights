@@ -1,5 +1,6 @@
 /**
  * @author Kyle-Larson https://github.com/Kyle-Larson
+ * @author @jonobr1 / http://jonobr1.com/
  *
  * Loader loads FBX file and generates Group representing FBX scene.
  * Requires FBX file to be >= 7.0 and in ASCII format.
