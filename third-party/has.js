@@ -11,8 +11,26 @@ var has = (function() {
   // Let's do a bunch of navigator detections shall we?
 
   var ua = root.navigator.userAgent;
+  var callbacks = [];
+  var ready = function() {
+    for (var i = 0; i < callbacks.length; i++) {
+      callbacks[i]();
+    }
+    callbacks.length = 0;
+    has._ready = true;
+  };
 
   var has = {
+
+    _ready: false,
+    ready: function(func) {
+      if (has._ready) {
+        func();
+        return has;
+      }
+      callbacks.push(func);
+      return has;
+    },
 
     // Mobile Detection
 
@@ -45,6 +63,14 @@ var has = (function() {
 
     webAudio: !!(window.AudioContext || window.webkitAudioContext),
 
+    webvr: !!(window.navigator.getVRDisplays && window.navigator.getVRDisplays().then(function(displays) {
+      console.log(displays);
+      if (displays.length <= 0) {
+        has.webvr = false;
+      }
+      ready();
+    })),
+
     noConflict: function() {
       root.has = previousHas;
       return has;
@@ -55,6 +81,10 @@ var has = (function() {
   has.mobile = has.Android || has.Blackberry || has.iOS || has.OperaMini || has.Windows || has.WebOS;
 
   has.localStorage = !!(window.localStorage && window.localStorage.setItem);
+
+  if (!has.webvr) {
+    ready();
+  }
 
   root.has = has;
 

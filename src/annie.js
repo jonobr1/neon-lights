@@ -28,13 +28,13 @@
     cone.scale.set(5, 5, 5);
     this.add(cone);
 
-    var condition = !navigator.getVRDisplays;
-
     this.ghost = new THREE.Object3D();
     this.ghost.rotation.previous = new THREE.Euler();
 
     this.heading = new THREE.Vector2();
-    this.controls = new THREE[condition ? 'DeviceOrientationControls' : 'VRControls'](this.ghost);
+    this.controls = new THREE[has.webvr ? 'VRControls' : (has.mobile ? 'DeviceOrientationControls' : 'MouseControls')](this.ghost);
+
+    console.log(this.controls);
 
     this.ghost.theta = 0;
     this.rotation.order = this.ghost.rotation.order = 'YXZ';
@@ -58,10 +58,7 @@
 
   Annie.prototype.connect = function() {
 
-    if (has.mobile && this.controls instanceof THREE.DeviceOrientationControls
-      || this.controls instanceof THREE.VRControls) {
-      this.controls.connect();
-    }
+    this.controls.connect();
 
     return this;
 

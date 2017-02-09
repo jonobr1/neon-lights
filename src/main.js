@@ -1,4 +1,6 @@
-window.NeonLights = (function() {
+has.ready(function() {
+
+  console.log('ready', has.webvr);
 
   var DEBUG = url.boolean('debug', false);
 
@@ -184,7 +186,7 @@ window.NeonLights = (function() {
 
   }
 
-  return {
+  window.NeonLights = {
     renderer: renderer,
     scene: scene,
     annie: annie,
@@ -193,4 +195,4 @@ window.NeonLights = (function() {
     timeline: timeline
   };
 
-})();
+});
