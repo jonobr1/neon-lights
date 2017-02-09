@@ -1,6 +1,5 @@
 /**
  * @author Kyle-Larson https://github.com/Kyle-Larson
- * @author @jonobr1 / http://jonobr1.com/
  *
  * Loader loads FBX file and generates Group representing FBX scene.
  * Requires FBX file to be >= 7.0 and in ASCII format.
@@ -13,6 +12,7 @@
  *  Animation
  *  - Separated Animations based on stacks.
  *  - Skeletal & Non-Skeletal Animations
+ *  NURBS (Open, Closed and Periodic forms)
  *
  * Needs Support:
  *  Indexed Buffers
@@ -751,8 +751,6 @@
                 geo.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( bufferInfo.colorsBuffer ), 4 ) );
 
               }
-              // console.log(geometry, geometryNode, bufferInfo);
-              // if ( bufferInfo.)
 
               if ( deformer ) {
 
@@ -847,6 +845,11 @@
 
               }
 
+              /**
+               * Parses Vertex Color information for geometry.
+               * @param {FBXGeometryNode} geometryNode
+               * @returns {{dataSize: number, buffer: number[], indices: number[], mappingType: string, referenceType: string}}
+               */
               function getColors( geometryNode ) {
 
                 var ColorNode = geometryNode.subNodes.LayerElementColor[ 0 ];
@@ -1054,15 +1057,7 @@
 
             }
 
-            if ( geometryNode.properties.Form === 'Periodic' ) {
-
-              console.error( "FBXLoader: Currently no support for Periodic Nurbs Curves for geometry ID: " + geometryNode.id + ", using empty geometry buffer." );
-              return new THREE.BufferGeometry();
-
-              //TODO: Support Periodic NURBS curves.
-              //Info Link: https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2015/ENU/Maya/files/NURBS-overview-Periodic-closed-and-open-geometry-htm.html
-
-            }
+            var degree = order - 1;
 
             var knots = parseFloatArray( geometryNode.subNodes.KnotVector.properties.a );
             var controlPoints = [];
@@ -1074,14 +1069,27 @@
 
             }
 
+            var startKnot, endKnot;
+
             if ( geometryNode.properties.Form === 'Closed' ) {
 
               controlPoints.push( controlPoints[ 0 ] );
 
+            } else if ( geometryNode.properties.Form === 'Periodic' ) {
+
+              startKnot = degree;
+              endKnot = knots.length - 1 - startKnot;
+
+              for ( var i = 0; i < degree; ++ i ) {
+
+                controlPoints.push( controlPoints[ i ] );
+
+              }
+
             }
 
-            var curve = new THREE.NURBSCurve( order - 1, knots, controlPoints );
-            var vertices = curve.getPoints( controlPoints.length * 1.5 );
+            var curve = new THREE.NURBSCurve( degree, knots, controlPoints, startKnot, endKnot );
+            var vertices = curve.getPoints( controlPoints.length * 7 );
 
             var vertexBuffer = [];
             for ( var verticesIndex = 0, verticesLength = vertices.length; verticesIndex < verticesLength; ++ verticesIndex ) {
@@ -3163,7 +3171,7 @@
       var vertexBuffer = this.position.toArray();
       var normalBuffer = this.normal.toArray();
       var uvBuffer = this.uv.toArray();
-      var colorsBuffer = this.color.toArray();
+      var colorBuffer = this.color.toArray();
       var skinIndexBuffer = this.skinIndices.toArray();
       var skinWeightBuffer = this.skinWeights.toArray();
 
@@ -3171,7 +3179,7 @@
         vertexBuffer: vertexBuffer,
         normalBuffer: normalBuffer,
         uvBuffer: uvBuffer,
-        colorsBuffer: colorsBuffer,
+        colorBuffer: colorBuffer,
         skinIndexBuffer: skinIndexBuffer,
         skinWeightBuffer: skinWeightBuffer,
       };
@@ -3225,7 +3233,7 @@
         vertexBuffer = vertexBuffer.concat( flatVertex.vertexBuffer );
         normalBuffer = normalBuffer.concat( flatVertex.normalBuffer );
         uvBuffer = uvBuffer.concat( flatVertex.uvBuffer );
-        colorsBuffer = colorsBuffer.concat( flatVertex.colorsBuffer );
+        colorsBuffer = colorsBuffer.concat( flatVertex.colorBuffer );
         skinIndexBuffer = skinIndexBuffer.concat( flatVertex.skinIndexBuffer );
         skinWeightBuffer = skinWeightBuffer.concat( flatVertex.skinWeightBuffer );
 
