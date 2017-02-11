@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>frame.js editor</title>
+	</head>
+	<link href="css/main.css" rel="stylesheet" />
+	<link id="theme" href="css/dark.css" rel="stylesheet" />
+	<body>
+
+		<link rel="stylesheet" href="js/libs/codemirror/codemirror.css">
+		<link rel="stylesheet" href="js/libs/codemirror/theme/monokai.css">
+		<script src="js/libs/codemirror/codemirror.js"></script>
+		<script src="js/libs/codemirror/mode/javascript.js"></script>
+
+		<script src="js/libs/signals.min.js"></script>
+		<script src="js/libs/ui.js"></script>
+
+		<script src="js/Effect.js"></script>
+
+		<script src="js/Editor.js"></script>
+		<script src="js/Config.js"></script>
+		<script src="js/Menubar.js"></script>
+		<script src="js/Menubar.File.js"></script>
+		<script src="js/Menubar.Edit.js"></script>
+		<script src="js/Menubar.View.js"></script>
+		<script src="js/Menubar.Help.js"></script>
+		<script src="js/Properties.js"></script>
+		<script src="js/Viewport.js"></script>
+		<script src="js/Timeline.js"></script>
+		<script src="js/Timeline.Animations.js"></script>
+		<script src="js/Timeline.Curves.js"></script>
+
+		<script src="../release/src/Frame.js"></script>
+
+		<script src="../release/third-party/three.js"></script>
+		<audio id="audio" src="../assets/audio/03 Under Neon Lights.mp3">
+
+		<script>
+
+			var editor = new Editor();
+
+			// TOFIX:
+			editor.audio = document.getElementById( 'audio' );
+			Object.defineProperty( editor, 'currentTime', {
+				get: function() { return this.audio.currentTime }
+			} );
+
+			var viewport = new Viewport( editor );
+			document.body.appendChild( viewport.dom );
+
+			var effect = new Effect( editor );
+			document.body.appendChild( effect.dom );
+
+			var properties = new Properties( editor );
+			document.body.appendChild( properties.dom );
+
+			var timeline = new Timeline( editor );
+			document.body.appendChild( timeline.dom );
+
+			var menubar = new Menubar( editor );
+			document.body.appendChild( menubar.dom );
+
+			// LocalStorage
+
+			var signals = editor.signals;
+
+			signals.animationAdded.add( saveState );
+			signals.animationModified.add( saveState );
+			signals.animationRemoved.add( saveState );
+			signals.effectCompiled.add( saveState );
+
+			var timeout;
+
+			function saveState() {
+
+				clearTimeout( timeout );
+
+				timeout = setTimeout( function () {
+
+					editor.config.setKey( 'state', JSON.stringify( editor.toJSON() ) );
+
+				}, 1000 );
+
+			}
+
+			//
+
+			var state = editor.config.getKey( 'state' );
+
+			if ( state !== undefined ) {
+
+				editor.fromJSON( JSON.parse( state ) );
+
+			}
+
+			// Short-cuts
+
+			document.addEventListener( 'keydown', function ( event ) {
+
+				switch ( event.keyCode ) {
+
+					case 8: // prevent browser back
+						event.preventDefault();
+						break;
+					case 32:
+						editor.isPlaying ? editor.stop() : editor.play();
+						break;
+					case 37:
+						event.preventDefault();
+						editor.setTime( editor.currentTime - 1 );
+						break;
+					case 39:
+						event.preventDefault();
+						editor.setTime( editor.currentTime + 1 );
+						break;
+					case 38:
+						event.preventDefault();
+						// audio.playbackRate = audio.playbackRate + 0.1;
+						// editor.setPlaybackRate( audio.playbackRate );
+						break;
+					case 40:
+						event.preventDefault();
+						// audio.playbackRate = audio.playbackRate - 0.1;
+						// editor.setPlaybackRate( audio.playbackRate );
+						break;
+
+				}
+
+			} );
+
+			// Drop
+
+			document.addEventListener( 'dragover', function ( event ) {
+
+				event.preventDefault();
+				event.dataTransfer.dropEffect = 'copy';
+
+			}, false );
+
+			document.addEventListener( 'drop', function ( event ) {
+
+				event.preventDefault();
+
+				if ( event.dataTransfer.files.length > 0 ) {
+
+					var reader = new FileReader();
+					reader.addEventListener( 'load', function ( event ) {
+
+						if ( confirm( 'Any unsaved data will be lost. Are you sure?' ) ) {
+
+							editor.clear();
+							editor.fromJSON( JSON.parse( event.target.result ) );
+
+						}
+
+					}, false );
+					reader.readAsText( event.dataTransfer.files[ 0 ] );
+
+				}
+
+			}, false );
+
+		</script>
+	</body>
+</html>
