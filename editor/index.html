@@ -33,15 +33,24 @@
 
 		<script src="../release/src/Frame.js"></script>
 
+		<!-- Project specific files -->
+
+
 		<script src="../release/third-party/three.js"></script>
-		<audio id="audio" src="../assets/audio/03 Under Neon Lights.mp3">
 
 		<script>
 
 			var editor = new Editor();
 
 			// TOFIX:
-			editor.audio = document.getElementById( 'audio' );
+			editor.audio = document.createElement( 'audio' );
+			editor.audio.addEventListener('durationchange', function() {
+				console.log("loaded");
+				editor.signals.durationChanged.dispatch(editor.audio.duration);
+			}, false);
+			editor.audio.src = '../assets/audio/03 Under Neon Lights.mp3';
+			editor.audio.load();
+
 			Object.defineProperty( editor, 'currentTime', {
 				get: function() { return this.audio.currentTime }
 			} );
