@@ -1,0 +1,17 @@
+<h1 id="under-neon-lights">Under Neon Lights</h1>
+<p>A WebVR interactive music video only on Within. With music by The Chemical Brothers.</p>
+<h2 id="environment">Environment</h2>
+<p>There are three main resources for this project:</p>
+<ul>
+<li><a href="./release/">/release</a>: The current build for the project</li>
+<li><a href="./editor">/editor</a>: A WYSIWYG timeline editor for the project</li>
+<li><a href="./asset-viewer/">/asset-viewer</a>: A WYSIWYG model viewer for the project</li>
+</ul>
+<p>These folders all require you run a local server on your computer. A good cross-platform way to get that started is by installing <a href="https://nodejs.org/en/">Node.js</a>, opening up a command line prompt, and typing <code>npm install -g http-server</code>. Once you have that, point your command line to this project&#39;s root directory and type <code>http-server</code>. This will create a local server at <code>http://localhost:8080</code>. The following instructions will use this local server&#39;s details as the example.</p>
+<p>Below are more details for each of the pages and how to use them.</p>
+<h3 id="-release">/release</h3>
+<p><a href="http://localhost:8080/release/">http://localhost:8080/release/</a> is the most current place to see our current build of the project.</p>
+<h3 id="-editor">/editor</h3>
+<p><a href="http://localhost:8080/editor/">http://localhost:8080/editor/</a> gives you an empty viewport to see and manipulate how we&#39;re choreographing Neon Lights. Once this is open in your web browser go to <code>File &gt; New</code> to make a blank project. Then drag <code>/release/neon-lights.json</code> over the window to load timeline data to the project. Similar to video editing software you can hit the spacebar to play and pause the video with some additional controls to see how animations are laid out. For further questions ask someone in our <a href="https://with-in.slack.com/archives/neon-lights">Slack Channel</a>.</p>
+<h3 id="-asset-viewer">/asset-viewer</h3>
+<p><a href="http://localhost:8080/asset-viewer/">http://localhost:8080/asset-viewer/</a> gives you an empty viewport to see and manipulate 3D models. It&#39;s open to any model, but it&#39;s really meant for vertex color FBX&#39;s with animations — the basis of Neon Lights&#39; assets. Once open click <code>Add &gt; Ambient Light</code> from the file menu. Next disable (uncheck) <code>autosave</code> in the upper-right hand corner. Now, drag any FBX file over the window and it should load with any animations running. N.B: for the asset viewer we only run the first animation. Please ask Jono or Ricardo if your model has more than one animation and we can figure out quick way to support that.</p>
