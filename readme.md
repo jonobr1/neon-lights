@@ -13,12 +13,12 @@ These folders all require you run a local server on your computer. A good cross-
 Below are more details for each of the pages and how to use them.
 
 ### /release
-http://localhost:8080/release/ is the most current place to see our current build of the project.
+[http://localhost:8080/release/](http://localhost:8080/release/) is the most current place to see our current build of the project.
 
 ### /editor
-http://localhost:8080/editor/ gives you an empty viewport to see and manipulate how we're choreographing Neon Lights. Once this is open in your web browser go to `File > New` to make a blank project. Then drag `/release/neon-lights.json` over the window to load timeline data to the project. Similar to video editing software you can hit the spacebar to play and pause the video with some additional controls to see how animations are laid out.
+[http://localhost:8080/editor/](http://localhost:8080/editor/) gives you an empty viewport to see and manipulate how we're choreographing Neon Lights. Once this is open in your web browser go to `File > New` to make a blank project. Then drag `/release/neon-lights.json` over the window to load timeline data to the project. Similar to video editing software you can hit the spacebar to play and pause the video with some additional controls to see how animations are laid out.
 
 ### /asset-viewer
-http://localhost:8080/asset-viewer/ gives you an empty viewport to see and manipulate 3D models. It's open to any model, but it's really meant for vertex color FBX's with animations — the basis of Neon Lights' assets. Once open click `Add > Ambient Light` from the file menu. Next disable (uncheck) `autosave` in the upper-right hand corner. Now, drag any FBX file over the window and it should load with any animations running. N.B: for the asset viewer we only run the first animation. Please ask Jono or Ricardo if your model has more than one animation and we can figure out quick way to support that.
+[http://localhost:8080/asset-viewer/](http://localhost:8080/asset-viewer/) gives you an empty viewport to see and manipulate 3D models. It's open to any model, but it's really meant for vertex color FBX's with animations — the basis of Neon Lights' assets. Once open click `Add > Ambient Light` from the file menu. Next disable (uncheck) `autosave` in the upper-right hand corner. Now, drag any FBX file over the window and it should load with any animations running. N.B: for the asset viewer we only run the first animation. Please ask Jono or Ricardo if your model has more than one animation and we can figure out quick way to support that.
 
 For further questions ask in our [Slack Channel](https://with-in.slack.com/archives/neon-lights).
