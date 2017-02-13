@@ -45,11 +45,11 @@
 			// TOFIX:
 			editor.audio = document.createElement( 'audio' );
 			editor.audio.addEventListener('durationchange', function() {
-				console.log("loaded");
 				editor.signals.durationChanged.dispatch(editor.audio.duration);
 			}, false);
 			editor.audio.src = '../assets/audio/03 Under Neon Lights.mp3';
 			editor.audio.load();
+			document.body.appendChild(editor.audio);
 
 			Object.defineProperty( editor, 'currentTime', {
 				get: function() { return this.audio.currentTime }
