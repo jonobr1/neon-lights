@@ -91,6 +91,9 @@ var Editor = function () {
 	this.scene.name = 'Scene';
 	this.scene.background = new THREE.Color( 0xaaaaaa );
 
+	// TODO: Hack by @jonobr1 to view Neon Lights animations.
+	this.mixer = null;
+
 	this.sceneHelpers = new THREE.Scene();
 
 	this.object = {};

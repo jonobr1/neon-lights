@@ -5,6 +5,7 @@
 var Viewport = function ( editor ) {
 
 	var signals = editor.signals;
+	var clock = new THREE.Clock();
 
 	var container = new UI.Panel();
 	container.setId( 'viewport' );
@@ -584,7 +585,7 @@ var Viewport = function ( editor ) {
 		}
 		*/
 
-		if ( vrEffect && vrEffect.isPresenting ) {
+		if ( vrEffect && vrEffect.isPresenting || editor.mixer ) {
 
 			render();
 
@@ -596,6 +597,14 @@ var Viewport = function ( editor ) {
 
 		sceneHelpers.updateMatrixWorld();
 		scene.updateMatrixWorld();
+
+		// TODO: Hack by @jonobr1 to load Neon Lights animations for viewing.
+
+		if ( editor.mixer ) {
+
+			editor.mixer.update( clock.getDelta() );
+
+		}
 
 		if ( vrEffect && vrEffect.isPresenting ) {
 

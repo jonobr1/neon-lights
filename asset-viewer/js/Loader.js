@@ -148,6 +148,14 @@ var Loader = function ( editor ) {
 					var loader = new THREE.FBXLoader();
 					var object = loader.parse( contents );
 
+					// TODO: Hack by @jonobr1 for viewing animations in Neon Lights
+					// Models.
+
+					if ( object.animations && object.animations.length > 0 ) {
+						editor.mixer = new THREE.AnimationMixer( object );
+						editor.mixer.clipAction( object.animations[ 0 ] ).play();
+					}
+
 					editor.execute( new AddObjectCommand( object ) );
 
 				}, false );
