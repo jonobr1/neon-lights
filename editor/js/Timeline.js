@@ -121,7 +121,7 @@ var Timeline = function ( editor ) {
 
 			event.preventDefault();
 
-			scale = Math.max( 1, scale + ( event.wheelDeltaY / 10 ) );
+			scale = Math.min( 120, Math.max( 2, scale + ( event.wheelDeltaY / 10 ) ) );
 
 			signals.timelineScaled.dispatch( scale );
 
@@ -130,17 +130,10 @@ var Timeline = function ( editor ) {
 	} );
 	container.add( timeline );
 
-	var marks = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
-	marks.style.position = 'absolute';
-	marks.setAttribute( 'width', '100%' );
-	marks.setAttribute( 'height', '32px' );
-	timeline.dom.appendChild( marks );
-
-	var marksPath = document.createElementNS( 'http://www.w3.org/2000/svg', 'path' );
-	marksPath.setAttribute( 'style', 'stroke: #888; stroke-width: 1px; fill: none;' );
-	marks.appendChild( marksPath );
-
-	marks.addEventListener( 'mousedown', function ( event ) {
+	var canvas = document.createElement( 'canvas' );
+	canvas.height = 32;
+	canvas.style.position = 'absolute';
+	canvas.addEventListener( 'mousedown', function ( event ) {
 
 		event.preventDefault();
 
@@ -168,25 +161,47 @@ var Timeline = function ( editor ) {
 		document.addEventListener( 'mouseup', onMouseUp, false );
 
 	}, false );
-	timeline.dom.appendChild( marks );
+	timeline.dom.appendChild( canvas );
 
 	function updateMarks() {
 
-		var drawing = '';
+		canvas.width = duration * scale;
+
+		var context = canvas.getContext( '2d' );
+
+		context.strokeStyle = '#888';
+		context.beginPath();
+
 		var scale4 = scale / 4;
-		var offset = - scroller.scrollLeft % scale;
-		var width = marks.getBoundingClientRect().width || 1024;
 
-		for ( var i = offset, l = width; i <= l; i += scale ) {
+		for ( var i = 0.5, l = canvas.width; i <= l; i += scale ) {
 
-			drawing += 'M ' + i + ' 8 L' + i + ' 24';
-			drawing += 'M ' + ( i + ( scale4 * 1 ) ) + ' 12 L' + ( i + ( scale4 * 1 ) ) + ' 20';
-			drawing += 'M ' + ( i + ( scale4 * 2 ) ) + ' 12 L' + ( i + ( scale4 * 2 ) ) + ' 20';
-			drawing += 'M ' + ( i + ( scale4 * 3 ) ) + ' 12 L' + ( i + ( scale4 * 3 ) ) + ' 20';
+			context.moveTo( i + ( scale4 * 0 ), 18 ); context.lineTo( i + ( scale4 * 0 ), 26 );
+			context.moveTo( i + ( scale4 * 1 ), 22 ); context.lineTo( i + ( scale4 * 1 ), 26 );
+			context.moveTo( i + ( scale4 * 2 ), 22 ); context.lineTo( i + ( scale4 * 2 ), 26 );
+			context.moveTo( i + ( scale4 * 3 ), 22 ); context.lineTo( i + ( scale4 * 3 ), 26 );
+
 
 		}
 
-		marksPath.setAttribute( 'd', drawing );
+		context.stroke();
+
+		context.font = '10px Arial';
+		context.fillStyle = '#888'
+		context.textAlign = 'center';
+
+		for ( var i = scale, l = canvas.width; i <= l; i += scale ) {
+
+			var j = i / scale;
+
+			var minute = Math.floor( j / 60 );
+			var second = Math.floor( j % 60 );
+
+			var text = ( minute > 0 ? minute + ':' : '' ) + ( '0' + second ).slice( - 2 );
+
+			context.fillText( text, i, 13 );
+
+		}
 
 	}
 
@@ -198,7 +213,7 @@ var Timeline = function ( editor ) {
 	scroller.style.overflow = 'auto';
 	scroller.addEventListener( 'scroll', function ( event ) {
 
-		updateMarks();
+		canvas.style.left = ( - scroller.scrollLeft ) + 'px';
 		updateTimeMark();
 
 	}, false );
@@ -260,6 +275,7 @@ var Timeline = function ( editor ) {
 
 		duration = value;
 
+		updateMarks();
 		updateContainers();
 
 	} );
