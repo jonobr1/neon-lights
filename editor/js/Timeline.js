@@ -62,15 +62,15 @@ var Timeline = function ( editor ) {
 	timeline.setBottom( '0px' );
 	timeline.setWidth( '100%' );
 	timeline.setOverflow( 'hidden' );
-	timeline.dom.addEventListener( 'mousewheel', function ( event ) {
+	timeline.dom.addEventListener( 'wheel', function ( event ) {
 
 		// check if [shift] is pressed
 
-		if ( keysDown[ 16 ] === true ) {
+		if ( event.shiftKey === true ) {
 
 			event.preventDefault();
 
-			scale = Math.min( 120, Math.max( 2, scale + ( event.wheelDeltaY / 10 ) ) );
+			scale = Math.min( 120, Math.max( 2, scale + ( event.deltaY / 10 ) ) );
 
 			signals.timelineScaled.dispatch( scale );
 
