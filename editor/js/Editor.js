@@ -174,6 +174,22 @@ Editor.prototype = {
 
 	//
 
+	setAudio: function ( audio ) {
+
+		this.audio = audio;
+
+		var scope = this;
+
+		audio.addEventListener( 'durationchange', function () {
+
+			scope.signals.durationChanged.dispatch( audio.duration );
+
+		}, false );
+
+	},
+
+	//
+
 	addEffect: function ( effect ) {
 
 		this.effects.push( effect );

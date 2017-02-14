@@ -64,8 +64,6 @@ var Timeline = function ( editor ) {
 	timeline.setOverflow( 'hidden' );
 	timeline.dom.addEventListener( 'wheel', function ( event ) {
 
-		// check if [shift] is pressed
-
 		if ( event.shiftKey === true ) {
 
 			event.preventDefault();

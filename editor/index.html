@@ -39,18 +39,14 @@
 
 		<script src="../release/third-party/three.js"></script>
 
+		<audio id="audio" src="../assets/audio/03 Under Neon Lights.mp3"></audio>
+
 		<script>
 
 			var editor = new Editor();
+			editor.setAudio( document.getElementById( 'audio' ) );
 
 			// TOFIX:
-			editor.audio = document.createElement( 'audio' );
-			editor.audio.addEventListener('durationchange', function() {
-				editor.signals.durationChanged.dispatch(editor.audio.duration);
-			}, false);
-			editor.audio.src = '../assets/audio/03 Under Neon Lights.mp3';
-			editor.audio.load();
-			document.body.appendChild(editor.audio);
 
 			Object.defineProperty( editor, 'currentTime', {
 				get: function() { return this.audio.currentTime }
