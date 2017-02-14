@@ -32,7 +32,7 @@
 #effect {
 	position: absolute;
 	top: 32px;
-	bottom: 30%;
+	bottom: calc(30% + 32px);
 	left: 0px;
 	right: 300px;
 	opacity: 0.9;
