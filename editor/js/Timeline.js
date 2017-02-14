@@ -14,58 +14,7 @@ var Timeline = function ( editor ) {
 
 	// controls
 
-	var controls = new UI.Panel();
-	controls.setPosition( 'absolute' );
-	controls.setWidth( '100%' );
-	controls.setPadding( '5px 0px' );
-	controls.setBackground( '#666' );
-	panel.add( controls );
-
-	var playButton = new UI.Button();
-	playButton.setLabel( '▶︎' );
-	playButton.setMarginLeft( '5px' );
-	playButton.setPaddingRight( '4px' );
-	playButton.onClick( function () {
-
-		editor.isPlaying ? editor.stop() : editor.play();
-
-	} );
-	controls.add( playButton );
-
-	signals.playingChanged.add( function ( isPlaying ) {
-
-		playButton.setLabel( isPlaying ? '❚❚' : '▶︎' )
-
-	} );
-
-	var timeText = new UI.Text();
-	timeText.setColor( '#bbb' );
-	timeText.setMarginLeft( '5px' );
-	timeText.setValue( '0:00.00' );
-	controls.add( timeText );
-
-	function updateTimeText( value ) {
-
-		var minutes = Math.floor( value / 60 );
-		var seconds = value % 60;
-		var padding = seconds < 10 ? '0' : '';
-
-		timeText.setValue( minutes + ':' + padding + seconds.toFixed( 2 ) );
-
-	}
-
-	var playbackRateText = new UI.Text();
-	playbackRateText.setColor( '#999' );
-	playbackRateText.setMarginLeft( '5px' );
-	playbackRateText.setValue( '1.0x' );
-	controls.add( playbackRateText );
-
-	function updatePlaybackRateText( value ) {
-
-		playbackRateText.setValue( value.toFixed( 1 ) + 'x' );
-
-	}
-
+	/*
 	var buttons = new UI.Div();
 	buttons.setPosition( 'absolute' );
 	buttons.setTop( '5px' );
@@ -94,6 +43,7 @@ var Timeline = function ( editor ) {
 
 	} );
 	buttons.add( button );
+	*/
 
 	// timeline
 
@@ -108,20 +58,17 @@ var Timeline = function ( editor ) {
 
 	var timeline = new UI.Panel();
 	timeline.setPosition( 'absolute' );
-	timeline.setLeft( '300px' );
-	timeline.setRight( '0px');
 	timeline.setTop( '0px' );
 	timeline.setBottom( '0px' );
+	timeline.setWidth( '100%' );
 	timeline.setOverflow( 'hidden' );
-	timeline.dom.addEventListener( 'mousewheel', function ( event ) {
+	timeline.dom.addEventListener( 'wheel', function ( event ) {
 
-		// check if [shift] is pressed
-
-		if ( keysDown[ 16 ] === true ) {
+		if ( event.shiftKey === true ) {
 
 			event.preventDefault();
 
-			scale = Math.max( 1, scale + ( event.wheelDeltaY / 10 ) );
+			scale = Math.min( 120, Math.max( 2, scale + ( event.deltaY / 10 ) ) );
 
 			signals.timelineScaled.dispatch( scale );
 
@@ -130,28 +77,16 @@ var Timeline = function ( editor ) {
 	} );
 	container.add( timeline );
 
-	var marks = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
-	marks.style.position = 'absolute';
-	marks.setAttribute( 'width', '100%' );
-	marks.setAttribute( 'height', '32px' );
-	timeline.dom.appendChild( marks );
-
-	var marksPath = document.createElementNS( 'http://www.w3.org/2000/svg', 'path' );
-	marksPath.setAttribute( 'style', 'stroke: #888; stroke-width: 1px; fill: none;' );
-	marks.appendChild( marksPath );
-
-	marks.addEventListener( 'mousedown', function ( event ) {
+	var canvas = document.createElement( 'canvas' );
+	canvas.height = 32;
+	canvas.style.position = 'absolute';
+	canvas.addEventListener( 'mousedown', function ( event ) {
 
 		event.preventDefault();
 
-		var onMouseDownClientX = event.clientX;
-		var onMouseDownOffsetX = event.offsetX;
-
 		function onMouseMove( event ) {
 
-			var mouseX = onMouseDownOffsetX + ( event.clientX - onMouseDownClientX ) + scroller.scrollLeft;
-
-			editor.setTime( mouseX / scale );
+			editor.setTime( event.offsetX / scale );
 
 		}
 
@@ -168,25 +103,47 @@ var Timeline = function ( editor ) {
 		document.addEventListener( 'mouseup', onMouseUp, false );
 
 	}, false );
-	timeline.dom.appendChild( marks );
+	timeline.dom.appendChild( canvas );
 
 	function updateMarks() {
 
-		var drawing = '';
+		canvas.width = duration * scale;
+
+		var context = canvas.getContext( '2d' );
+
+		context.strokeStyle = '#888';
+		context.beginPath();
+
 		var scale4 = scale / 4;
-		var offset = - scroller.scrollLeft % scale;
-		var width = marks.getBoundingClientRect().width || 1024;
 
-		for ( var i = offset, l = width; i <= l; i += scale ) {
+		for ( var i = 0.5, l = canvas.width; i <= l; i += scale ) {
 
-			drawing += 'M ' + i + ' 8 L' + i + ' 24';
-			drawing += 'M ' + ( i + ( scale4 * 1 ) ) + ' 12 L' + ( i + ( scale4 * 1 ) ) + ' 20';
-			drawing += 'M ' + ( i + ( scale4 * 2 ) ) + ' 12 L' + ( i + ( scale4 * 2 ) ) + ' 20';
-			drawing += 'M ' + ( i + ( scale4 * 3 ) ) + ' 12 L' + ( i + ( scale4 * 3 ) ) + ' 20';
+			context.moveTo( i + ( scale4 * 0 ), 18 ); context.lineTo( i + ( scale4 * 0 ), 26 );
+			context.moveTo( i + ( scale4 * 1 ), 22 ); context.lineTo( i + ( scale4 * 1 ), 26 );
+			context.moveTo( i + ( scale4 * 2 ), 22 ); context.lineTo( i + ( scale4 * 2 ), 26 );
+			context.moveTo( i + ( scale4 * 3 ), 22 ); context.lineTo( i + ( scale4 * 3 ), 26 );
+
 
 		}
 
-		marksPath.setAttribute( 'd', drawing );
+		context.stroke();
+
+		context.font = '10px Arial';
+		context.fillStyle = '#888'
+		context.textAlign = 'center';
+
+		for ( var i = scale, l = canvas.width; i <= l; i += scale ) {
+
+			var j = i / scale;
+
+			var minute = Math.floor( j / 60 );
+			var second = Math.floor( j % 60 );
+
+			var text = ( minute > 0 ? minute + ':' : '' ) + ( '0' + second ).slice( - 2 );
+
+			context.fillText( text, i, 13 );
+
+		}
 
 	}
 
@@ -198,7 +155,7 @@ var Timeline = function ( editor ) {
 	scroller.style.overflow = 'auto';
 	scroller.addEventListener( 'scroll', function ( event ) {
 
-		updateMarks();
+		canvas.style.left = ( - scroller.scrollLeft ) + 'px';
 		updateTimeMark();
 
 	}, false );
@@ -207,16 +164,18 @@ var Timeline = function ( editor ) {
 	var elements = new Timeline.Animations( editor );
 	scroller.appendChild( elements.dom );
 
+	/*
 	var curves = new Timeline.Curves( editor );
 	curves.setDisplay( 'none' );
 	scroller.appendChild( curves.dom );
+	*/
 
 	function updateContainers() {
 
 		var width = duration * scale;
 
 		elements.setWidth( width + 'px' );
-		curves.setWidth( width + 'px' );
+		// curves.setWidth( width + 'px' );
 
 	}
 
@@ -260,6 +219,7 @@ var Timeline = function ( editor ) {
 
 		duration = value;
 
+		updateMarks();
 		updateContainers();
 
 	} );
@@ -268,14 +228,7 @@ var Timeline = function ( editor ) {
 
 		time = value;
 
-		updateTimeText( value );
 		updateTimeMark();
-
-	} );
-
-	signals.playbackRateChanged.add( function ( value ) {
-
-		updatePlaybackRateText( value );
 
 	} );
 

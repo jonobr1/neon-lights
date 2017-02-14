@@ -135,6 +135,61 @@ Editor.prototype = {
 
 	},
 
+	speedUp: function () {
+
+		if ( this.audio !== null ) {
+
+			this.audio.playbackRate += 0.1;
+			this.signals.playbackRateChanged.dispatch( this.audio.playbackRate );
+
+		}
+
+	},
+
+	speedDown: function () {
+
+		if ( this.audio !== null ) {
+
+			this.audio.playbackRate -= 0.1;
+			this.signals.playbackRateChanged.dispatch( this.audio.playbackRate );
+
+		}
+
+	},
+
+	setTime: function ( time ) {
+
+		// location.hash = time;
+
+		if ( this.audio !== null ) {
+
+			this.audio.currentTime = Math.max( 0, time );
+
+		}
+
+		this.currentTime = Math.max( 0, time );
+		this.signals.timeChanged.dispatch( this.currentTime );
+
+	},
+
+	//
+
+	setAudio: function ( audio ) {
+
+		this.audio = audio;
+
+		var scope = this;
+
+		audio.addEventListener( 'durationchange', function () {
+
+			scope.signals.durationChanged.dispatch( audio.duration );
+
+		}, false );
+
+	},
+
+	//
+
 	addEffect: function ( effect ) {
 
 		this.effects.push( effect );
@@ -192,21 +247,6 @@ Editor.prototype = {
 		}
 
 		this.signals.editorCleared.dispatch();
-
-	},
-
-	setTime: function ( time ) {
-
-		// location.hash = time;
-
-		if ( this.audio !== null ) {
-
-			this.audio.currentTime = Math.max( 0, time );
-
-		}
-
-		this.currentTime = Math.max( 0, time );
-		this.signals.timeChanged.dispatch( this.currentTime );
 
 	},
 
