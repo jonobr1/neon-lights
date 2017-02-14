@@ -2,7 +2,7 @@
 	position: absolute;
 	top: 32px;
 	bottom: 30%;
-	left: 0px;
+	right: 0px;
 	width: 300px;
 	color: #888;
 	background-color: #555;
@@ -23,9 +23,9 @@
 #viewport {
 	position: absolute;
 	top: 32px;
-	bottom: 30%;
-	left: 300px;
-	right: 0px;
+	bottom: calc(30% + 32px);
+	left: 0px;
+	right: 300px;
 	background-color: #000;
 }
 
@@ -33,9 +33,18 @@
 	position: absolute;
 	top: 32px;
 	bottom: 30%;
-	left: 300px;
-	right: 0px;
+	left: 0px;
+	right: 300px;
 	opacity: 0.9;
+}
+
+#controls {
+	position: absolute;
+	background-color: #666;
+	top: calc(70% - 32px);
+	left: 0px;
+	right: 300px;
+	height: 32px;
 }
 
 #timeline {

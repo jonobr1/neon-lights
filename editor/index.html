@@ -27,6 +27,7 @@
 		<script src="js/Menubar.Help.js"></script>
 		<script src="js/Properties.js"></script>
 		<script src="js/Viewport.js"></script>
+		<script src="js/Controls.js"></script>
 		<script src="js/Timeline.js"></script>
 		<script src="js/Timeline.Animations.js"></script>
 		<script src="js/Timeline.Curves.js"></script>
@@ -63,6 +64,9 @@
 
 			var properties = new Properties( editor );
 			document.body.appendChild( properties.dom );
+
+			var controls = new Controls( editor );
+			document.body.appendChild( controls.dom );
 
 			var timeline = new Timeline( editor );
 			document.body.appendChild( timeline.dom );

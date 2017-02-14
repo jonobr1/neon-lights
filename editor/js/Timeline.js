@@ -14,58 +14,7 @@ var Timeline = function ( editor ) {
 
 	// controls
 
-	var controls = new UI.Panel();
-	controls.setPosition( 'absolute' );
-	controls.setWidth( '100%' );
-	controls.setPadding( '5px 0px' );
-	controls.setBackground( '#666' );
-	panel.add( controls );
-
-	var playButton = new UI.Button();
-	playButton.setLabel( '▶︎' );
-	playButton.setMarginLeft( '5px' );
-	playButton.setPaddingRight( '4px' );
-	playButton.onClick( function () {
-
-		editor.isPlaying ? editor.stop() : editor.play();
-
-	} );
-	controls.add( playButton );
-
-	signals.playingChanged.add( function ( isPlaying ) {
-
-		playButton.setLabel( isPlaying ? '❚❚' : '▶︎' )
-
-	} );
-
-	var timeText = new UI.Text();
-	timeText.setColor( '#bbb' );
-	timeText.setMarginLeft( '5px' );
-	timeText.setValue( '0:00.00' );
-	controls.add( timeText );
-
-	function updateTimeText( value ) {
-
-		var minutes = Math.floor( value / 60 );
-		var seconds = value % 60;
-		var padding = seconds < 10 ? '0' : '';
-
-		timeText.setValue( minutes + ':' + padding + seconds.toFixed( 2 ) );
-
-	}
-
-	var playbackRateText = new UI.Text();
-	playbackRateText.setColor( '#999' );
-	playbackRateText.setMarginLeft( '5px' );
-	playbackRateText.setValue( '1.0x' );
-	controls.add( playbackRateText );
-
-	function updatePlaybackRateText( value ) {
-
-		playbackRateText.setValue( value.toFixed( 1 ) + 'x' );
-
-	}
-
+	/*
 	var buttons = new UI.Div();
 	buttons.setPosition( 'absolute' );
 	buttons.setTop( '5px' );
@@ -94,6 +43,7 @@ var Timeline = function ( editor ) {
 
 	} );
 	buttons.add( button );
+	*/
 
 	// timeline
 
@@ -101,17 +51,15 @@ var Timeline = function ( editor ) {
 	document.addEventListener( 'keydown', function ( event ) { keysDown[ event.keyCode ] = true; } );
 	document.addEventListener( 'keyup',   function ( event ) { keysDown[ event.keyCode ] = false; } );
 
-	var time = 0;
 	var scale = 32;
 	var prevScale = scale;
 	var duration = 60;
 
 	var timeline = new UI.Panel();
 	timeline.setPosition( 'absolute' );
-	timeline.setLeft( '300px' );
-	timeline.setRight( '0px');
 	timeline.setTop( '0px' );
 	timeline.setBottom( '0px' );
+	timeline.setWidth( '100%' );
 	timeline.setOverflow( 'hidden' );
 	timeline.dom.addEventListener( 'mousewheel', function ( event ) {
 
@@ -222,16 +170,18 @@ var Timeline = function ( editor ) {
 	var elements = new Timeline.Animations( editor );
 	scroller.appendChild( elements.dom );
 
+	/*
 	var curves = new Timeline.Curves( editor );
 	curves.setDisplay( 'none' );
 	scroller.appendChild( curves.dom );
+	*/
 
 	function updateContainers() {
 
 		var width = duration * scale;
 
 		elements.setWidth( width + 'px' );
-		curves.setWidth( width + 'px' );
+		// curves.setWidth( width + 'px' );
 
 	}
 
@@ -261,7 +211,7 @@ var Timeline = function ( editor ) {
 	timeMark.style.pointerEvents = 'none';
 	timeline.dom.appendChild( timeMark );
 
-	function updateTimeMark() {
+	function updateTimeMark( time ) {
 
 		timeMark.style.left = ( time * scale ) - scroller.scrollLeft - 8 + 'px';
 
@@ -282,16 +232,7 @@ var Timeline = function ( editor ) {
 
 	signals.timeChanged.add( function ( value ) {
 
-		time = value;
-
-		updateTimeText( value );
-		updateTimeMark();
-
-	} );
-
-	signals.playbackRateChanged.add( function ( value ) {
-
-		updatePlaybackRateText( value );
+		updateTimeMark( value );
 
 	} );
 
