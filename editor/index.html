@@ -129,13 +129,11 @@
 						break;
 					case 38:
 						event.preventDefault();
-						// audio.playbackRate = audio.playbackRate + 0.1;
-						// editor.setPlaybackRate( audio.playbackRate );
+						editor.speedUp();
 						break;
 					case 40:
 						event.preventDefault();
-						// audio.playbackRate = audio.playbackRate - 0.1;
-						// editor.setPlaybackRate( audio.playbackRate );
+						editor.speedDown();
 						break;
 
 				}
