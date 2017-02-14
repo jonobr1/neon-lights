@@ -51,6 +51,7 @@ var Timeline = function ( editor ) {
 	document.addEventListener( 'keydown', function ( event ) { keysDown[ event.keyCode ] = true; } );
 	document.addEventListener( 'keyup',   function ( event ) { keysDown[ event.keyCode ] = false; } );
 
+	var time = 0;
 	var scale = 32;
 	var prevScale = scale;
 	var duration = 60;
@@ -85,14 +86,9 @@ var Timeline = function ( editor ) {
 
 		event.preventDefault();
 
-		var onMouseDownClientX = event.clientX;
-		var onMouseDownOffsetX = event.offsetX;
-
 		function onMouseMove( event ) {
 
-			var mouseX = onMouseDownOffsetX + ( event.clientX - onMouseDownClientX ) + scroller.scrollLeft;
-
-			editor.setTime( mouseX / scale );
+			editor.setTime( event.offsetX / scale );
 
 		}
 
@@ -211,7 +207,7 @@ var Timeline = function ( editor ) {
 	timeMark.style.pointerEvents = 'none';
 	timeline.dom.appendChild( timeMark );
 
-	function updateTimeMark( time ) {
+	function updateTimeMark() {
 
 		timeMark.style.left = ( time * scale ) - scroller.scrollLeft - 8 + 'px';
 
@@ -232,7 +228,9 @@ var Timeline = function ( editor ) {
 
 	signals.timeChanged.add( function ( value ) {
 
-		updateTimeMark( value );
+		time = value;
+
+		updateTimeMark();
 
 	} );
 
