@@ -23,6 +23,9 @@
       <script src="../release/src/mouse-controls.js"></script>
       <script src="../release/third-party/three/js/controls/DeviceOrientationControls.js"></script>
       <script src="../release/third-party/three/js/controls/VRControls.js"></script>
+      <script src="../release/third-party/three/js/vr/DaydreamController.js"></script>
+      <script src="../release/third-party/orientation-arm-model.js"></script>
+      <script src="../release/third-party/three/js/vr/ViveController.js"></script>
       <script src="../release/third-party/screenfull.js"></script>
 
       <script src="../release/src/elements.js"></script>
@@ -36,11 +39,11 @@
       <script src="../release/src/scenes/forest/mushroom.js"></script>
       <script>
 
-        Annie.prototype.update = function() {
+        Annie.prototype.update = function(t) {
 
           this.controls.update();
 
-          var theta = mod(this.ghost.rotation.y, TWO_PI);
+          var theta = t || 0;
 
           this._step += (this.step - this._step) * Annie.Drag;
 
@@ -56,6 +59,7 @@
           }
 
           this.camera.rotation.x = this.ghost.rotation.x;
+          this.camera.rotation.y = this.ghost.rotation.y;
           this.camera.rotation.z = this.ghost.rotation.z;
 
           return this;
@@ -82,6 +86,91 @@
           var cameras = new CameraAngles(new THREE.PerspectiveCamera());
 
           renderer.setPixelRatio( has.mobile ? Math.min(2, window.devicePixelRatio) : window.devicePixelRatio );
+
+          var controllers = {
+            daydream: new THREE.DaydreamController(0),
+            left: new THREE.ViveController(0),
+            right: new THREE.ViveController(1),
+            setup: function(scene) {
+
+              var geometry = new THREE.CylinderBufferGeometry( 0, 0.001, 1, 8, 1, true );
+              var material = new THREE.MeshBasicMaterial({
+                color: 0x36b8b7,
+                transparent: true,
+                opacity: 0.3
+              });
+
+              geometry.applyMatrix(
+                new THREE.Matrix4().makeTranslation( 0, 0.5, 0 ) );
+
+              var mesh = new THREE.Mesh(geometry, material);
+              mesh.rotation.x = - Math.PI / 2;
+              mesh.scale.y = 2;
+
+              scene.add(controllers.daydream);
+              scene.add(controllers.left);
+              scene.add(controllers.right);
+
+              controllers.daydream.add(mesh);
+              controllers.left.add(mesh.clone());
+              controllers.right.add(mesh.clone());
+
+              // controllers.left.addEventListener('triggerdown', trigger);
+              // controllers.right.addEventListener('triggerdown', trigger);
+              // controllers.left.addEventListener('triggerup', triggerUp);
+              // controllers.right.addEventListener('triggerup', triggerUp);
+              // controllers.left.addEventListener('thumbpaddown', thumbpad);
+              // controllers.right.addEventListener('thumbpaddown', thumbpad);
+              var drag = new THREE.Vector3();
+              controllers.daydream.addEventListener('touchpaddown', function() {
+                drag.copy(controllers.daydream.position);
+              });
+              controllers.daydream.addEventListener('touchpadup', function() {
+                var position = controllers.daydream.position;
+                console.log('buttonup', position.x - drag.x, position.y - drag.y, position.z - drag.z);
+              });
+
+              controllers.daydream.visible = controllers.left.visible =
+                controllers.right.visible = false;
+
+            },
+            update: function(camera) {
+
+              var daydreamPad = controllers.daydream.getGamepad();
+
+              if (daydreamPad) {
+
+                if (!controllers.daydream.visible) {
+                  controllers.daydream.visible = true;
+                }
+
+                var pose = daydreamPad.pose;
+                var controllerOrientation = controllers.daydream.quaternion
+                  .fromArray(pose.orientation);
+                var arm = controllers.daydream.arm;
+
+                arm.setHeadOrientation(camera.quaternion);
+                arm.setHeadPosition(camera.position);
+                arm.setControllerOrientation(controllerOrientation);
+                arm.update();
+
+                var pose = arm.getPose(); // includes position
+                controllers.daydream.position.copy(pose.position);
+
+              }
+
+              if (has.mobile) {
+                controllers.daydream.update();
+              } else {
+                controllers.left.update();
+                controllers.right.update();
+              }
+
+            }
+          };
+
+          controllers.daydream.quaternion = new THREE.Quaternion();
+          controllers.daydream.arm = new OrientationArmModel();
 
           var annie = new Annie();
           var forest = new Forest();
@@ -113,6 +202,7 @@
 
             scene.add(annie);
             scene.add(forest);
+            scene.add(cameras.current);
 
             cameras.current.position.z = 512 * 1.5;
             cameras.current.position.y = 256 * 1.5;
@@ -149,6 +239,8 @@
 
             $elems.play.addEventListener('click', play, false);
             Elements.onTap(renderer.domElement, requestStereo);
+
+            controllers.setup(scene);
 
             Two.Utils.extend(renderer.domElement.style, {
               display: 'block',
@@ -207,6 +299,9 @@
               requestAnimationFrame(loop);
             }
 
+            var camera = cameras.current;
+            controllers.update(camera);
+
             if (DEBUG) {
               timeline.update();
             } else {
@@ -219,7 +314,7 @@
 
             forest.update(annie.heading);
 
-            renderer.effect.render(scene, cameras.current);
+            renderer.effect.render(scene, camera);
 
           }
 
@@ -258,7 +353,8 @@
             annie: annie,
             cameras: cameras,
             forest: forest,
-            timeline: timeline
+            timeline: timeline,
+            controllers: controllers
           };
 
         });
