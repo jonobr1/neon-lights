@@ -75,6 +75,8 @@
 
         has.ready(function() {
 
+          var size = 5;
+          var theta = { current: 0, destination: 0, drag: 0.125, scale: 20 };
           var DEBUG = url.boolean('debug', false);
 
           var $elems = new Elements({
@@ -115,19 +117,22 @@
               controllers.left.add(mesh.clone());
               controllers.right.add(mesh.clone());
 
+              controllers.daydream.userData.previous = new THREE.Vector3();
+
               // controllers.left.addEventListener('triggerdown', trigger);
               // controllers.right.addEventListener('triggerdown', trigger);
               // controllers.left.addEventListener('triggerup', triggerUp);
               // controllers.right.addEventListener('triggerup', triggerUp);
               // controllers.left.addEventListener('thumbpaddown', thumbpad);
               // controllers.right.addEventListener('thumbpaddown', thumbpad);
-              var drag = new THREE.Vector3();
               controllers.daydream.addEventListener('touchpaddown', function() {
-                drag.copy(controllers.daydream.position);
+                controllers.daydream.userData.previous.copy(controllers.daydream.position);
+                controllers.daydream.userData.dragging = true;
+                Annie.IdealStep = 0.001;
               });
               controllers.daydream.addEventListener('touchpadup', function() {
-                var position = controllers.daydream.position;
-                console.log('buttonup', position.x - drag.x, position.y - drag.y, position.z - drag.z);
+                controllers.daydream.userData.dragging = false;
+                Annie.IdealStep = 0.03;
               });
 
               controllers.daydream.visible = controllers.left.visible =
@@ -172,8 +177,8 @@
           controllers.daydream.quaternion = new THREE.Quaternion();
           controllers.daydream.arm = new OrientationArmModel();
 
-          var annie = new Annie();
-          var forest = new Forest();
+          var annie = new Annie(size);
+          var forest = new Forest(size);
 
           Equalizer.Resolution = 16;
           var timeline = new Equalizer.Timeline();
@@ -204,8 +209,9 @@
             scene.add(forest);
             scene.add(cameras.current);
 
-            cameras.current.position.z = 512 * 1.5;
-            cameras.current.position.y = 256 * 1.5;
+            var ratio = size / Forest.defaultSize;
+            cameras.current.position.z = 768 * ratio;
+            cameras.current.position.y = 384 * ratio;
             cameras.current.lookAt(forest.position);
             annie.setCamera(cameras.current);
 
@@ -240,7 +246,7 @@
             $elems.play.addEventListener('click', play, false);
             Elements.onTap(renderer.domElement, requestStereo);
 
-            controllers.setup(scene);
+            controllers.setup(annie);
 
             Two.Utils.extend(renderer.domElement.style, {
               display: 'block',
@@ -309,8 +315,14 @@
               // Maybe not necessary?
             }
 
+            if (controllers.daydream.userData.dragging) {
+              theta.destination += (controllers.daydream.position.x - controllers.daydream.userData.previous.x) * theta.scale;
+              controllers.daydream.userData.previous.copy(controllers.daydream.position);
+            }
+
             annie.step = Annie.IdealStep * 60 * dt;
-            annie.update();
+            theta.current += (theta.destination - theta.current) * theta.drag;
+            annie.update(theta.current);
 
             forest.update(annie.heading);
 
@@ -354,7 +366,8 @@
             cameras: cameras,
             forest: forest,
             timeline: timeline,
-            controllers: controllers
+            controllers: controllers,
+            theta: theta
           };
 
         });
