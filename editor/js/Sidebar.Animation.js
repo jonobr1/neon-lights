@@ -1,7 +1,11 @@
-var Properties = function ( editor ) {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+Sidebar.Animation = function ( editor ) {
 
 	var container = new UI.Panel();
-	container.setId( 'properties' );
+	container.setId( 'animation' );
 
 	// signals
 
@@ -20,10 +24,7 @@ var Properties = function ( editor ) {
 
 		var animation = selected;
 
-		var animationPanel = new UI.Panel();
-		container.add( animationPanel );
-
-		animationPanel.add( new UI.Text( animation.name ).setId( 'name' ) );
+		container.add( new UI.Text( animation.name ).setId( 'name' ) );
 
 		var edit = new UI.Button( 'EDIT' );
 		edit.setPosition( 'absolute' );
@@ -33,9 +34,9 @@ var Properties = function ( editor ) {
 			editor.selectEffect( animation.effect );
 
 		} );
-		animationPanel.add( edit );
+		container.add( edit );
 
-		animationPanel.add( new UI.HorizontalRule() );
+		container.add( new UI.HorizontalRule() );
 
 		function createParameterRow( key ) {
 
@@ -43,7 +44,7 @@ var Properties = function ( editor ) {
 
 			if ( parameter === null ) return;
 
-			var parameterRow = new UI.Panel();
+			var parameterRow = new UI.Row();
 			parameterRow.add( new UI.Text( parameter.name ).setWidth( '90px' ) );
 
 			if ( parameter instanceof FRAME.Parameters.Boolean ) {
@@ -194,7 +195,7 @@ var Properties = function ( editor ) {
 
 		for ( var key in parameters ) {
 
-			animationPanel.add( createParameterRow( key ) );
+			container.add( createParameterRow( key ) );
 
 		}
 
