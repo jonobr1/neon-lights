@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+  </head>
+  <body>
+    <div class="scripts">
+      <script src="../release/third-party/three.js"></script>
+      <script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+      <script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+      <script>
+
+        var step = 0.005;
+        var size = 5;
+        var theta = Math.PI / 4;
+        var amount = 512;
+
+        var renderer = new THREE.WebGLRenderer();
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera();
+        camera.controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        var forest = new THREE.Group();
+        var light = new THREE.AmbientLight('white');
+
+        renderer.setClearColor('rgb(50, 150, 255)');
+        scene.fog = new THREE.Fog(renderer.getClearColor(), 0, size);
+
+        forest.userData.elements = [];
+        forest.userData.floor = new THREE.Mesh(
+          new THREE.PlaneBufferGeometry(size, size, 128, 128),
+          new THREE.MeshBasicMaterial({
+            color: 0x8cc63f
+          })
+        );
+
+        forest.add(forest.userData.floor);
+        forest.userData.floor.geometry.rotateX(- Math.PI / 2);
+
+        forest.userData.setup = function() {
+          var elements = forest.userData.elements;
+          var length = elements.length;
+          while (elements.length < amount) {
+            var i = Math.floor(Math.random() * length);
+            var shape = elements[i].clone();
+            shape.userData.offset = new THREE.Vector2(
+              Math.random() - 0.5,
+              Math.random() - 0.5
+            );
+            shape.scale.setScalar(2 * Math.random() / size);
+            shape.scale.y += Math.random() * shape.scale.y;
+            shape.rotation.y = Math.random() * Math.PI * 2;
+            elements.push(shape);
+            forest.add(shape);
+          }
+        };
+
+        forest.userData.update = function(cursor) {
+
+          var elements = forest.userData.elements;
+
+          for (var i = 0; i < elements.length; i++) {
+            var shape = elements[i];
+            var offset = shape.userData.offset;
+            var x = (cursor.x + offset.x) % 1 - 0.5;
+            var y = (cursor.y + offset.y) % 1 - 0.5;
+            shape.position.x = size * x;
+            shape.position.z = size * y;
+          }
+
+        };
+
+        var loader = new THREE.FBXLoader();
+        var files = [
+          'mdl_env_1_forest_flower_a_v01.fbx',
+          'mdl_env_1_forest_grass_a01_v01.fbx',
+          'mdl_env_1_forest_grass_a02_v01.fbx',
+          'mdl_env_1_forest_grass_b01_v01.fbx',
+          'mdl_env_1_forest_grass_b02_v01.fbx',
+          'mdl_env_1_forest_grass_c01_v01.fbx',
+          'mdl_env_1_forest_grass_c02_v01.fbx',
+          'mdl_env_1_forest_grass_c03_v01.fbx',
+          'mdl_env_1_forest_rock_a_v01.fbx',
+          'mdl_env_1_forest_rock_b_v01.fbx',
+          'mdl_env_1_forest_tree_a_v01.fbx',
+          'mdl_env_1_forest_tree_b_v01.fbx',
+          'mdl_env_1_forest_tree_c_v01.fbx',
+          'mdl_env_1_forest_tree_d_v01.fbx'
+        ];
+        files.loaded = 0;
+        files.root = '../assets/models/forest/';
+
+        var cursor = new THREE.Vector2();
+
+        files.forEach(function(file) {
+          loader.load(files.root + file, function(obj) {
+
+            var meshes = [];
+            var pluck = function(obj) {
+              for (var i = 0; i < obj.children.length; i++) {
+
+                var child = obj.children[i];
+
+                if (child instanceof THREE.Mesh) {
+
+                  child.geometry.computeBoundingBox();
+
+                  var bb = child.geometry.boundingBox;
+                  var x = bb.max.x - bb.min.x;
+                  var y = bb.max.y - bb.min.y;
+                  var z = bb.max.z - bb.min.z;
+                  var n = 1 / Math.max(x, y, z);
+
+                  child.geometry.scale(n, n, n);
+                  child.userData.offset = new THREE.Vector2(
+                    Math.random(),
+                    Math.random()
+                  );
+                  child.scale.setScalar(2 * Math.random() / size);
+
+                  meshes.push(child);
+
+                }
+                if (child.children && child.children.length > 0) {
+                  pluck(child);
+                }
+              }
+            };
+
+            pluck(obj)
+
+            for (var i = 0; i < meshes.length; i++) {
+              forest.add(meshes[i]);
+              forest.userData.elements.push(meshes[i]);
+            }
+            files.loaded++;
+
+            if (files.loaded === files.length) {
+              setup();
+            }
+
+          });
+        });
+
+        function setup() {
+
+          forest.userData.setup();
+
+          scene.add(light);
+          scene.add(forest);
+
+          camera.position.z = - 2;
+          camera.position.y = 0.5;
+
+          document.body.appendChild(renderer.domElement);
+          renderer.domElement.style.position = 'absolute';
+          renderer.domElement.style.top = 0;
+          renderer.domElement.style.left = 0;
+
+          window.addEventListener('resize', resize, false);
+          resize();
+
+          loop();
+
+        }
+
+        function resize() {
+
+          var width = window.innerWidth;
+          var height = window.innerHeight;
+
+          renderer.setSize(width, height);
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+
+        }
+
+        var frameCount = 0;
+
+        function loop() {
+
+          requestAnimationFrame(loop);
+
+          camera.controls.update();
+
+          cursor.x += step * Math.cos(theta);
+          cursor.y += step * Math.sin(theta);
+
+          theta = Math.PI / 4 * (Math.sin(frameCount / 50) + 1) - Math.PI / 8;
+          frameCount++;
+
+          forest.userData.update(cursor);
+
+          renderer.render(scene, camera);
+
+        }
+
+      </script>
+    </div>
+  </body>
+</html>
