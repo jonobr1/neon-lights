@@ -1,3 +1,7 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 Timeline.Curves = function ( editor ) {
 
 	var signals = editor.signals;

@@ -1,3 +1,7 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 var Viewport = function ( editor ) {
 
 	var container = new UI.Panel();

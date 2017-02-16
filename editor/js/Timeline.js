@@ -1,3 +1,7 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 var Timeline = function ( editor ) {
 
 	var signals = editor.signals;
