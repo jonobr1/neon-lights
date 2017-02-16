@@ -75,7 +75,7 @@
 
         has.ready(function() {
 
-          var size = 5;
+          var size = 1;
           var theta = { current: 0, destination: 0, drag: 0.125, scale: 20 };
           var DEBUG = url.boolean('debug', false);
 
@@ -95,7 +95,7 @@
             right: new THREE.ViveController(1),
             setup: function(scene) {
 
-              var geometry = new THREE.CylinderBufferGeometry( 0, 0.001, 1, 8, 1, true );
+              var geometry = new THREE.CylinderBufferGeometry( 0, 0.01, 1, 8, 1, true );
               var material = new THREE.MeshBasicMaterial({
                 color: 0x36b8b7,
                 transparent: true,
@@ -117,16 +117,29 @@
               controllers.left.add(mesh.clone());
               controllers.right.add(mesh.clone());
 
-              controllers.daydream.userData.previous = new THREE.Vector3();
+              controllers.previous = new THREE.Vector3();
 
-              // controllers.left.addEventListener('triggerdown', trigger);
-              // controllers.right.addEventListener('triggerdown', trigger);
-              // controllers.left.addEventListener('triggerup', triggerUp);
-              // controllers.right.addEventListener('triggerup', triggerUp);
-              // controllers.left.addEventListener('thumbpaddown', thumbpad);
-              // controllers.right.addEventListener('thumbpaddown', thumbpad);
+              controllers.left.addEventListener('triggerdown', function() {
+                controllers.previous.copy(controllers.left.position);
+                controllers.left.userData.dragging = true;
+                Annie.IdealStep = 0.001;
+              });
+              controllers.right.addEventListener('triggerdown', function() {
+                controllers.previous.copy(controllers.right.position);
+                controllers.right.userData.dragging = true;
+                Annie.IdealStep = 0.001;
+              });
+              controllers.left.addEventListener('triggerup', function() {
+                controllers.left.userData.dragging = false;
+                Annie.IdealStep = 0.03;
+              });
+              controllers.right.addEventListener('triggerup', function() {
+                controllers.right.userData.dragging = false;
+                Annie.IdealStep = 0.03;
+              });
+
               controllers.daydream.addEventListener('touchpaddown', function() {
-                controllers.daydream.userData.previous.copy(controllers.daydream.position);
+                controllers.previous.copy(controllers.daydream.position);
                 controllers.daydream.userData.dragging = true;
                 Annie.IdealStep = 0.001;
               });
@@ -141,34 +154,34 @@
             },
             update: function(camera) {
 
-              var daydreamPad = controllers.daydream.getGamepad();
+              if (has.mobile) {
 
-              if (daydreamPad) {
+                var daydreamPad = controllers.daydream.getGamepad();
 
-                if (!controllers.daydream.visible) {
-                  controllers.daydream.visible = true;
+                if (daydreamPad) {
+
+                  var pose = daydreamPad.pose;
+                  var controllerOrientation = controllers.daydream.quaternion
+                    .fromArray(pose.orientation);
+                  var arm = controllers.daydream.arm;
+
+                  arm.setHeadOrientation(camera.quaternion);
+                  arm.setHeadPosition(camera.position);
+                  arm.setControllerOrientation(controllerOrientation);
+                  arm.update();
+
+                  var pose = arm.getPose(); // includes position
+                  controllers.daydream.position.copy(pose.position);
+
                 }
 
-                var pose = daydreamPad.pose;
-                var controllerOrientation = controllers.daydream.quaternion
-                  .fromArray(pose.orientation);
-                var arm = controllers.daydream.arm;
-
-                arm.setHeadOrientation(camera.quaternion);
-                arm.setHeadPosition(camera.position);
-                arm.setControllerOrientation(controllerOrientation);
-                arm.update();
-
-                var pose = arm.getPose(); // includes position
-                controllers.daydream.position.copy(pose.position);
-
-              }
-
-              if (has.mobile) {
                 controllers.daydream.update();
+
               } else {
+
                 controllers.left.update();
                 controllers.right.update();
+
               }
 
             }
@@ -179,6 +192,11 @@
 
           var annie = new Annie(size);
           var forest = new Forest(size);
+
+          if (annie.controls instanceof THREE.VRControls) {
+            controllers.left.standingMatrix = controllers.right.standingMatrix
+              = annie.controls.getStandingMatrix();
+          }
 
           Equalizer.Resolution = 16;
           var timeline = new Equalizer.Timeline();
@@ -316,8 +334,14 @@
             }
 
             if (controllers.daydream.userData.dragging) {
-              theta.destination += (controllers.daydream.position.x - controllers.daydream.userData.previous.x) * theta.scale;
-              controllers.daydream.userData.previous.copy(controllers.daydream.position);
+              theta.destination -= (controllers.daydream.position.x - controllers.previous.x) * theta.scale;
+              controllers.previous.copy(controllers.daydream.position);
+            } else if (controllers.left.userData.dragging) {
+              theta.destination -= (controllers.left.position.x - controllers.previous.x) * theta.scale;
+              controllers.previous.copy(controllers.left.position);
+            } else if (controllers.right.userData.dragging) {
+              theta.destination -= (controllers.right.position.x - controllers.previous.x) * theta.scale;
+              controllers.previous.copy(controllers.right.position);
             }
 
             annie.step = Annie.IdealStep * 60 * dt;
