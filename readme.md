@@ -7,6 +7,7 @@ There are three main resources for this project:
 + [/release](./release/): The current build for the project
 + [/editor](./editor): A WYSIWYG timeline editor for the project
 + [/asset-viewer](./asset-viewer/): A WYSIWYG model viewer for the project
++ [/prototypes](./prototypes): All interaction prototypes
 
 These folders all require you run a local server on your computer. A good cross-platform way to get that started is by installing [Node.js](https://nodejs.org/en/), opening up a command line prompt, and typing `npm install -g http-server`. Once you have that, point your command line to this project's root directory and type `http-server`. This will create a local server at `http://localhost:8080`. The following instructions will use this local server's details as the example.
 
