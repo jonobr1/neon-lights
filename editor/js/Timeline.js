@@ -116,7 +116,7 @@ var Timeline = function ( editor ) {
 
 		var scale4 = scale / 4;
 
-		for ( var i = 0.5, l = canvas.width; i <= l; i += scale ) {
+		for ( var i = 0.5; i <= canvas.width; i += scale ) {
 
 			context.moveTo( i + ( scale4 * 0 ), 18 ); context.lineTo( i + ( scale4 * 0 ), 26 );
 			context.moveTo( i + ( scale4 * 1 ), 22 ); context.lineTo( i + ( scale4 * 1 ), 26 );
@@ -132,9 +132,7 @@ var Timeline = function ( editor ) {
 		context.fillStyle = '#888'
 		context.textAlign = 'center';
 
-		for ( var i = scale, l = canvas.width; i <= l; i += scale ) {
-
-			var j = i / scale;
+		for ( var i = scale, j = 1; i <= canvas.width; i += scale, j ++ ) {
 
 			var minute = Math.floor( j / 60 );
 			var second = Math.floor( j % 60 );
