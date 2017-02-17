@@ -12,7 +12,7 @@
       <script>
 
         var step = 0.1;
-        var size = 128;
+        var size = 72;
         var amount = 1024;
 
         var cursor = new THREE.Vector2();
@@ -31,7 +31,7 @@
         var light = new THREE.AmbientLight('white');
 
         renderer.setClearColor('#333');
-        scene.fog = new THREE.Fog(renderer.getClearColor(), size / 12, size / 2);
+        scene.fog = new THREE.Fog(renderer.getClearColor(), size / 8, size / 2);
 
         forest.userData.elements = [];
         forest.userData.floor = new THREE.Mesh(
@@ -57,7 +57,7 @@
             );
             shape.scale.setScalar(Math.random() + 1);
             if (/tree/i.test(shape.userData.name)) {
-              shape.scale.y += Math.random();
+              shape.scale.y += Math.random() * 2;
             }
             shape.rotation.y = Math.random() * Math.PI * 2;
             elements.push(shape);
@@ -79,7 +79,7 @@
             var y = mod(cursor.y + offset.y, 1) - 0.5;
 
             var angle = Math.atan2(- y, - x);
-            var buffer = 0.1;
+            var buffer = 0.08 * (128 / size);
             var phi = angle + Math.PI;
 
             shape.position.x = x + Math.cos(phi) * (buffer);
