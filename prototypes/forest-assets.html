@@ -11,7 +11,7 @@
       <script src="../release/src/mouse-controls.js"></script>
       <script>
 
-        var step = 0.1;
+        var step = { current: 0.1, destination: 0.1, drag: 0.125 };
         var size = 72;
         var amount = 1024;
 
@@ -21,7 +21,7 @@
 
         var clock = new THREE.Clock();
 
-        var renderer = new THREE.WebGLRenderer();
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera();
         camera.controls = new THREE.MouseControls(cursor.ghost, renderer.domElement);
@@ -112,14 +112,33 @@
         files.loaded = 0;
         files.root = '../assets/models/forest/';
 
-        var annie = new THREE.Mesh(
-          new THREE.CylinderBufferGeometry(0, 0.33, 1),
-          new THREE.MeshBasicMaterial({
-            color: 'white'
-          })
-        );
-        annie.position.y += 0.33;
-        annie.rotation.x = - Math.PI / 2;
+        var annie = new THREE.Group();
+        annie.rotation.y = Math.PI;
+        annie.scale.setScalar(3);
+        loader.load(files.root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+
+          var meshes = [];
+          var pluck = function(obj) {
+            for (var i = 0; i < obj.children.length; i++) {
+
+              var child = obj.children[i];
+
+              if (child instanceof THREE.Mesh) {
+                meshes.push(child);
+              }
+              if (child.children && child.children.length > 0) {
+                pluck(child);
+              }
+            }
+          };
+
+          pluck(obj)
+
+          for (var i = 0; i < meshes.length; i++) {
+            annie.add(meshes[i]);
+          }
+
+        });
 
         files.forEach(function(file) {
           loader.load(files.root + file, function(obj) {
@@ -133,7 +152,6 @@
                 if (child instanceof THREE.Mesh) {
 
                   child.userData.name = file;
-                  child.geometry.computeBoundingBox();
                   child.userData.offset = new THREE.Vector2(
                     Math.random(),
                     Math.random()
@@ -149,7 +167,7 @@
               }
             };
 
-            pluck(obj)
+            pluck(obj);
 
             for (var i = 0; i < meshes.length; i++) {
               forest.add(meshes[i]);
@@ -168,8 +186,9 @@
 
           forest.userData.setup();
 
-          camera.position.y = 2;
+          camera.position.y = 4;
           camera.position.z = 10;
+          camera.lookAt(new THREE.Vector3(0, 2, 0));
 
           scene.add(light);
           scene.add(forest);
@@ -213,10 +232,13 @@
           if (camera.controls) {
             camera.controls.update();
             cursor.theta = mod(cursor.ghost.rotation.y, Math.PI * 2);
+            step.destination = camera.controls.dragging ? 0 : 0.1;
           }
 
-          cursor.x += (step * t) * Math.cos(cursor.theta);
-          cursor.y += (step * t) * Math.sin(cursor.theta);
+          step.current += (step.destination - step.current) * step.drag;
+
+          cursor.x += (step.current * t) * Math.cos(cursor.theta);
+          cursor.y += (step.current * t) * Math.sin(cursor.theta);
 
           forest.rotation.y = cursor.theta - Math.PI / 2;
 
