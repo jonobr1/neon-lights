@@ -43,7 +43,9 @@ var Effect = function ( editor ) {
 	header.add( close );
 
 	var delay;
-	var currentEffect;
+
+	var currentEffect = null;
+	var currentInclude = null;
 
 	var codemirror = CodeMirror( container.dom, {
 		value: '',
@@ -63,35 +65,45 @@ var Effect = function ( editor ) {
 		clearTimeout( delay );
 		delay = setTimeout( function () {
 
-			var error;
-			var currentSource = currentEffect.source;
+			if ( currentInclude !== null ) {
 
-			try {
+				currentInclude[ 1 ] = codemirror.getValue();
 
-				currentEffect.source = codemirror.getValue();
-				currentEffect.compile();
+				editor.signals.includeChanged.dispatch();
 
-				// TODO: Also test init() and start()
-				currentEffect.program.update( 0 );
+			} else if ( currentEffect !== null ) {
 
-				editor.signals.effectCompiled.dispatch();
+				var error;
+				var currentSource = currentEffect.source;
 
-			} catch ( e ) {
+				try {
 
-				error = e.name + ' : ' + e.message; // e.stack, e.columnNumber, e.lineNumber
+					currentEffect.source = codemirror.getValue();
+					currentEffect.compile();
 
-			}
+					// TODO: Also test init() and start()
+					currentEffect.program.update( 0 );
 
-			if ( error !== undefined ) {
+					editor.signals.effectCompiled.dispatch();
 
-				errorDiv.setDisplay( '' );
-				errorText.setValue( '⌦ ' + error );
+				} catch ( e ) {
 
-				currentEffect.source = currentSource;
+					error = e.name + ' : ' + e.message; // e.stack, e.columnNumber, e.lineNumber
 
-			} else {
+				}
 
-				errorDiv.setDisplay( 'none' );
+				if ( error !== undefined ) {
+
+					errorDiv.setDisplay( '' );
+					errorText.setValue( '⌦ ' + error );
+
+					currentEffect.source = currentSource;
+
+				} else {
+
+					errorDiv.setDisplay( 'none' );
+
+				}
 
 			}
 
@@ -139,6 +151,19 @@ var Effect = function ( editor ) {
 		codemirror.setValue( effect.source );
 
 		currentEffect = effect;
+		currentInclude = null;
+
+	} );
+
+	signals.includeSelected.add( function ( include ) {
+
+		container.setDisplay( '' );
+
+		title.setValue( include[ 0 ] );
+		codemirror.setValue( include[ 1 ] );
+
+		currentEffect = null;
+		currentInclude = include;
 
 	} );
 
@@ -152,6 +177,7 @@ var Effect = function ( editor ) {
 		codemirror.setValue( effect.source );
 
 		currentEffect = effect;
+		currentInclude = null;
 
 	} );
 

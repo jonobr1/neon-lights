@@ -10,7 +10,14 @@ var Editor = function () {
 
 		editorCleared: new Signal(),
 
-		// effect
+		// includes
+
+		includeAdded: new Signal(),
+		includeSelected: new Signal(),
+		includeChanged: new Signal(),
+		includeRemoved: new Signal(),
+
+		// effects
 
 		effectSelected: new Signal(),
 		effectCompiled: new Signal(),
@@ -46,6 +53,7 @@ var Editor = function () {
 	this.isPlaying = false;
 	this.currentTime = 0;
 
+	this.includes = [];
 	this.effects = [];
 	this.timeline = new FRAME.Timeline();
 
@@ -192,7 +200,39 @@ Editor.prototype = {
 
 	},
 
-	//
+	// includes
+
+	addInclude: function ( include ) {
+
+		var script = document.createElement( 'script' );
+		script.textContent = include[ 1 ];
+		document.head.appendChild( script );
+
+		this.includes.push( include );
+		this.signals.includeAdded.dispatch( include );
+
+	},
+
+	selectInclude: function ( include ) {
+
+		this.signals.includeSelected.dispatch( include );
+
+	},
+
+	removeInclude: function ( include ) {
+
+		var index = this.includes.indexOf( include );
+
+		if ( index !== - 1 ) {
+
+			this.includes.splice( index, 1 );
+			this.signals.includeRemoved.dispatch( include );
+
+		}
+
+	},
+
+	// effects
 
 	addEffect: function ( effect ) {
 
@@ -205,6 +245,8 @@ Editor.prototype = {
 		this.signals.effectSelected.dispatch( effect );
 
 	},
+
+	// animations
 
 	addAnimation: function ( animation ) {
 
@@ -238,11 +280,8 @@ Editor.prototype = {
 
 	clear: function () {
 
-		while ( this.effects.length > 0 ) {
-
-			this.effects.pop();
-
-		}
+		this.includes = [];
+		this.effects = [];
 
 		while ( this.timeline.animations.length > 0 ) {
 
@@ -255,6 +294,14 @@ Editor.prototype = {
 	},
 
 	fromJSON: function ( json ) {
+
+		var includes = json.includes;
+
+		for ( var i = 0, l = includes.length; i < l; i ++ ) {
+
+			this.addInclude( includes[ i ] );
+
+		}
 
 		var effects = json.effects;
 
@@ -292,6 +339,7 @@ Editor.prototype = {
 
 		var json = {
 			"config": {},
+			"includes": this.includes.slice(),
 			"effects": [],
 			// "curves": [],
 			"animations": []

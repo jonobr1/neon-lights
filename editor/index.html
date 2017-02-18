@@ -39,9 +39,6 @@
 
 		<!-- Project specific files -->
 
-
-		<script src="../release/third-party/three.js"></script>
-
 		<audio id="audio" src="../assets/audio/03 Under Neon Lights.mp3"></audio>
 
 		<script>
@@ -81,6 +78,8 @@
 			signals.animationModified.add( saveState );
 			signals.animationRemoved.add( saveState );
 			signals.effectCompiled.add( saveState );
+			signals.includeChanged.add( saveState );
+			signals.includeRemoved.add( saveState );
 
 			var timeout;
 
