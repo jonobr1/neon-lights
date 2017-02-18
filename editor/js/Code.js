@@ -2,7 +2,7 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-var Effect = function ( editor ) {
+var Code = function ( editor ) {
 
 	var signals = editor.signals;
 

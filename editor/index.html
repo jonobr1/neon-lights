@@ -16,9 +16,8 @@
 		<script src="js/libs/signals.min.js"></script>
 		<script src="js/libs/ui.js"></script>
 
-		<script src="js/Effect.js"></script>
-
 		<script src="js/Editor.js"></script>
+		<script src="js/Code.js"></script>
 		<script src="js/Config.js"></script>
 		<script src="js/Menubar.js"></script>
 		<script src="js/Menubar.File.js"></script>
@@ -55,8 +54,8 @@
 			var viewport = new Viewport( editor );
 			document.body.appendChild( viewport.dom );
 
-			var effect = new Effect( editor );
-			document.body.appendChild( effect.dom );
+			var code = new Code( editor );
+			document.body.appendChild( code.dom );
 
 			var sidebar = new Sidebar( editor );
 			document.body.appendChild( sidebar.dom );
