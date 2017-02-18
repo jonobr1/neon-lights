@@ -4,10 +4,12 @@
 
 var Viewport = function ( editor ) {
 
+	var signals = editor.signals;
+
 	var container = new UI.Panel();
 	container.setId( 'viewport' );
 
-	FRAME.dom = container.dom;
+	FRAME.setDOM( container.dom );
 
 	/*
 	editor.signals.fullscreen.add( function () {
@@ -22,7 +24,7 @@ var Viewport = function ( editor ) {
 	} );
 	*/
 
-	editor.signals.editorCleared.add( function () {
+	signals.editorCleared.add( function () {
 
 		while ( container.dom.children.length ) {
 
