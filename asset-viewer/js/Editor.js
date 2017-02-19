@@ -436,6 +436,10 @@ Editor.prototype = {
 
 		}
 
+		var ambientLight = new THREE.AmbientLight( 0xffffff );
+		ambientLight.name = 'AmbientLight';
+		this.scene.add( ambientLight );
+
 		this.geometries = {};
 		this.materials = {};
 		this.textures = {};
