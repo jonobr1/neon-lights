@@ -113,7 +113,10 @@ var Timeline = function ( editor ) {
 
 		canvas.width = duration * scale;
 
-		var context = canvas.getContext( '2d' );
+		var context = canvas.getContext( '2d', { alpha: false } );
+
+		context.fillStyle = '#555';
+		context.fillRect( 0, 0, canvas.width, canvas.height );
 
 		context.strokeStyle = '#888';
 		context.beginPath();
@@ -123,9 +126,11 @@ var Timeline = function ( editor ) {
 		for ( var i = 0.5; i <= canvas.width; i += scale ) {
 
 			context.moveTo( i + ( scale4 * 0 ), 18 ); context.lineTo( i + ( scale4 * 0 ), 26 );
-			context.moveTo( i + ( scale4 * 1 ), 22 ); context.lineTo( i + ( scale4 * 1 ), 26 );
-			context.moveTo( i + ( scale4 * 2 ), 22 ); context.lineTo( i + ( scale4 * 2 ), 26 );
-			context.moveTo( i + ( scale4 * 3 ), 22 ); context.lineTo( i + ( scale4 * 3 ), 26 );
+
+
+			if ( scale > 16 ) context.moveTo( i + ( scale4 * 1 ), 22 ), context.lineTo( i + ( scale4 * 1 ), 26 );
+			if ( scale >  8 ) context.moveTo( i + ( scale4 * 2 ), 22 ), context.lineTo( i + ( scale4 * 2 ), 26 );
+			if ( scale > 16 ) context.moveTo( i + ( scale4 * 3 ), 22 ), context.lineTo( i + ( scale4 * 3 ), 26 );
 
 
 		}
@@ -136,7 +141,9 @@ var Timeline = function ( editor ) {
 		context.fillStyle = '#888'
 		context.textAlign = 'center';
 
-		for ( var i = scale, j = 1; i <= canvas.width; i += scale, j ++ ) {
+		var step = Math.max( 1, Math.floor( 32 / scale ) );
+
+		for ( var i = scale, j = 1; i < canvas.width; i += scale * step, j += step ) {
 
 			var minute = Math.floor( j / 60 );
 			var second = Math.floor( j % 60 );
