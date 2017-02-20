@@ -107,7 +107,7 @@ var Code = function ( editor ) {
 
 			}
 
-		}, 300 );
+		}, 1000 );
 
 	} );
 
