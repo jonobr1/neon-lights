@@ -175,15 +175,9 @@
         controllers.daydream.arm = new OrientationArmModel();
 
         forest.userData.elements = [];
-        forest.userData.floor = new THREE.Mesh(
-          new THREE.PlaneBufferGeometry(size, size, 128, 128),
-          new THREE.MeshBasicMaterial({
-            color: 0x72fa8c
-          })
-        );
+        forest.userData.floor = new THREE.Group();
 
         forest.add(forest.userData.floor);
-        forest.userData.floor.geometry.rotateX(- Math.PI / 2);
 
         forest.userData.setup = function() {
           var elements = forest.userData.elements;
@@ -365,13 +359,42 @@
           ];
           files.loaded = 0;
           files.root = '../assets/models/forest/';
-          files.limit = files.length + 1;
+          files.limit = files.length + 2;
           files.complete = function() {
             files.loaded++;
             if (files.loaded === files.limit) {
               setup();
             }
           };
+
+          loader.load(files.root + 'mdl_env_1_forest_ground_v01.fbx', function(obj) {
+
+            console.log(obj, forest.floor);
+
+            var meshes = [];
+            var pluck = function(obj) {
+              for (var i = 0; i < obj.children.length; i++) {
+
+                var child = obj.children[i];
+
+                if (child instanceof THREE.Mesh) {
+                  meshes.push(child);
+                }
+                if (child.children && child.children.length > 0) {
+                  pluck(child);
+                }
+              }
+            };
+
+            pluck(obj);
+
+            for (var i = 0; i < meshes.length; i++) {
+              forest.userData.floor.add(meshes[i]);
+            }
+
+            files.complete();
+
+          });
 
           loader.load(files.root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 
@@ -390,7 +413,7 @@
               }
             };
 
-            pluck(obj)
+            pluck(obj);
 
             for (var i = 0; i < meshes.length; i++) {
               annie.add(meshes[i]);
