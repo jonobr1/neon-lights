@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="../release/styles/main.css">
   </head>
   <body>
     <div class="scripts">
@@ -82,13 +83,18 @@
             // mesh.rotation.x = - Math.PI / 2;
             // mesh.scale.y = 2;
 
+            var mesh = new THREE.Mesh(
+              new THREE.BoxBufferGeometry(0.5,0.5,0.5),
+              new THREE.MeshBasicMaterial({ color: 0xcccccc })
+            );
+
             scene.add(controllers.daydream);
             scene.add(controllers.left);
             scene.add(controllers.right);
 
-            // controllers.daydream.add(mesh);
-            // controllers.left.add(mesh.clone());
-            // controllers.right.add(mesh.clone());
+            controllers.daydream.add(mesh);
+            controllers.left.add(mesh.clone());
+            controllers.right.add(mesh.clone());
 
             controllers.previous = new THREE.Vector3();
 
@@ -125,6 +131,7 @@
               controllers.right.visible = false;
 
             if (camera.userData.controls instanceof THREE.VRControls) {
+              camera.userData.controls.standing = true;
               controllers.left.standingMatrix = controllers.right.standingMatrix
                 = camera.userData.controls.getStandingMatrix();
             }
@@ -271,9 +278,24 @@
           }
 
           if (has.webvr) {
-            renderer.domElement.addEventListener('click', function() {
-              renderer.effect.requestPresent();
+            var vrButton = document.createElement('div');
+            vrButton.classList.add('vr-button');
+            vrButton.innerText = 'Enter VR';
+            document.body.appendChild(vrButton);
+
+            vrButton.addEventListener('click', function(e) {
+              e.preventDefault();
+              var effect = renderer.effect;
+              effect.isPresenting ? effect.exitPresent() : effect.requestPresent();
             }, false);
+
+            window.addEventListener( 'vrdisplaypresentchange', function ( event ) {
+              vrButton.textContent = renderer.effect.isPresenting ? 'Exit VR' : 'Enter VR';
+            });
+
+            window.addEventListener( 'vrdisplayactivate', function() {
+              camera.userData.controls.resetPose();
+            }, false );
           }
 
           loop();
