@@ -39,6 +39,7 @@
         var renderer = new THREE.WebGLRenderer({ antialias: true });
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera();
+        scene.add(new THREE.Group().add(camera));
 
         var forest = new THREE.Group();
         var light = new THREE.AmbientLight('white');
@@ -53,6 +54,7 @@
             case 'VRControls':
             case 'DeviceOrientationControls':
               camera.rotation.copy(cursor.userData.ghost.rotation);
+              camera.position.copy(cursor.userData.ghost.position);
               break;
             case 'MouseControls':
               theta.destination = cursor.userData.ghost.rotation.y * theta.scale;
@@ -84,13 +86,13 @@
             // mesh.scale.y = 2;
 
             var mesh = new THREE.Mesh(
-              new THREE.BoxBufferGeometry(0.5,0.5,0.5),
+              new THREE.BoxBufferGeometry(0.08,0.08,0.08),
               new THREE.MeshBasicMaterial({ color: 0xcccccc })
             );
 
-            scene.add(controllers.daydream);
-            scene.add(controllers.left);
-            scene.add(controllers.right);
+            camera.parent.add(controllers.daydream);
+            camera.parent.add(controllers.left);
+            camera.parent.add(controllers.right);
 
             controllers.daydream.add(mesh);
             controllers.left.add(mesh.clone());
@@ -246,8 +248,8 @@
             renderer.effect = renderer;
           }
 
-          camera.position.y = 4;
-          camera.position.z = 10;
+          camera.parent.position.y = 4;
+          camera.parent.position.z = 10;
           camera.lookAt(new THREE.Vector3(0, 2, 0));
 
           camera.userData.type = has.webvr ? 'VRControls'
