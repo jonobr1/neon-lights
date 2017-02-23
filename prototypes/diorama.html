@@ -99,7 +99,7 @@
 
         camera.userData.light = new THREE.PointLight('white', 1);
         camera.userData.type = has.webvr ? 'VRControls'
-          : (has.mobile ? 'DeviceOrientationControls' : 'OrbitControls');
+          : (has.mobile ? 'DeviceOrientationControls' : 'MouseControls');
         camera.userData.controls = new THREE[camera.userData.type](
           cursor.userData.ghost, renderer.domElement);
         // camera.userData.controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -290,8 +290,13 @@
               cursor.x = camera.position.x;
               cursor.y = camera.position.y;
               camera.position.copy(cursor.userData.ghost.position);
+              camera.rotation.copy(cursor.userData.ghost.rotation);
+            } else if (camera.userData.controls instanceof THREE.MouseControls) {
+              cursor.x = - camera.userData.controls.destination.y * 5;
+              cursor.y = camera.userData.controls.destination.x * 5;
+            } else {
+              camera.rotation.copy(cursor.userData.ghost.rotation);
             }
-            camera.rotation.copy(cursor.userData.ghost.rotation);
           }
 
           controllers.update(camera);
@@ -312,7 +317,8 @@
 
           if (controllers.daydream.userData.dragging
             || controllers.left.userData.dragging
-            || controllers.right.userData.dragging) {
+            || controllers.right.userData.dragging
+            || camera.userData.controls instanceof THREE.MouseControls) {
             camera.position.x = cursor.x;
             camera.position.y = cursor.y;
           }
