@@ -1,0 +1,349 @@
+<!doctype html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <div class="scripts">
+
+      <script src="../release/third-party/has.js"></script>
+      <script src="../release/third-party/url.js"></script>
+      <script src="../release/third-party/three.js"></script>
+
+      <script src="../release/third-party/three/js/effects/VREffect.js"></script>
+      <script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+      <script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+      <script src="../release/third-party/three/js/controls/DeviceOrientationControls.js"></script>
+      <script src="../release/third-party/three/js/controls/VRControls.js"></script>
+      <script src="../release/third-party/three/js/vr/DaydreamController.js"></script>
+      <script src="../release/third-party/orientation-arm-model.js"></script>
+      <script src="../release/third-party/three/js/vr/ViveController.js"></script>
+
+      <script src="../release/src/mouse-controls.js"></script>
+      <script>
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera();
+
+        var cursor = new THREE.Vector2();
+        cursor.userData = {
+          ghost: new THREE.Object3D()
+        };
+
+        var amount = 64;
+        var boxes = [];
+
+        var width = 7;
+        var height = 5;
+        var depth = 10;
+
+        var cols = Math.sqrt(amount);
+        var rows = Math.ceil(amount / cols);
+
+        var geometry = new THREE.BoxBufferGeometry(width, height, depth,  1, 1, 1);
+        var material = new THREE.MeshPhongMaterial({
+          color: '#efefef',
+          emissive: '#666',
+          side: THREE.BackSide
+        });
+
+        var geometries = [
+          new THREE.SphereGeometry(height / 3),
+          new THREE.TetrahedronBufferGeometry(height / 5),
+          new THREE.CylinderBufferGeometry(0, height / 8, height / 4)
+        ];
+
+        var materials = [
+          new THREE.MeshNormalMaterial(),
+          new THREE.MeshBasicMaterial({ wireframe: true, color: '#333' }),
+          new THREE.MeshPhongMaterial({ color: 'rgb(100, 255, 200)', specular: 'rgb(100, 150, 255)' }),
+          new THREE.MeshBasicMaterial({ color: 'orange' })
+        ];
+
+        for (var i = 0; i < amount; i++) {
+
+          var box = new THREE.Mesh(geometry, material);
+          var col = i % cols;
+          var row = Math.floor(i / cols);
+
+          box.position.x = width * col - width * cols / 2;
+          box.position.y = height * row - height * rows / 2;
+
+          var child = new THREE.Mesh(
+            geometries[Math.floor(Math.random() * geometries.length)],
+            materials[Math.floor(Math.random() * materials.length)]
+          );
+
+          child.position.x = Math.random() * width - width / 2;
+          child.position.z = Math.random() * depth - depth / 2;
+          child.position.y = height / 2
+
+          child.rotation.set(
+            Math.random() * Math.PI * 2,
+            Math.random() * Math.PI * 2,
+            Math.random() * Math.PI * 2
+          );
+
+          child.scale.setScalar(Math.random() * 0.5 + 1);
+
+          box.add(child);
+
+          boxes.push(box);
+          scene.add(box);
+
+        }
+
+        camera.userData.light = new THREE.PointLight('white', 1);
+        camera.userData.type = has.webvr ? 'VRControls'
+          : (has.mobile ? 'DeviceOrientationControls' : 'OrbitControls');
+        camera.userData.controls = new THREE[camera.userData.type](
+          cursor.userData.ghost, renderer.domElement);
+        // camera.userData.controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        var controllers = {
+          daydream: new THREE.DaydreamController(0),
+          left: new THREE.ViveController(0),
+          right: new THREE.ViveController(1),
+          setup: function(scene) {
+
+            // var geometry = new THREE.CylinderBufferGeometry( 0, 0.001, 1, 8, 1, true );
+            // var material = new THREE.MeshBasicMaterial({
+            //   color: 0x36b8b7,
+            //   transparent: true,
+            //   opacity: 0.3
+            // });
+            //
+            // geometry.applyMatrix(
+            //   new THREE.Matrix4().makeTranslation( 0, 0.5, 0 ) );
+            //
+            // var mesh = new THREE.Mesh(geometry, material);
+            // mesh.rotation.x = - Math.PI / 2;
+            // mesh.scale.y = 2;
+
+            // var mesh = new THREE.Mesh(
+            //   new THREE.BoxBufferGeometry(0.5,0.5,0.5),
+            //   new THREE.MeshBasicMaterial({ color: 0xcccccc })
+            // );
+
+            scene.add(controllers.daydream);
+            scene.add(controllers.left);
+            scene.add(controllers.right);
+
+            // controllers.daydream.add(mesh);
+            // controllers.left.add(mesh.clone());
+            // controllers.right.add(mesh.clone());
+
+            controllers.previous = new THREE.Vector3();
+
+            controllers.left.addEventListener('triggerdown', function() {
+              controllers.previous.copy(controllers.left.position);
+              controllers.left.userData.dragging = true;
+              controllers.onTriggerDown();
+            });
+            controllers.right.addEventListener('triggerdown', function() {
+              controllers.previous.copy(controllers.right.position);
+              controllers.right.userData.dragging = true;
+              controllers.onTriggerDown();
+            });
+            controllers.left.addEventListener('triggerup', function() {
+              controllers.left.userData.dragging = false;
+              controllers.onTriggerUp();
+            });
+            controllers.right.addEventListener('triggerup', function() {
+              controllers.right.userData.dragging = false;
+              controllers.onTriggerUp();
+            });
+
+            controllers.daydream.addEventListener('touchpaddown', function() {
+              controllers.previous.copy(controllers.daydream.position);
+              controllers.daydream.userData.dragging = true;
+              controllers.onTriggerDown();
+            });
+            controllers.daydream.addEventListener('touchpadup', function() {
+              controllers.daydream.userData.dragging = false;
+              controllers.onTriggerUp();
+            });
+
+            controllers.daydream.visible = controllers.left.visible =
+              controllers.right.visible = false;
+
+            if (camera.userData.controls instanceof THREE.VRControls) {
+              camera.userData.controls.standing = true;
+              controllers.left.standingMatrix = controllers.right.standingMatrix
+                = camera.userData.controls.getStandingMatrix();
+            }
+
+          },
+          update: function(camera) {
+
+            if (has.mobile) {
+
+              var daydreamPad = controllers.daydream.getGamepad();
+
+              if (daydreamPad) {
+
+                var pose = daydreamPad.pose;
+                var controllerOrientation = controllers.daydream.quaternion
+                  .fromArray(pose.orientation);
+                var arm = controllers.daydream.arm;
+
+                arm.setHeadOrientation(camera.quaternion);
+                arm.setHeadPosition(camera.position);
+                arm.setControllerOrientation(controllerOrientation);
+                arm.update();
+
+                var pose = arm.getPose(); // includes position
+                controllers.daydream.position.copy(pose.position);
+
+              }
+
+              controllers.daydream.update();
+
+            } else {
+
+              controllers.left.update();
+              controllers.right.update();
+
+            }
+
+          },
+          onTriggerDown: function() {
+
+          },
+          onTriggerUp: function() {
+
+          }
+        };
+
+        controllers.daydream.quaternion = new THREE.Quaternion();
+        controllers.daydream.arm = new OrientationArmModel();
+
+        function setup() {
+
+          if (!url.boolean('mono') && (has.webvr || has.mobile)) {
+            renderer.effect = new THREE[!has.webvr ? 'StereoEffect' : 'VREffect'](renderer);
+          } else {
+            renderer.effect = renderer;
+          }
+
+          camera.position.z = 10;
+
+          camera.add(camera.userData.light);
+          scene.add(camera);
+
+          document.body.appendChild(renderer.domElement);
+          renderer.domElement.style.position = 'absolute';
+          renderer.domElement.style.top = 0;
+          renderer.domElement.style.left = 0;
+
+          if (camera.userData.controls && camera.userData.controls.connect) {
+            camera.userData.controls.connect();
+          }
+
+          controllers.setup(scene);
+
+          window.addEventListener('resize', resize, false);
+          resize();
+
+          if (has.webvr) {
+            window.addEventListener('click', function() {
+              var effect = renderer.effect;
+              effect.isPresenting ? effect.exitPresent() : effect.requestPresent();
+            });
+          }
+
+          loop();
+
+        }
+
+        function resize() {
+
+          var width = window.innerWidth;
+          var height = window.innerHeight;
+
+          renderer.setSize(width, height);
+
+          if (renderer.effect && renderer.effect.setSize) {
+            renderer.effect.setSize(width, height);
+          }
+
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+
+        }
+
+        function loop() {
+
+          if (renderer.effect.requestAnimationFrame) {
+            renderer.effect.requestAnimationFrame(loop);
+          } else {
+            requestAnimationFrame(loop);
+          }
+
+          if (camera.userData.controls) {
+            camera.userData.controls.update();
+            if (camera.userData.controls instanceof THREE.OrbitControls) {
+              cursor.x = camera.position.x;
+              cursor.y = camera.position.y;
+              camera.position.copy(cursor.userData.ghost.position);
+            }
+            camera.rotation.copy(cursor.userData.ghost.rotation);
+          }
+
+          controllers.update(camera);
+
+          if (controllers.daydream.userData.dragging) {
+            cursor.x += (controllers.daydream.position.x - controllers.previous.x);
+            cursor.y -= (controllers.daydream.position.y - controllers.previous.y);
+            controllers.previous.copy(controllers.daydream.position);
+          } else if (controllers.left.userData.dragging) {
+            cursor.x += (controllers.left.position.x - controllers.previous.x);
+            cursor.y -= (controllers.left.position.y - controllers.previous.y);
+            controllers.previous.copy(controllers.left.position);
+          } else if (controllers.right.userData.dragging) {
+            cursor.x += (controllers.right.position.x - controllers.previous.x);
+            cursor.y -= (controllers.right.position.y - controllers.previous.y);
+            controllers.previous.copy(controllers.right.position);
+          }
+
+          if (controllers.daydream.userData.dragging
+            || controllers.left.userData.dragging
+            || controllers.right.userData.dragging) {
+            camera.position.x = cursor.x;
+            camera.position.y = cursor.y;
+          }
+
+          var cc = Math.round(cursor.x / width);
+          var cr = Math.round(cursor.y / height);
+          var id = cr * cols + cc;
+
+          for (var i = 0; i < amount; i++) {
+
+            var box = boxes[i];
+            var col = mod(i - cc, cols) + cc;
+            var row = mod(Math.floor(i / cols) - cr, rows) + cr;
+
+            box.position.x = width * col - width * cols / 2;
+            box.position.y = height * row - height * rows / 2;
+
+          }
+
+          renderer.effect.render(scene, camera);
+
+        }
+
+        function mod(v, l) {
+          while (v < 0) {
+            v += l;
+          }
+          return v % l;
+        }
+
+        setup();
+
+      </script>
+
+    </div>
+  </body>
+</html>
