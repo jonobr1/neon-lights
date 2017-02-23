@@ -276,7 +276,7 @@
             vrButton.classList.add('vr-button');
             vrButton.innerText = 'Enter VR';
             document.body.appendChild(vrButton);
-            
+
             vrButton.addEventListener('click', function(e) {
               e.preventDefault();
               var effect = renderer.effect;
@@ -286,7 +286,7 @@
             window.addEventListener( 'vrdisplaypresentchange', function ( event ) {
               vrButton.textContent = renderer.effect.isPresenting ? 'Exit VR' : 'Enter VR';
             });
-            
+
             window.addEventListener( 'vrdisplayactivate', function() {
               camera.userData.controls.resetPose();
             }, false );
