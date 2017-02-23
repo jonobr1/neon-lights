@@ -53,6 +53,7 @@
             case 'VRControls':
             case 'DeviceOrientationControls':
               camera.rotation.copy(cursor.userData.ghost.rotation);
+              camera.position.copy(cursor.userData.ghost.position);
               break;
             case 'MouseControls':
               theta.destination = cursor.userData.ghost.rotation.y * theta.scale;
