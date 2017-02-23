@@ -164,10 +164,12 @@
 
           },
           onTriggerDown: function() {
-            step.destination = 0;
+            // step.destination = 0;
+            annie.userData.selfie.enabled = true;
           },
           onTriggerUp: function() {
-            step.destination = 0.1;
+            // step.destination = 0.1;
+            annie.userData.selfie.enabled = false;
           }
         };
 
@@ -372,17 +374,6 @@
           }
           camera.userData.update();
           controllers.update(camera);
-
-          if (controllers.daydream.userData.dragging) {
-            theta.destination += (controllers.daydream.position.x - controllers.previous.x) * theta.scale;
-            controllers.previous.copy(controllers.daydream.position);
-          } else if (controllers.left.userData.dragging) {
-            theta.destination -= (controllers.left.position.x - controllers.previous.x) * theta.scale;
-            controllers.previous.copy(controllers.left.position);
-          } else if (controllers.right.userData.dragging) {
-            theta.destination -= (controllers.right.position.x - controllers.previous.x) * theta.scale;
-            controllers.previous.copy(controllers.right.position);
-          }
 
           step.current += (step.destination - step.current) * step.drag;
           theta.current += (theta.destination - theta.current) * theta.drag;
