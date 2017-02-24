@@ -15,16 +15,19 @@ var Editor = function () {
 		includeAdded: new Signal(),
 		includeSelected: new Signal(),
 		includeChanged: new Signal(),
+		includeMoved: new Signal(),
 		includeRemoved: new Signal(),
 
 		// effects
 
+		effectRemoved: new Signal(),
 		effectSelected: new Signal(),
 		effectCompiled: new Signal(),
 
 		// actions
 
 		fullscreen: new Signal(),
+		exportState: new Signal(),
 
 		// animations
 
@@ -219,6 +222,20 @@ Editor.prototype = {
 
 	},
 
+	moveInclude: function ( include, index ) {
+
+		var i = this.includes.indexOf( include );
+
+		if ( index !== - 1 ) {
+
+			this.includes.splice( i, 1 );
+			this.includes.splice( index, 0, include );
+			this.signals.includeMoved.dispatch( include );
+
+		}
+
+	},
+
 	removeInclude: function ( include ) {
 
 		var index = this.includes.indexOf( include );
@@ -246,12 +263,66 @@ Editor.prototype = {
 
 	},
 
+	removeEffect: function ( effect ) {
+
+		var index = this.effects.indexOf( effect );
+
+		if ( index >= 0 ) {
+
+			this.effects.splice( index, 1 );
+			this.signals.effectRemoved.dispatch( effect );
+
+		}
+
+	},
+
+	// Remove any effects that are not bound to any animations.
+
+	cleanEffects: function () {
+
+		var scope = this;
+		var effects = this.effects.slice(0);
+		var animations = this.timeline.animations;
+
+		effects.forEach( function ( effect, i ) {
+
+			var bound = false;
+
+			for ( var j = 0; j < animations.length; j++ ) {
+
+				var animation = animations[ j ];
+
+				if ( animation.effect === effect ) {
+
+					bound = true;
+					break;
+
+				}
+
+			}
+
+			if ( !bound ) {
+
+				scope.removeEffect( effect );
+
+			}
+
+		} );
+
+	},
+
 	// animations
 
 	addAnimation: function ( animation ) {
 
 		this.timeline.add( animation );
 		this.signals.animationAdded.dispatch( animation );
+
+		if ( animation.updateDOM ) {
+
+			this.signals.effectCompiled.add( animation.updateDOM );
+
+		}
 
 	},
 

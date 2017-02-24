@@ -40,7 +40,12 @@ Menubar.File = function ( editor ) {
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'Export' );
-	option.onClick( function () {
+	option.onClick( Export );
+	options.add( option );
+
+	signals.exportState.add( Export );
+
+	function Export () {
 
 		var output = JSON.stringify( editor.toJSON(), null, '\t' );
 
@@ -50,8 +55,7 @@ Menubar.File = function ( editor ) {
 		window.open( objectURL, '_blank' );
 		window.focus();
 
-	} );
-	options.add( option );
+	}
 
 	return container;
 

@@ -24,7 +24,29 @@ Sidebar.Animation = function ( editor ) {
 
 		var animation = selected;
 
-		container.add( new UI.Text( animation.name ).setId( 'name' ) );
+		var title = new UI.Text( animation.name ).setId( 'name' );
+		container.add( title );
+
+		var rename = new UI.Button( 'RENAME' );
+		rename.setPosition( 'absolute' );
+		rename.setRight( '50px' );
+		rename.onClick( function () {
+
+			var name = prompt( 'Change animation ' + animation.name + ' name?');
+
+			if ( name !== animation.name ) {
+
+				animation.name = name;
+				title.setValue( name );
+
+				if ( animation.updateDOM ) {
+					animation.updateDOM();
+				}
+
+			}
+
+		} );
+		container.add( rename );
 
 		var edit = new UI.Button( 'EDIT' );
 		edit.setPosition( 'absolute' );
