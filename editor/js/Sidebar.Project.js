@@ -54,6 +54,23 @@ Sidebar.Project = function ( editor ) {
 		} );
 		span.add( edit );
 
+		var move = new UI.Button( 'Move' );
+		move.setMarginLeft( '4px' );
+		move.onClick( function () {
+
+			var title = name.getValue();
+			var i = editor.includes.indexOf( include );
+			var index = prompt( 'Move ' + title + ' to ' + Math.max( i, 0 ) + '?' );
+
+			if ( index !== i ) {
+
+				editor.moveInclude( include, index );
+
+			}
+
+		} );
+		span.add( move );
+
 		var remove = new UI.Button( 'Remove' );
 		remove.setMarginLeft( '4px' );
 		remove.onClick( function () {
@@ -91,6 +108,7 @@ Sidebar.Project = function ( editor ) {
 
 	signals.editorCleared.add( update );
 	signals.includeAdded.add( update );
+	signals.includeMoved.add( update );
 	signals.includeRemoved.add( update );
 
 	return container;

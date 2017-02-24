@@ -73,27 +73,27 @@
 
 			var signals = editor.signals;
 
-			signals.animationAdded.add( saveState );
-			signals.animationModified.add( saveState );
-			signals.animationRemoved.add( saveState );
-			signals.effectCompiled.add( saveState );
-			signals.includeChanged.add( saveState );
-			signals.includeRemoved.add( saveState );
-			signals.editorCleared.add( saveState );
-
-			var timeout;
-
-			function saveState() {
-
-				clearTimeout( timeout );
-
-				timeout = setTimeout( function () {
-
-					editor.config.setKey( 'state', JSON.stringify( editor.toJSON() ) );
-
-				}, 1000 );
-
-			}
+			// signals.animationAdded.add( saveState );
+			// signals.animationModified.add( saveState );
+			// signals.animationRemoved.add( saveState );
+			// signals.effectCompiled.add( saveState );
+			// signals.includeChanged.add( saveState );
+			// signals.includeRemoved.add( saveState );
+			// signals.editorCleared.add( saveState );
+			//
+			// var timeout;
+			//
+			// function saveState() {
+			//
+			// 	clearTimeout( timeout );
+			//
+			// 	timeout = setTimeout( function () {
+			//
+			// 		editor.config.setKey( 'state', JSON.stringify( editor.toJSON() ) );
+			//
+			// 	}, 1000 );
+			//
+			// }
 
 			//
 
@@ -108,6 +108,22 @@
 			// Short-cuts
 
 			document.addEventListener( 'keydown', function ( event ) {
+
+				if ( event.metaKey ) {
+
+					switch ( event.keyCode ) {
+						case 83: // prevent CMD + S
+							event.preventDefault();
+							break;
+						case 69: // CMD + E to export
+							event.preventDefault();
+							editor.signals.exportState.dispatch();
+							break;
+					}
+
+					return;
+
+				}
 
 				switch ( event.keyCode ) {
 
@@ -132,6 +148,8 @@
 					case 40:
 						event.preventDefault();
 						editor.speedDown();
+						break;
+					case 83:
 						break;
 
 				}

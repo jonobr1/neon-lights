@@ -15,6 +15,7 @@ var Editor = function () {
 		includeAdded: new Signal(),
 		includeSelected: new Signal(),
 		includeChanged: new Signal(),
+		includeMoved: new Signal(),
 		includeRemoved: new Signal(),
 
 		// effects
@@ -25,6 +26,7 @@ var Editor = function () {
 		// actions
 
 		fullscreen: new Signal(),
+		exportState: new Signal(),
 
 		// animations
 
@@ -216,6 +218,20 @@ Editor.prototype = {
 	selectInclude: function ( include ) {
 
 		this.signals.includeSelected.dispatch( include );
+
+	},
+
+	moveInclude: function ( include, index ) {
+
+		var i = this.includes.indexOf( include );
+
+		if ( index !== - 1 ) {
+
+			this.includes.splice( i, 1 );
+			this.includes.splice( index, 0, include );
+			this.signals.includeMoved.dispatch( include );
+
+		}
 
 	},
 
