@@ -20,6 +20,7 @@ var Editor = function () {
 
 		// effects
 
+		effectRemoved: new Signal(),
 		effectSelected: new Signal(),
 		effectCompiled: new Signal(),
 
@@ -259,6 +260,54 @@ Editor.prototype = {
 	selectEffect: function ( effect ) {
 
 		this.signals.effectSelected.dispatch( effect );
+
+	},
+
+	removeEffect: function ( effect ) {
+
+		var index = this.effects.indexOf( effect );
+
+		if ( index >= 0 ) {
+
+			this.effects.splice( index, 1 );
+			this.signals.effectRemoved.dispatch( effect );
+
+		}
+
+	},
+
+	// Remove any effects that are not bound to any animations.
+
+	cleanEffects: function () {
+
+		var scope = this;
+		var effects = this.effects.slice(0);
+		var animations = this.timeline.animations;
+
+		effects.forEach( function ( effect, i ) {
+
+			var bound = false;
+
+			for ( var j = 0; j < animations.length; j++ ) {
+
+				var animation = animations[ j ];
+
+				if ( animation.effect === effect ) {
+
+					bound = true;
+					break;
+
+				}
+
+			}
+
+			if ( !bound ) {
+
+				scope.removeEffect( effect );
+
+			}
+
+		} );
 
 	},
 

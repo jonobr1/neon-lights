@@ -133,9 +133,14 @@ Timeline.Animations = function ( editor ) {
 		}, false );
 		dom.appendChild( resizeLeft );
 
+		// TODO: This is kind of hacked together... Sorry Ricardo! @jonobr1
+		animation.updateDOM = function() {
+			name.innerHTML = animation.name + ' <span style="opacity:0.5">' + animation.effect.name + '</span>';
+		};
+
 		var name = document.createElement( 'div' );
 		name.className = 'name';
-		name.innerHTML = animation.name + ' <span style="opacity:0.5">' + animation.effect.name + '</span>';
+		animation.updateDOM();
 		dom.appendChild( name );
 
 		var resizeRight = document.createElement( 'div' );

@@ -29,6 +29,15 @@ Sidebar.Project = function ( editor ) {
 	} );
 	container.add( newInclude );
 
+	var cleanEffects = new UI.Button( 'Clean Effects' );
+	cleanEffects.onClick( function() {
+
+		editor.cleanEffects();
+
+	} );
+	cleanEffects.setMarginLeft( '4px' );
+	container.add( cleanEffects );
+
 	//
 
 	function buildInclude( id ) {
