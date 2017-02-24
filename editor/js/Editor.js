@@ -318,6 +318,12 @@ Editor.prototype = {
 		this.timeline.add( animation );
 		this.signals.animationAdded.dispatch( animation );
 
+		if ( animation.updateDOM ) {
+
+			this.signals.effectCompiled.add( animation.updateDOM );
+
+		}
+
 	},
 
 	removeAnimation: function ( animation ) {
