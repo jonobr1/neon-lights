@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webvr boilerplate</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #101010;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="../release/third-party/three.js"></script>
+
+		<script src="../release/third-party/three/js/controls/VRControls.js"></script>
+		<script src="../release/third-party/three/js/effects/VREffect.js"></script>
+		<script src="../release/third-party/three/js/vr/ViveController.js"></script>
+		<script src="../release/third-party/three/js/vr/WebVR.js"></script>
+
+		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+
+		<script>
+
+			var clock = new THREE.Clock();
+
+			var container;
+			var camera, scene, renderer;
+			var effect, controls;
+			var controller1, controller2;
+
+			init();
+			loop();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
+				scene.add( camera );
+
+				var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
+				scene.add( gridHelper );
+
+				var aLight = new THREE.AmbientLight( 0x444444 );
+				scene.add( aLight );
+
+				var dLight = new THREE.DirectionalLight( 0xffffff );
+				dLight.position.set( 1, 1, 1 ).normalize();
+				scene.add( dLight );
+
+				var dLightHelper = new THREE.DirectionalLightHelper( dLight, 0.1 );
+				scene.add( dLightHelper );
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0x505050 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.sortObjects = false;
+				container.appendChild( renderer.domElement );
+
+				controls = new THREE.VRControls( camera );
+				controls.standing = true;
+
+				// controllers
+
+				controller1 = new THREE.ViveController( 0 );
+				controller1.standingMatrix = controls.getStandingMatrix();
+				controller1.addEventListener( 'triggerdown', onTriggerDown );
+				controller1.addEventListener( 'triggerup', onTriggerUp );
+				scene.add( controller1 );
+
+				controller2 = new THREE.ViveController( 1 );
+				controller2.standingMatrix = controls.getStandingMatrix();
+				controller2.addEventListener( 'triggerdown', onTriggerDown );
+				controller2.addEventListener( 'triggerup', onTriggerUp );
+				scene.add( controller2 );
+
+				var cubeGeo = new THREE.BoxBufferGeometry(0.08,0.08,0.08);
+				var cubeMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+
+				controller1.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+				controller2.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+
+				controller1.add( controller1.userData.mesh );
+				controller2.add( controller2.userData.mesh );
+
+				//
+
+				effect = new THREE.VREffect( renderer );
+
+				if ( WEBVR.isAvailable() ) {
+
+					window.addEventListener( 'vrdisplaypresentchange', function() {
+						if ( !effect.isPresenting ) {
+						}
+					}, false );
+
+					window.addEventListener( 'vrdisplayactivate', function() {
+						controls.resetPose();
+					}, false );
+
+					window.addEventListener('keydown', function(e) {
+						if (e.which == 90) { // z
+							controls.resetPose();
+						}
+					}, false);
+
+					document.body.appendChild( WEBVR.getButton( effect ) );
+
+				} else {
+
+					document.body.appendChild( WEBVR.getMessage() );
+
+				}
+
+				//
+
+				// custom scene assets here
+
+				var cube2 = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+				cube2.position.set( 0, 1.4, -0.3 );
+				scene.add( cube2 );
+
+				//
+
+				window.addEventListener( 'resize', resize, false );
+
+			}
+
+			function onTriggerDown(e) {
+				var controller = e.target;
+				controller.userData.mesh.material.color.setHex( 0xff0000 );
+			}
+
+			function onTriggerUp(e) {
+				var controller = e.target;
+				controller.userData.mesh.material.color.setHex( 0xcccccc );
+			}
+
+			function resize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				effect.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			//
+
+			function loop() {
+
+				effect.requestAnimationFrame( loop );
+
+				var delta = clock.getDelta();
+
+				controller1.update();
+				controller2.update();
+
+				controls.update();
+
+				effect.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
