@@ -7,7 +7,7 @@
 		<style>
 			body {
 				font-family: Monospace;
-				background-color: #101010;
+				background-color: #333333;
 				color: #fff;
 				margin: 0px;
 				overflow: hidden;
@@ -34,30 +34,26 @@
 			var controller1, controller2;
 
 			init();
-			loop();
 
 			function init() {
 
 				container = document.createElement( 'div' );
-				document.body.appendChild( container );
 
 				scene = new THREE.Scene();
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
 				scene.add( camera );
 
+				var setup = _.after(1, function(){
+					document.body.appendChild( container );
+					loop();
+				});
+
 				var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
 				scene.add( gridHelper );
 
-				var aLight = new THREE.AmbientLight( 0x444444 );
+				var aLight = new THREE.AmbientLight( 0xffffff );
 				scene.add( aLight );
-
-				var dLight = new THREE.DirectionalLight( 0xffffff );
-				dLight.position.set( 1, 1, 1 ).normalize();
-				scene.add( dLight );
-
-				var dLightHelper = new THREE.DirectionalLightHelper( dLight, 0.1 );
-				scene.add( dLightHelper );
 
 				//
 
@@ -86,7 +82,7 @@
 				scene.add( controller2 );
 
 				var cubeGeo = new THREE.BoxBufferGeometry(0.08,0.08,0.08);
-				var cubeMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+				var cubeMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
 
 				controller1.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
 				controller2.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
@@ -123,15 +119,23 @@
 
 				}
 
-				//
+				// ----------------------------------------------------------------
 
 				// custom scene assets here
 
-				var cube2 = new THREE.Mesh( cubeGeo, cubeMat.clone() );
-				cube2.position.set( 0, 1.4, -0.3 );
-				scene.add( cube2 );
+				var annie = new THREE.Group();
+				annie.rotation.y = Math.PI;
+				annie.position.set( 0, 0, -1 );
+				scene.add( annie );
 
-				//
+				var loader = new THREE.FBXLoader();
+
+				loader.load('../assets/models/forest/mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+					annie.add( obj.skeleton.bones[0] );
+					setup();
+				});
+
+				// ----------------------------------------------------------------
 
 				window.addEventListener( 'resize', resize, false );
 
