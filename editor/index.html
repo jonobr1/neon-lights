@@ -73,27 +73,28 @@
 
 			var signals = editor.signals;
 
-			// signals.animationAdded.add( saveState );
-			// signals.animationModified.add( saveState );
-			// signals.animationRemoved.add( saveState );
-			// signals.effectCompiled.add( saveState );
-			// signals.includeChanged.add( saveState );
-			// signals.includeRemoved.add( saveState );
-			// signals.editorCleared.add( saveState );
-			//
-			// var timeout;
-			//
-			// function saveState() {
-			//
-			// 	clearTimeout( timeout );
-			//
-			// 	timeout = setTimeout( function () {
-			//
-			// 		editor.config.setKey( 'state', JSON.stringify( editor.toJSON() ) );
-			//
-			// 	}, 1000 );
-			//
-			// }
+			/*
+			signals.animationAdded.add( saveState );
+			signals.animationModified.add( saveState );
+			signals.animationRemoved.add( saveState );
+			signals.effectCompiled.add( saveState );
+			signals.includeChanged.add( saveState );
+			signals.includeRemoved.add( saveState );
+			signals.editorCleared.add( saveState );
+
+			var timeout;
+
+			function saveState() {
+
+				clearTimeout( timeout );
+
+				timeout = setTimeout( function () {
+
+					editor.config.setKey( 'state', JSON.stringify( editor.toJSON() ) );
+
+				}, 1000 );
+
+			}
 
 			//
 
@@ -104,6 +105,7 @@
 				editor.fromJSON( JSON.parse( state ) );
 
 			}
+			*/
 
 			// Short-cuts
 
