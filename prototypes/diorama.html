@@ -97,6 +97,8 @@
 
         }
 
+        scene.fog = new THREE.Fog('#000', 0, cols * width / 2);
+
         camera.userData.light = new THREE.PointLight('white', 1);
         camera.userData.type = has.webvr ? 'VRControls'
           : (has.mobile ? 'DeviceOrientationControls' : 'MouseControls');
@@ -300,18 +302,19 @@
           }
 
           controllers.update(camera);
+          var scale = 20;
 
           if (controllers.daydream.userData.dragging) {
             cursor.x += (controllers.daydream.position.x - controllers.previous.x);
             cursor.y -= (controllers.daydream.position.y - controllers.previous.y);
             controllers.previous.copy(controllers.daydream.position);
           } else if (controllers.left.userData.dragging) {
-            cursor.x += (controllers.left.position.x - controllers.previous.x);
-            cursor.y -= (controllers.left.position.y - controllers.previous.y);
+            cursor.x -= (controllers.left.position.x - controllers.previous.x) * scale;
+            cursor.y -= (controllers.left.position.y - controllers.previous.y) * scale;
             controllers.previous.copy(controllers.left.position);
           } else if (controllers.right.userData.dragging) {
-            cursor.x += (controllers.right.position.x - controllers.previous.x);
-            cursor.y -= (controllers.right.position.y - controllers.previous.y);
+            cursor.x -= (controllers.right.position.x - controllers.previous.x) * scale;
+            cursor.y -= (controllers.right.position.y - controllers.previous.y) * scale;
             controllers.previous.copy(controllers.right.position);
           }
 
