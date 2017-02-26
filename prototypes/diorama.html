@@ -263,6 +263,8 @@
             camera.parent.rotation.x = 0;
             camera.userData.controls._onTriggerDown = controllers.onTriggerDown;
             camera.userData.controls._onTriggerUp = controllers.onTriggerUp;
+          } else {
+            camera.parent.rotation.z = 0;
           }
 
           camera.parent.add(camera.userData.light);
@@ -339,12 +341,12 @@
             cursor.y -= (controllers.daydream.position.y - controllers.previous.y);
             controllers.previous.copy(controllers.daydream.position);
           } else if (controllers.left.userData.dragging) {
-            cursor.x -= (controllers.left.position.x - controllers.previous.x) * scale;
-            cursor.y -= (controllers.left.position.y - controllers.previous.y) * scale;
+            cursor.x += (controllers.left.position.x - controllers.previous.x) * scale;
+            cursor.y += (controllers.left.position.y - controllers.previous.y) * scale;
             controllers.previous.copy(controllers.left.position);
           } else if (controllers.right.userData.dragging) {
-            cursor.x -= (controllers.right.position.x - controllers.previous.x) * scale;
-            cursor.y -= (controllers.right.position.y - controllers.previous.y) * scale;
+            cursor.x += (controllers.right.position.x - controllers.previous.x) * scale;
+            cursor.y += (controllers.right.position.y - controllers.previous.y) * scale;
             controllers.previous.copy(controllers.right.position);
           }
 
