@@ -25,6 +25,8 @@
       <script src="../release/src/mouse-controls.js"></script>
       <script>
 
+        var clock = new THREE.Clock();
+
         var renderer = new THREE.WebGLRenderer({ antialias: true });
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera();
@@ -40,6 +42,13 @@
         var width = 7;
         var height = 5;
         var depth = 10;
+
+        var annie = new THREE.Group();
+
+        annie.rotation.y = - Math.PI / 2;
+        annie.rotation.z = Math.PI;
+
+        annie.position.y = height / 2;
 
         var cols = Math.sqrt(amount);
         var rows = Math.ceil(amount / cols);
@@ -97,8 +106,9 @@
 
         }
 
-        scene.fog = new THREE.Fog('#000', 0, cols * width / 2);
+        scene.fog = new THREE.Fog('#000', cols * width / 8, cols * width / 3);
         scene.add(new THREE.Group().add(camera));
+        scene.add(annie);
 
         camera.userData.light = new THREE.PointLight('white', 1);
         camera.userData.type = has.webvr ? 'VRControls'
@@ -219,6 +229,19 @@
           },
           onTriggerUp: function() {
 
+            var col = Math.round(cursor.x / width);
+            var row = Math.round(cursor.y / height);
+
+            var ac = Math.round(annie.position.x / width);
+            var ar = Math.round(annie.position.y / height);
+
+            if (Math.abs(col - ac) < 2 && Math.abs(row - ar) < 2) {
+              return;
+            }
+
+            annie.position.x = width * col + width * 0.6;
+            annie.position.y = height * row + height / 2;
+
           }
         };
 
@@ -235,6 +258,12 @@
 
           camera.parent.position.z = 10;
           camera.parent.lookAt(new THREE.Vector3());
+
+          if (camera.userData.controls instanceof THREE.MouseControls) {
+            camera.parent.rotation.x = 0;
+            camera.userData.controls._onTriggerDown = controllers.onTriggerDown;
+            camera.userData.controls._onTriggerUp = controllers.onTriggerUp;
+          }
 
           camera.parent.add(camera.userData.light);
 
@@ -295,8 +324,8 @@
               camera.parent.position.copy(cursor.userData.ghost.position);
               camera.rotation.copy(cursor.userData.ghost.rotation);
             } else if (camera.userData.controls instanceof THREE.MouseControls) {
-              cursor.x = - camera.userData.controls.destination.y * 10;
-              cursor.y = camera.userData.controls.destination.x * 10;
+              cursor.x = camera.userData.controls.destination.y * 10;
+              cursor.y = - camera.userData.controls.destination.x * 10;
             } else {
               camera.rotation.copy(cursor.userData.ghost.rotation);
             }
@@ -342,7 +371,50 @@
 
           }
 
+          annie.position.x -= clock.getDelta() * 1.125;
+
           renderer.effect.render(scene, camera);
+
+        }
+
+        function loadModels() {
+
+          var isLocal = /localhost/i.test(window.location.href);
+          var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+
+          var loader = new THREE.FBXLoader();
+
+          var files = [];
+          files.loaded = 0;
+          files.root = [root, '/models/forest/'].join('');
+          files.limit = files.length;
+
+          loader.load(files.root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+
+            var meshes = [];
+            var pluck = function(obj) {
+              for (var i = 0; i < obj.children.length; i++) {
+
+                var child = obj.children[i];
+
+                if (child.isMesh) {
+                  meshes.push(child);
+                }
+                if (child.children && child.children.length > 0) {
+                  pluck(child);
+                }
+              }
+            };
+
+            pluck(obj);
+
+            for (var i = 0; i < meshes.length; i++) {
+              annie.add(meshes[i]);
+            }
+
+            setup();
+
+          });
 
         }
 
@@ -353,7 +425,7 @@
           return v % l;
         }
 
-        setup();
+        loadModels();
 
       </script>
 
