@@ -98,13 +98,14 @@
         }
 
         scene.fog = new THREE.Fog('#000', 0, cols * width / 2);
+        scene.add(new THREE.Group().add(camera));
 
         camera.userData.light = new THREE.PointLight('white', 1);
         camera.userData.type = has.webvr ? 'VRControls'
           : (has.mobile ? 'DeviceOrientationControls' : 'MouseControls');
         camera.userData.controls = new THREE[camera.userData.type](
           cursor.userData.ghost, renderer.domElement);
-        // camera.userData.controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // camera.userData.controls = new THREE.OrbitControls(camera.parent, renderer.domElement);
 
         var controllers = {
           daydream: new THREE.DaydreamController(0),
@@ -232,10 +233,10 @@
             renderer.effect = renderer;
           }
 
-          camera.position.z = 10;
+          camera.parent.position.z = 10;
+          camera.parent.lookAt(new THREE.Vector3());
 
-          camera.add(camera.userData.light);
-          scene.add(camera);
+          camera.parent.add(camera.userData.light);
 
           document.body.appendChild(renderer.domElement);
           renderer.domElement.style.position = 'absolute';
@@ -289,13 +290,13 @@
           if (camera.userData.controls) {
             camera.userData.controls.update();
             if (camera.userData.controls instanceof THREE.OrbitControls) {
-              cursor.x = camera.position.x;
-              cursor.y = camera.position.y;
-              camera.position.copy(cursor.userData.ghost.position);
+              cursor.x = camera.parent.position.x;
+              cursor.y = camera.parent.position.y;
+              camera.parent.position.copy(cursor.userData.ghost.position);
               camera.rotation.copy(cursor.userData.ghost.rotation);
             } else if (camera.userData.controls instanceof THREE.MouseControls) {
-              cursor.x = - camera.userData.controls.destination.y * 5;
-              cursor.y = camera.userData.controls.destination.x * 5;
+              cursor.x = - camera.userData.controls.destination.y * 10;
+              cursor.y = camera.userData.controls.destination.x * 10;
             } else {
               camera.rotation.copy(cursor.userData.ghost.rotation);
             }
@@ -322,8 +323,8 @@
             || controllers.left.userData.dragging
             || controllers.right.userData.dragging
             || camera.userData.controls instanceof THREE.MouseControls) {
-            camera.position.x = cursor.x;
-            camera.position.y = cursor.y;
+            camera.parent.position.x = cursor.x;
+            camera.parent.position.y = cursor.y;
           }
 
           var cc = Math.round(cursor.x / width);
