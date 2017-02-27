@@ -16,7 +16,6 @@
 	<body>
 
 		<script src="../release/third-party/three.js"></script>
-
 		<script src="../release/third-party/three/js/controls/DragControls.js"></script>
 		<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
 		<script src="../release/third-party/three/js/controls/TransformControls.js"></script>
@@ -38,8 +37,7 @@
 
 			var container;
 			var camera, scene, renderer;
-			var splineHelperObjects = [],
-				splineOutline;
+			var splineHelperObjects = [];
 			var splinePointsLength = 4;
 			var positions = [];
 			var options;
@@ -47,15 +45,21 @@
 			var geometry = new THREE.BoxGeometry( 20, 20, 20 );
 
 			var ARC_SEGMENTS = 200;
+
+			var spline;
 			var splineMesh;
-
-			var splines = {
-
-			};
 
 			var annie;
 			var clock = new THREE.Clock();
 			var time;
+
+			var lookAhead = false;
+			var binormal = new THREE.Vector3();
+			var normal = new THREE.Vector3();
+
+			// segments for computeFrenetFrames tangents.length
+			// is this the same as ARC_SEGMENTS?
+			var segments = 200;
 
 			init();
 			loop();
@@ -64,7 +68,9 @@
 
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
+
 				scene = new THREE.Scene();
+
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
 				camera.position.z = 800;
 				camera.position.y = 600;
@@ -172,10 +178,10 @@
 
 				}
 
-				var curve = new THREE.CatmullRomCurve3( positions );
-				// curve.type = 'catmullrom'; // uniform
-				curve.type = 'centripetal';
-				curve.mesh = new THREE.Line(
+				spline = new THREE.CatmullRomCurve3( positions );
+				// spline.type = 'catmullrom'; // uniform
+				spline.type = 'centripetal';
+				spline.mesh = new THREE.Line(
 					geometry.clone(),
 					new THREE.LineBasicMaterial( {
 						color: 0xff0000,
@@ -183,20 +189,18 @@
 						linewidth: 2
 					} )
 				);
-				curve.mesh.castShadow = true;
-				splines.centripetal = curve;
-				scene.add( curve.mesh );
+				scene.add( spline.mesh );
 
 				// for catmullrom / uniform
 				// curve.tension = 0.01;
 
 				// paste here from exporter
-				load( [new THREE.Vector3(585.4862002622943, 230.78457631585326, -355.93588110283287),
-						new THREE.Vector3(519.840916794848, 171.49711742836848, 217.9043100234957),
-						new THREE.Vector3(120.08046290154687, 176.4306956436485, 229.8310428229078),
-						new THREE.Vector3(2.2546910150528348, 223.45608094836138, -296.4480079223864),
-						new THREE.Vector3(-404.65752560786353, 268.5187809267413, -270.5418718125909),
-						new THREE.Vector3(-423.87167927009193, 280.5227562378856, 225.15329391051)] );
+				load( [new THREE.Vector3(585.4862002622943, 230, -355.93588110283287),
+						new THREE.Vector3(519.840916794848, 230, 217.9043100234957),
+						new THREE.Vector3(120.08046290154687, 230, 229.8310428229078),
+						new THREE.Vector3(2.2546910150528348, 230, -296.4480079223864),
+						new THREE.Vector3(-404.65752560786353, 230, -270.5418718125909),
+						new THREE.Vector3(-423.87167927009193, 230, 225.15329391051)] );
 
 				// ------------------------------------------------------------
 
@@ -219,7 +223,7 @@
 
 				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 					annie.add( obj.skeleton.bones[0] );
-					setup();
+					// setup();
 				});
 
 				// ------------------------------------------------------------
@@ -290,23 +294,16 @@
 
 				var p;
 
-				for ( var k in splines ) {
+				splineMesh = spline.mesh;
 
-					var spline = splines[ k ];
+				for ( var i = 0; i < ARC_SEGMENTS; i ++ ) {
 
-					splineMesh = spline.mesh;
-
-					for ( var i = 0; i < ARC_SEGMENTS; i ++ ) {
-
-						p = splineMesh.geometry.vertices[ i ];
-						p.copy( spline.getPoint( i /  ( ARC_SEGMENTS - 1 ) ) );
-
-					}
-
-					splineMesh.geometry.verticesNeedUpdate = true;
+					p = splineMesh.geometry.vertices[ i ];
+					p.copy( spline.getPoint( i /  ( ARC_SEGMENTS - 1 ) ) );
 
 				}
 
+				splineMesh.geometry.verticesNeedUpdate = true;
 
 			}
 
@@ -359,11 +356,45 @@
 
 				time = clock.getElapsedTime();
 				var t = (Math.sin(time) + 1) / 2; // 0 - 1
-				var pos = splines.centripetal.getPointAt( t );
+				var pos = spline.getPointAt( t );
+				// annie.position.copy( pos );
+
+				// ------------------------------------------------------------------
+
+				// from webgl_geometry_extrude_splines example:
+
+				// var segments = 15; // frames.tangents.length
+
+				// see http://www.cs.indiana.edu/pub/techreports/TR425.pdf
+				var frames = spline.computeFrenetFrames( segments, false ); // segmaents, closed
+
+				var pickt = t * segments;
+				var pick = Math.floor( pickt );
+				var pickNext = ( pick + 1 ) % segments;
+
+				binormal.subVectors( frames.binormals[ pickNext ], frames.binormals[ pick ] );
+				binormal.multiplyScalar( pickt - pick ).add( frames.binormals[ pick ] );
+
+				var dir = spline.getTangentAt( t );
+
+				var offset = 15;
+
+				normal.copy( binormal ).cross( dir );
+
+				// We move on a offset on its binormal
+				pos.add( normal.clone().multiplyScalar( offset ) );
+
 				annie.position.copy( pos );
 
-				// var tangent = splines.centripetal.getTangentAt( t );
-				// annie.lookAt( tangent );
+				// Using arclength for stablization in look ahead.
+				var lookAt = spline.getPointAt( ( t + 30 / spline.getLength() ) % 1 );
+
+				// Camera Orientation 2 - up orientation via normal
+				if ( !lookAhead ) lookAt.copy( pos ).add( dir );
+				annie.matrix.lookAt(annie.position, lookAt, normal.multiplyScalar(-1) );
+				annie.rotation.setFromRotationMatrix( annie.matrix, annie.rotation.order );
+
+				// ------------------------------------------------------------------
 
 				renderer.render( scene, camera );
 
