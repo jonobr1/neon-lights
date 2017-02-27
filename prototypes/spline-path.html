@@ -380,6 +380,7 @@
 				var pick = Math.floor( pickt );
 				var pickNext = ( pick + 1 ) % segments;
 
+				// http://gamedev.stackexchange.com/questions/51399/what-are-normal-tangent-and-binormal-vectors-and-how-are-they-used
 				binormal.subVectors( frames.binormals[ pickNext ], frames.binormals[ pick ] );
 				binormal.multiplyScalar( pickt - pick ).add( frames.binormals[ pick ] );
 
