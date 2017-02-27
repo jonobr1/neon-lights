@@ -111,7 +111,7 @@
 
 			document.addEventListener( 'keydown', function ( event ) {
 
-				if ( event.metaKey ) {
+				if ( event.metaKey || event.ctrlKey ) {
 
 					switch ( event.keyCode ) {
 						case 83: // prevent CMD + S
