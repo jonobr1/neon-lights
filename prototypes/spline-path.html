@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - geometry - catmull spline editor</title>
+		<title>spline path animation</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
@@ -14,6 +14,9 @@
 		</style>
 	</head>
 	<body>
+
+		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+		<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/tween.js/16.6.0/Tween.min.js"></script> -->
 
 		<script src="../release/third-party/three.js"></script>
 		<script src="../release/third-party/three/js/controls/DragControls.js"></script>
@@ -50,7 +53,7 @@
 			var splineMesh;
 
 			var annie;
-			var clock = new THREE.Clock();
+			var clock = new THREE.Clock( false );
 			var time;
 
 			var lookAhead = false;
@@ -62,19 +65,23 @@
 			var segments = 200;
 
 			init();
-			loop();
 
 			function init() {
 
 				container = document.createElement( 'div' );
-				document.body.appendChild( container );
 
 				scene = new THREE.Scene();
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
-				camera.position.z = 800;
+				camera.position.z = 600;
 				camera.position.y = 600;
 				scene.add( camera );
+
+				var setup = _.after(1, function(){
+					document.body.appendChild( container );
+					clock.start();
+					loop();
+				});
 
 				scene.add( new THREE.AmbientLight( 0x888888 ) );
 
@@ -195,12 +202,12 @@
 				// curve.tension = 0.01;
 
 				// paste here from exporter
-				load( [new THREE.Vector3(585.4862002622943, 230, -355.93588110283287),
-						new THREE.Vector3(519.840916794848, 230, 217.9043100234957),
-						new THREE.Vector3(120.08046290154687, 230, 229.8310428229078),
-						new THREE.Vector3(2.2546910150528348, 230, -296.4480079223864),
-						new THREE.Vector3(-404.65752560786353, 230, -270.5418718125909),
-						new THREE.Vector3(-423.87167927009193, 230, 225.15329391051)] );
+				load( [new THREE.Vector3(585.4862002622943, 0, -355.93588110283287),
+						new THREE.Vector3(519.840916794848, 0, 217.9043100234957),
+						new THREE.Vector3(120.08046290154687, 0, 229.8310428229078),
+						new THREE.Vector3(2.2546910150528348, 0, -296.4480079223864),
+						new THREE.Vector3(-404.65752560786353, 0, -270.5418718125909),
+						new THREE.Vector3(-423.87167927009193, 0, 225.15329391051)] );
 
 				// ------------------------------------------------------------
 
@@ -223,7 +230,7 @@
 
 				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 					annie.add( obj.skeleton.bones[0] );
-					// setup();
+					setup();
 				});
 
 				// ------------------------------------------------------------
@@ -355,6 +362,7 @@
 				transformControl.update();
 
 				time = clock.getElapsedTime();
+
 				var t = (Math.sin(time) + 1) / 2; // 0 - 1
 				var pos = spline.getPointAt( t );
 				// annie.position.copy( pos );
