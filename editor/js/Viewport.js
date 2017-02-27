@@ -4,9 +4,10 @@
 
 var Viewport = function ( editor ) {
 
+	var scope = this;
 	var signals = editor.signals;
 
-	var container = new UI.Panel();
+	var container = this.container = new UI.Panel();
 	container.setId( 'viewport' );
 
 	FRAME.setDOM( container.dom );
@@ -24,7 +25,24 @@ var Viewport = function ( editor ) {
 	} );
 	*/
 
-	signals.editorCleared.add( function () {
+	signals.editorCleared.add( clear );
+	signals.includesCleared.add( clear );
+
+	function clear () {
+
+		scope.clear();
+
+	}
+
+	return container;
+
+};
+
+Viewport.prototype = {
+
+	clear: function () {
+
+		var container = this.container;
 
 		while ( container.dom.children.length ) {
 
@@ -32,9 +50,8 @@ var Viewport = function ( editor ) {
 
 		}
 
-	} );
+		return this;
 
-
-	return container;
+	}
 
 };

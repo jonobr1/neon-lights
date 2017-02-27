@@ -30,13 +30,43 @@ Sidebar.Project = function ( editor ) {
 	container.add( newInclude );
 
 	var cleanEffects = new UI.Button( 'Clean Effects' );
-	cleanEffects.onClick( function() {
+	cleanEffects.onClick( function () {
 
 		editor.cleanEffects();
 
 	} );
 	cleanEffects.setMarginLeft( '4px' );
 	container.add( cleanEffects );
+
+	var reload = new UI.Button( 'Reload Includes' );
+	reload.onClick( function () {
+
+		var includes = editor.includes.slice( 0 );
+		var effects = editor.effects.slice( 0 );
+
+		editor.signals.includesCleared.dispatch();
+
+		for ( var i = 0; i < includes.length; i++ ) {
+
+			var include = includes[ i ];
+
+			editor.removeInclude( include );
+			editor.addInclude( include );
+
+		}
+
+		for ( var j = 0; j < effects.length; j++ ) {
+
+			var effect = effects[ j ];
+
+			effect.compile();
+			effect.program.update( 0 );
+
+		}
+
+	} );
+	reload.setMarginLeft( '4px' );
+	container.add( reload );
 
 	//
 

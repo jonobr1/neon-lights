@@ -25,6 +25,8 @@
       <script src="../release/src/mouse-controls.js"></script>
       <script>
 
+        var clock = new THREE.Clock();
+
         var renderer = new THREE.WebGLRenderer({ antialias: true });
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera();
@@ -40,6 +42,13 @@
         var width = 7;
         var height = 5;
         var depth = 10;
+
+        var annie = new THREE.Group();
+
+        annie.rotation.y = - Math.PI / 2;
+        annie.rotation.z = Math.PI;
+
+        annie.position.y = height / 2;
 
         var cols = Math.sqrt(amount);
         var rows = Math.ceil(amount / cols);
@@ -97,12 +106,16 @@
 
         }
 
+        scene.fog = new THREE.Fog('#000', cols * width / 8, cols * width / 3);
+        scene.add(new THREE.Group().add(camera));
+        scene.add(annie);
+
         camera.userData.light = new THREE.PointLight('white', 1);
         camera.userData.type = has.webvr ? 'VRControls'
           : (has.mobile ? 'DeviceOrientationControls' : 'MouseControls');
         camera.userData.controls = new THREE[camera.userData.type](
           cursor.userData.ghost, renderer.domElement);
-        // camera.userData.controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // camera.userData.controls = new THREE.OrbitControls(camera.parent, renderer.domElement);
 
         var controllers = {
           daydream: new THREE.DaydreamController(0),
@@ -216,6 +229,19 @@
           },
           onTriggerUp: function() {
 
+            var col = Math.round(cursor.x / width);
+            var row = Math.round(cursor.y / height);
+
+            var ac = Math.round(annie.position.x / width);
+            var ar = Math.round(annie.position.y / height);
+
+            if (Math.abs(col - ac) < 2 && Math.abs(row - ar) < 2) {
+              return;
+            }
+
+            annie.position.x = width * col + width * 0.6;
+            annie.position.y = height * row + height / 2;
+
           }
         };
 
@@ -230,10 +256,18 @@
             renderer.effect = renderer;
           }
 
-          camera.position.z = 10;
+          camera.parent.position.z = 10;
+          camera.parent.lookAt(new THREE.Vector3());
 
-          camera.add(camera.userData.light);
-          scene.add(camera);
+          if (camera.userData.controls instanceof THREE.MouseControls) {
+            camera.parent.rotation.x = 0;
+            camera.userData.controls._onTriggerDown = controllers.onTriggerDown;
+            camera.userData.controls._onTriggerUp = controllers.onTriggerUp;
+          } else {
+            camera.parent.rotation.z = 0;
+          }
+
+          camera.parent.add(camera.userData.light);
 
           document.body.appendChild(renderer.domElement);
           renderer.domElement.style.position = 'absolute';
@@ -287,31 +321,32 @@
           if (camera.userData.controls) {
             camera.userData.controls.update();
             if (camera.userData.controls instanceof THREE.OrbitControls) {
-              cursor.x = camera.position.x;
-              cursor.y = camera.position.y;
-              camera.position.copy(cursor.userData.ghost.position);
+              cursor.x = camera.parent.position.x;
+              cursor.y = camera.parent.position.y;
+              camera.parent.position.copy(cursor.userData.ghost.position);
               camera.rotation.copy(cursor.userData.ghost.rotation);
             } else if (camera.userData.controls instanceof THREE.MouseControls) {
-              cursor.x = - camera.userData.controls.destination.y * 5;
-              cursor.y = camera.userData.controls.destination.x * 5;
+              cursor.x = camera.userData.controls.destination.y * 10;
+              cursor.y = - camera.userData.controls.destination.x * 10;
             } else {
               camera.rotation.copy(cursor.userData.ghost.rotation);
             }
           }
 
           controllers.update(camera);
+          var scale = 20;
 
           if (controllers.daydream.userData.dragging) {
             cursor.x += (controllers.daydream.position.x - controllers.previous.x);
             cursor.y -= (controllers.daydream.position.y - controllers.previous.y);
             controllers.previous.copy(controllers.daydream.position);
           } else if (controllers.left.userData.dragging) {
-            cursor.x += (controllers.left.position.x - controllers.previous.x);
-            cursor.y -= (controllers.left.position.y - controllers.previous.y);
+            cursor.x += (controllers.left.position.x - controllers.previous.x) * scale;
+            cursor.y += (controllers.left.position.y - controllers.previous.y) * scale;
             controllers.previous.copy(controllers.left.position);
           } else if (controllers.right.userData.dragging) {
-            cursor.x += (controllers.right.position.x - controllers.previous.x);
-            cursor.y -= (controllers.right.position.y - controllers.previous.y);
+            cursor.x += (controllers.right.position.x - controllers.previous.x) * scale;
+            cursor.y += (controllers.right.position.y - controllers.previous.y) * scale;
             controllers.previous.copy(controllers.right.position);
           }
 
@@ -319,8 +354,8 @@
             || controllers.left.userData.dragging
             || controllers.right.userData.dragging
             || camera.userData.controls instanceof THREE.MouseControls) {
-            camera.position.x = cursor.x;
-            camera.position.y = cursor.y;
+            camera.parent.position.x = cursor.x;
+            camera.parent.position.y = cursor.y;
           }
 
           var cc = Math.round(cursor.x / width);
@@ -338,7 +373,50 @@
 
           }
 
+          annie.position.x -= clock.getDelta() * 1.125;
+
           renderer.effect.render(scene, camera);
+
+        }
+
+        function loadModels() {
+
+          var isLocal = /localhost/i.test(window.location.href);
+          var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+
+          var loader = new THREE.FBXLoader();
+
+          var files = [];
+          files.loaded = 0;
+          files.root = [root, '/models/forest/'].join('');
+          files.limit = files.length;
+
+          loader.load(files.root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+
+            var meshes = [];
+            var pluck = function(obj) {
+              for (var i = 0; i < obj.children.length; i++) {
+
+                var child = obj.children[i];
+
+                if (child.isMesh) {
+                  meshes.push(child);
+                }
+                if (child.children && child.children.length > 0) {
+                  pluck(child);
+                }
+              }
+            };
+
+            pluck(obj);
+
+            for (var i = 0; i < meshes.length; i++) {
+              annie.add(meshes[i]);
+            }
+
+            setup();
+
+          });
 
         }
 
@@ -349,7 +427,7 @@
           return v % l;
         }
 
-        setup();
+        loadModels();
 
       </script>
 

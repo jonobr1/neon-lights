@@ -252,7 +252,7 @@
 
           camera.parent.position.y = 4;
           camera.parent.position.z = 10;
-          camera.lookAt(annie.position);
+          camera.parent.lookAt(annie.position);
 
           camera.userData.type = has.webvr ? 'VRControls'
             : (has.mobile ? 'DeviceOrientationControls' : 'MouseControls');

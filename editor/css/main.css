@@ -58,3 +58,8 @@ input.Number {
 	height: calc(100% - 37px) !important;
 
 }
+
+
+input, textarea, keygen, select, button {
+	font: 11px system-ui;
+}

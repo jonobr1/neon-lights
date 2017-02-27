@@ -17,6 +17,7 @@ var Editor = function () {
 		includeChanged: new Signal(),
 		includeMoved: new Signal(),
 		includeRemoved: new Signal(),
+		includesCleared: new Signal(),
 
 		// effects
 
@@ -209,6 +210,7 @@ Editor.prototype = {
 
 		var script = document.createElement( 'script' );
 		script.textContent = include[ 1 ];
+		script.id = this.getIncludeId( include );
 		document.head.appendChild( script );
 
 		this.includes.push( include );
@@ -239,6 +241,8 @@ Editor.prototype = {
 	removeInclude: function ( include ) {
 
 		var index = this.includes.indexOf( include );
+		var selector = this.getIncludeId( include, true );
+		var script = document.head.querySelector( selector );
 
 		if ( index !== - 1 ) {
 
@@ -246,6 +250,25 @@ Editor.prototype = {
 			this.signals.includeRemoved.dispatch( include );
 
 		}
+
+		if ( script ) {
+
+			var parent = script.parentElement || script.parentNode;
+
+			if ( parent ) {
+
+				parent.removeChild( script );
+
+			}
+
+		}
+
+	},
+
+	getIncludeId: function ( include, isSelector ) {
+
+		var id = include[0].replace(/\W/ig, '-');
+		return !!isSelector ? '#' + id : id;
 
 	},
 
@@ -281,7 +304,7 @@ Editor.prototype = {
 	cleanEffects: function () {
 
 		var scope = this;
-		var effects = this.effects.slice(0);
+		var effects = this.effects.slice( 0 );
 		var animations = this.timeline.animations;
 
 		effects.forEach( function ( effect, i ) {
