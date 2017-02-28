@@ -209,7 +209,7 @@ Editor.prototype = {
 	addInclude: function ( include ) {
 
 		var script = document.createElement( 'script' );
-		script.textContent = include[ 1 ];
+		script.textContent = '( function () { ' + include[ 1 ] + '} )()';
 		script.id = this.getIncludeId( include );
 		document.head.appendChild( script );
 
