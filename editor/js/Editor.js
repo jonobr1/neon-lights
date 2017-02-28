@@ -10,12 +10,16 @@ var Editor = function () {
 
 		editorCleared: new Signal(),
 
+		// libraries
+
+		libraryAdded: new Signal(),
+
 		// includes
 
 		includeAdded: new Signal(),
 		includeSelected: new Signal(),
 		includeChanged: new Signal(),
-		includeMoved: new Signal(),
+		// includeMoved: new Signal(),
 		includeRemoved: new Signal(),
 		includesCleared: new Signal(),
 
@@ -57,6 +61,7 @@ var Editor = function () {
 	this.isPlaying = false;
 	this.currentTime = 0;
 
+	this.libraries = [];
 	this.includes = [];
 	this.effects = [];
 	this.timeline = new FRAME.Timeline();
@@ -204,6 +209,19 @@ Editor.prototype = {
 
 	},
 
+	// libraries
+
+	addLibrary: function ( url, content ) {
+
+		var script = document.createElement( 'script' );
+		script.textContent = '( function () { ' + content + '} )()';
+		document.head.appendChild( script );
+
+		this.libraries.push( url );
+		this.signals.libraryAdded.dispatch();
+
+	},
+
 	// includes
 
 	addInclude: function ( include ) {
@@ -224,6 +242,7 @@ Editor.prototype = {
 
 	},
 
+	/*
 	moveInclude: function ( include, index ) {
 
 		var i = this.includes.indexOf( include );
@@ -237,6 +256,7 @@ Editor.prototype = {
 		}
 
 	},
+	*/
 
 	removeInclude: function ( include ) {
 
@@ -389,43 +409,89 @@ Editor.prototype = {
 
 	fromJSON: function ( json ) {
 
+		function loadFile( url, onLoad ) {
+
+			var request = new XMLHttpRequest();
+			request.open( 'GET', url, true );
+			request.addEventListener( 'load', function ( event ) {
+
+				onLoad( event.target.response );
+
+			} );
+			request.send( null );
+
+		}
+
+		function loadLibraries( libraries, onLoad ) {
+
+			var count = 0;
+
+			function loadNext() {
+
+				if ( count === libraries.length ) {
+
+					onLoad();
+					return;
+
+				}
+
+				var url = libraries[ count ++ ];
+
+				loadFile( url, function ( content ) {
+
+					scope.addLibrary( url, content );
+					loadNext();
+
+				} );
+
+			}
+
+			loadNext();
+
+		}
+
+		var scope = this;
+
+		var libraries = json.libraries || [];
 		var includes = json.includes;
-
-		for ( var i = 0, l = includes.length; i < l; i ++ ) {
-
-			this.addInclude( includes[ i ] );
-
-		}
-
 		var effects = json.effects;
-
-		for ( var i = 0, l = effects.length; i < l; i ++ ) {
-
-			var data = effects[ i ];
-
-			this.addEffect( new FRAME.Effect( data[ 0 ], data[ 1 ] ) );
-
-		}
-
 		var animations = json.animations;
 
-		for ( var i = 0, l = animations.length; i < l; i ++ ) {
+		loadLibraries( libraries, function () {
 
-			var data = animations[ i ];
+			for ( var i = 0, l = includes.length; i < l; i ++ ) {
 
-			var animation = new FRAME.Animation(
-				data[ 0 ],
-				data[ 1 ],
-				data[ 2 ],
-				data[ 3 ],
-				this.effects[ data[ 4 ] ]
-			);
+				scope.addInclude( includes[ i ] );
 
-			this.addAnimation( animation );
+			}
 
-		}
+			for ( var i = 0, l = effects.length; i < l; i ++ ) {
 
-		this.setTime( 0 );
+				var data = effects[ i ];
+
+				scope.addEffect( new FRAME.Effect( data[ 0 ], data[ 1 ] ) );
+
+			}
+
+			for ( var i = 0, l = animations.length; i < l; i ++ ) {
+
+				var data = animations[ i ];
+
+				var animation = new FRAME.Animation(
+					data[ 0 ],
+					data[ 1 ],
+					data[ 2 ],
+					data[ 3 ],
+					scope.effects[ data[ 4 ] ]
+				);
+
+				scope.addAnimation( animation );
+
+			}
+
+			scope.setTime( 0 );
+
+		} );
 
 	},
 
@@ -433,6 +499,7 @@ Editor.prototype = {
 
 		var json = {
 			"config": {},
+			"libraries": this.libraries.slice(),
 			"includes": this.includes.slice(),
 			"effects": [],
 			// "curves": [],

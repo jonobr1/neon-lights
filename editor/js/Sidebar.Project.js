@@ -9,11 +9,20 @@ Sidebar.Project = function ( editor ) {
 	var container = new UI.Panel();
 	container.setId( 'project' );
 
-	container.add( new UI.Text( 'Includes' ).setTextTransform( 'uppercase' ) );
-	container.add( new UI.Break() );
-	container.add( new UI.Break() );
+	// Libraries
 
-	//
+	container.add( new UI.Text( 'Libraries' ).setTextTransform( 'uppercase' ) );
+	container.add( new UI.Break(), new UI.Break() );
+
+	var libraries = new UI.Select().setMultiple( true ).setWidth( '280px' );
+	container.add( libraries );
+
+	container.add( new UI.Break(), new UI.Break() );
+
+	// Includes
+
+	container.add( new UI.Text( 'Includes' ).setTextTransform( 'uppercase' ) );
+	container.add( new UI.Break(), new UI.Break() );
 
 	var includesContainer = new UI.Row();
 	container.add( includesContainer );
@@ -93,6 +102,7 @@ Sidebar.Project = function ( editor ) {
 		} );
 		span.add( edit );
 
+		/*
 		var move = new UI.Button( 'Move' );
 		move.setMarginLeft( '4px' );
 		move.onClick( function () {
@@ -109,6 +119,7 @@ Sidebar.Project = function ( editor ) {
 
 		} );
 		span.add( move );
+		*/
 
 		var remove = new UI.Button( 'Remove' );
 		remove.setMarginLeft( '4px' );
@@ -131,6 +142,11 @@ Sidebar.Project = function ( editor ) {
 
 	function update() {
 
+		libraries.setOptions( editor.libraries );
+		libraries.dom.size = editor.libraries.length;
+
+		//
+
 		includesContainer.clear();
 
 		var includes = editor.includes;
@@ -147,7 +163,7 @@ Sidebar.Project = function ( editor ) {
 
 	signals.editorCleared.add( update );
 	signals.includeAdded.add( update );
-	signals.includeMoved.add( update );
+	// signals.includeMoved.add( update );
 	signals.includeRemoved.add( update );
 
 	return container;
