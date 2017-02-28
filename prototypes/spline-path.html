@@ -17,7 +17,7 @@
 
 		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
-		<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/tween.js/16.6.0/Tween.min.js"></script> -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/tween.js/16.6.0/Tween.min.js"></script>
 
 		<script src="../release/third-party/three.js"></script>
 		<script src="../release/third-party/three/js/controls/DragControls.js"></script>
@@ -53,10 +53,10 @@
 			var splineMesh;
 
 			var annie;
-			var clock = new THREE.Clock( false );
+			// var clock = new THREE.Clock( false );
 			var time;
 
-			var lookAhead = false;
+			var lookAhead = false; // rotation looks messed up when this is true
 			var binormal = new THREE.Vector3();
 			var normal = new THREE.Vector3();
 
@@ -102,6 +102,16 @@
 				}
 			};
 
+			// 0 - 1 percentage along path
+			var pct = { t: 0 };
+			var tween = new TWEEN.Tween( pct )
+				.to({ t: 1 }, 2000)
+				.onUpdate(function() {
+					// console.log(this.t);
+				})
+				.repeat( Infinity )
+				.yoyo( true );
+
 			init();
 
 			function init() {
@@ -117,7 +127,8 @@
 
 				var setup = _.after(1, function(){
 					document.body.appendChild( container );
-					clock.start();
+					// clock.start();
+					tween.start();
 					loop();
 				});
 
@@ -244,6 +255,9 @@
 				annie.rotation.y = Math.PI;
 				annie.position.set( 0, 0, -1 );
 				annie.scale.set(300,300,300);
+
+				// annie.add( new THREE.AxisHelper(1) );
+
 				scene.add( annie );
 
 				var loader = new THREE.FBXLoader();
@@ -260,9 +274,10 @@
 				// ------------------------------------------------------------
 
 				var gui = new dat.GUI();
+				gui.add(pct, 't', 0, 1).name('percent').listen();
+				gui.add(spline, 'closed').onChange( updateSplineOutline );
 				gui.add(spline, 'type', ['centripetal', 'catmullrom', 'chordal']).onChange( updateSplineOutline );
 				gui.add(spline, 'tension', 0, 1).step(0.1).onChange( updateSplineOutline );
-				gui.add(spline, 'closed').onChange( updateSplineOutline );
 				gui.add(methods, 'addPoint');
 				gui.add(methods, 'removePoint');
 				gui.add(methods, 'exportSpline');
@@ -357,18 +372,19 @@
 				
 				controls.update();
 				transformControl.update();
+				TWEEN.update();
 
-				time = clock.getElapsedTime();
+				// time = clock.getElapsedTime();
+				// var t = (Math.sin(time) + 1) / 2; // 0 - 1
 
-				var t = (Math.sin(time) + 1) / 2; // 0 - 1
+				var t = pct.t;
 				var pos = spline.getPointAt( t );
+
 				// annie.position.copy( pos );
 
 				// ------------------------------------------------------------------
 
 				// from webgl_geometry_extrude_splines example:
-
-				// var segments = 15; // frames.tangents.length
 
 				// see http://www.cs.indiana.edu/pub/techreports/TR425.pdf
 				var frames = spline.computeFrenetFrames( segments, spline.closed );
@@ -396,7 +412,7 @@
 				var lookAt = spline.getPointAt( ( t + 30 / spline.getLength() ) % 1 );
 
 				// Camera Orientation 2 - up orientation via normal
-				if ( !lookAhead ) lookAt.copy( pos ).add( dir );
+				if ( !lookAhead ) lookAt.copy( pos ).add( dir.multiplyScalar(-1) );
 				annie.matrix.lookAt(annie.position, lookAt, normal.multiplyScalar(-1) );
 				annie.rotation.setFromRotationMatrix( annie.matrix, annie.rotation.order );
 
