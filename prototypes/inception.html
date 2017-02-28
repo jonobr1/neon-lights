@@ -92,7 +92,7 @@
         camera.userData.type = has.webvr ? 'VRControls'
           : (has.mobile ? 'DeviceOrientationControls' : 'MouseControls');
         camera.userData.controls = new THREE[camera.userData.type](
-          camera, renderer.domElement);
+          cursor.userData.ghost, renderer.domElement);
         // camera.userData.controls = new THREE.OrbitControls(camera, renderer.domElement);
 
         var controllers = {
@@ -271,6 +271,16 @@
             if (camera.userData.controls instanceof THREE.MouseControls) {
               theta.destination = camera.userData.controls.destination.x * Math.PI / 2;
             }
+
+          }
+
+          switch (camera.userData.type) {
+
+            case 'VRControls':
+            case 'DeviceOrientationControls':
+              camera.rotation.copy(cursor.userData.ghost.rotation);
+              camera.position.copy(cursor.userData.ghost.position);
+              break;
 
           }
 
