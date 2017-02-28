@@ -71,16 +71,13 @@
 
 			// LocalStorage
 
-			var signals = editor.signals;
-
-			/*
-			signals.animationAdded.add( saveState );
-			signals.animationModified.add( saveState );
-			signals.animationRemoved.add( saveState );
-			signals.effectCompiled.add( saveState );
-			signals.includeChanged.add( saveState );
-			signals.includeRemoved.add( saveState );
-			signals.editorCleared.add( saveState );
+			editor.signals.animationAdded.add( saveState );
+			editor.signals.animationModified.add( saveState );
+			editor.signals.animationRemoved.add( saveState );
+			editor.signals.effectCompiled.add( saveState );
+			editor.signals.includeChanged.add( saveState );
+			editor.signals.includeRemoved.add( saveState );
+			editor.signals.editorCleared.add( saveState );
 
 			var timeout;
 
@@ -105,7 +102,6 @@
 				editor.fromJSON( JSON.parse( state ) );
 
 			}
-			*/
 
 			// Short-cuts
 
