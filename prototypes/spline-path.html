@@ -16,6 +16,7 @@
 	<body>
 
 		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
 		<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/tween.js/16.6.0/Tween.min.js"></script> -->
 
 		<script src="../release/third-party/three.js"></script>
@@ -43,7 +44,6 @@
 			var splineHelperObjects = [];
 			var splinePointsLength = 4;
 			var positions = [];
-			var options;
 
 			var geometry = new THREE.BoxGeometry( 20, 20, 20 );
 
@@ -61,8 +61,46 @@
 			var normal = new THREE.Vector3();
 
 			// segments for computeFrenetFrames tangents.length
-			// is this the same as ARC_SEGMENTS?
+			// should this be the same as ARC_SEGMENTS?
 			var segments = 200;
+
+			var methods = {
+				addPoint: function() {
+
+					splinePointsLength++;
+					positions.push( addSplineObject().position );
+					updateSplineOutline();
+
+				},
+				removePoint: function() {
+
+					if ( splinePointsLength <= 4 ) {
+						return;
+					}
+
+					splinePointsLength--;
+					positions.pop();
+					scene.remove( splineHelperObjects.pop() );
+
+					updateSplineOutline();
+
+				},
+				exportSpline: function() {
+
+					var p;
+					var strplace = [];
+					for ( i = 0; i < splinePointsLength; i ++ ) {
+
+						p = splineHelperObjects[ i ].position;
+						strplace.push( 'new THREE.Vector3({0}, {1}, {2})'.format( p.x, p.y, p.z ) )
+
+					}
+					console.log( strplace.join( ',\n' ) );
+					var code = '[' + ( strplace.join( ',\n\t' ) ) + ']';
+					prompt( 'copy and paste code', code );
+
+				}
+			};
 
 			init();
 
@@ -90,7 +128,6 @@
 				scene.add( light );
 
 				var helper = new THREE.GridHelper( 2000, 10 );
-				helper.position.y = - 199;
 				helper.material.opacity = 0.25;
 				helper.material.transparent = true;
 				scene.add( helper );
@@ -101,18 +138,6 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.shadowMap.enabled = true;
 				container.appendChild( renderer.domElement );
-
-				options = document.createElement( 'div' );
-				options.style.position = 'absolute';
-				options.style.top = '10px';
-				options.style.width = '100%';
-				options.style.textAlign = 'center';
-
-				options.innerHTML = 'Points: <input type="button" onclick="addPoint();" value="+" />\
-					<input type="button" onclick="removePoint();" value="-" /><br /><br />\
-					<input type="button" onclick="exportSpline();" value="Export" />';
-
-				container.appendChild( options );
 
 				// ------------------------------------------------------------
 
@@ -186,8 +211,8 @@
 				}
 
 				spline = new THREE.CatmullRomCurve3( positions );
-				// spline.type = 'catmullrom'; // uniform
 				spline.type = 'centripetal';
+				spline.closed = false;
 				spline.mesh = new THREE.Line(
 					geometry.clone(),
 					new THREE.LineBasicMaterial( {
@@ -198,8 +223,7 @@
 				);
 				scene.add( spline.mesh );
 
-				// for catmullrom / uniform
-				// curve.tension = 0.01;
+				spline.tension = 0.5; // only for uniform 'catmullrom' spline.type
 
 				// paste here from exporter
 				load( [new THREE.Vector3(585.4862002622943, 0, -355.93588110283287),
@@ -235,6 +259,16 @@
 
 				// ------------------------------------------------------------
 
+				var gui = new dat.GUI();
+				gui.add(spline, 'type', ['centripetal', 'catmullrom', 'chordal']).onChange( updateSplineOutline );
+				gui.add(spline, 'tension', 0, 1).step(0.1).onChange( updateSplineOutline );
+				gui.add(spline, 'closed').onChange( updateSplineOutline );
+				gui.add(methods, 'addPoint');
+				gui.add(methods, 'removePoint');
+				gui.add(methods, 'exportSpline');
+
+				// ------------------------------------------------------------
+
 				window.addEventListener( 'resize', resize, false );
 
 			}
@@ -261,7 +295,8 @@
 				} else {
 
 					object.position.x = Math.random() * 1000 - 500;
-					object.position.y = Math.random() * 600;
+					// object.position.y = Math.random() * 600;
+					object.position.y = 0;
 					object.position.z = Math.random() * 800 - 400;
 
 				}
@@ -271,29 +306,6 @@
 				scene.add( object );
 				splineHelperObjects.push( object );
 				return object;
-
-			}
-
-			function addPoint() {
-
-				splinePointsLength ++;
-				positions.push( addSplineObject().position );
-
-				updateSplineOutline();
-
-			}
-
-			function removePoint() {
-
-				if ( splinePointsLength <= 4 ) {
-					return;
-				}
-
-				splinePointsLength --;
-				positions.pop();
-				scene.remove( splineHelperObjects.pop() );
-
-				updateSplineOutline();
 
 			}
 
@@ -314,33 +326,18 @@
 
 			}
 
-			function exportSpline() {
-
-				var p;
-				var strplace = [];
-				for ( i = 0; i < splinePointsLength; i ++ ) {
-
-					p = splineHelperObjects[ i ].position;
-					strplace.push( 'new THREE.Vector3({0}, {1}, {2})'.format( p.x, p.y, p.z ) )
-
-				}
-				console.log( strplace.join( ',\n' ) );
-				var code = '[' + ( strplace.join( ',\n\t' ) ) + ']';
-				prompt( 'copy and paste code', code );
-
-			}
 
 			function load( new_positions ) {
 
 				while ( new_positions.length > positions.length ) {
 
-					addPoint();
+					methods.addPoint();
 
 				}
 
 				while ( new_positions.length < positions.length ) {
 
-					removePoint();
+					methods.removePoint();
 
 				}
 
@@ -374,7 +371,7 @@
 				// var segments = 15; // frames.tangents.length
 
 				// see http://www.cs.indiana.edu/pub/techreports/TR425.pdf
-				var frames = spline.computeFrenetFrames( segments, false ); // segmaents, closed
+				var frames = spline.computeFrenetFrames( segments, spline.closed );
 
 				var pickt = t * segments;
 				var pick = Math.floor( pickt );
