@@ -9,4 +9,4 @@
 + [Boilerplate](./webvr-boilerplate.html)
 + [Inception](./inception.html)
 + [Bedroom](./bedroom-assets.html)
-+ [Room Door Boolean](./room-door.html)
++ Room Door Boolean [1](./room-door.html), [2](./room-door2.html)

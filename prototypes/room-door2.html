@@ -184,21 +184,27 @@
 				var roomMat = new THREE.MeshPhongMaterial({
 					color: 0x8bb893,
 					shading: THREE.FlatShading,
-					// side: THREE.BackSide
+					side: THREE.BackSide
 				});
+
 				var roomMesh = new THREE.Mesh( roomGeo, roomMat );
 				roomMesh.position.y = roomHeight / 2;
 				// scene.add( roomMesh );
 
+				var roomMesh2 = new THREE.Mesh( roomGeo, roomMat );
+				roomMesh2.position.y = roomHeight / 2;
+				roomMesh2.position.z =  - (roomDepth + thickness/2);
+				// scene.add( roomMesh2 );
+
 				// outer wall
-				var roomGeo2 = new THREE.BoxGeometry(
+				var outsideGeo = new THREE.BoxGeometry(
 					roomWidth + thickness,
 					roomHeight + thickness,
 					roomDepth + thickness
 				);
-				var roomMesh2 = new THREE.Mesh( roomGeo2, roomMat );
-				roomMesh2.position.y = roomHeight / 2;
-				// scene.add( roomMesh2 );
+				var outsideMesh = new THREE.Mesh( outsideGeo, roomMat );
+				outsideMesh.position.y = roomHeight / 2;
+				// scene.add( outsideMesh );
 
 				// door
 				var doorGeo = new THREE.BoxGeometry( 1.2, doorHeight, thickness/2 );
@@ -214,15 +220,13 @@
 
 				// CSG boolean subtraction
 
-				// subtract inner wall from outer wall
 				var roomBSP = new ThreeBSP( roomMesh );
 				var roomBSP2 = new ThreeBSP( roomMesh2 );
-				var subtract_bsp = roomBSP2.subtract( roomBSP );
+				var union_bsp = roomBSP2.union( roomBSP );
 
-				// subtract door from walls
 				var doorBSP = new ThreeBSP( doorMesh );
-				var subtract_bsp2 = subtract_bsp.subtract( doorBSP );
-				var resultMesh = subtract_bsp2.toMesh( roomMat );
+				var union_bsp2 = union_bsp.union( doorBSP );
+				var resultMesh = union_bsp2.toMesh( roomMat );
 				resultMesh.geometry.computeVertexNormals();
 				scene.add( resultMesh );
 
