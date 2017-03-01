@@ -203,7 +203,7 @@
 				// door
 				var doorGeo = new THREE.BoxGeometry( 1.2, doorHeight, thickness/2 );
 				doorGeo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, doorHeight/2, 0 ) );
-				var doorMat = new THREE.MeshLambertMaterial({
+				var doorMat = window.doorMat = new THREE.MeshLambertMaterial({
 					color: 0x6b8d71,
 					transparent: true,
 					opacity: 0.7
