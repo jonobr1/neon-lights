@@ -136,7 +136,11 @@
 
 				var loader = new THREE.FBXLoader();
 
-				loader.load('../assets/models/forest/mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+				root = [root, '/models/forest/'].join('');
+
+				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 					annie.add( obj.skeleton.bones[0] );
 					setup();
 				});

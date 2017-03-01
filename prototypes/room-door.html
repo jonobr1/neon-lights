@@ -139,21 +139,25 @@
 
 				// custom scene assets here
 
-				var annie = window.annie = new THREE.Group();
+				var annie = new THREE.Group();
 				annie.rotation.y = Math.PI;
 				annie.position.set( 0, 0, -1 );
 				scene.add( annie );
 
 				var loader = new THREE.FBXLoader();
 
-				loader.load('../assets/models/forest/mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+				root = [root, '/models/forest/'].join('');
+
+				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 					annie.add( obj.skeleton.bones[0] );
 					setup();
 				});
 
 				// lights to separate planes of room
 
-				var dLight = window.dLight = new THREE.DirectionalLight( 0xcccccc, 0.7 );
+				var dLight = new THREE.DirectionalLight( 0xcccccc, 0.7 );
 				dLight.position.set(2,4,1).normalize();
 				scene.add( dLight );
 
@@ -177,7 +181,7 @@
 
 				// inner wall
 				var roomGeo = new THREE.BoxGeometry( roomWidth, roomHeight, roomDepth );
-				var roomMat = window.roomMat = new THREE.MeshPhongMaterial({
+				var roomMat = new THREE.MeshPhongMaterial({
 					color: 0x8bb893,
 					shading: THREE.FlatShading,
 					// side: THREE.BackSide
@@ -199,7 +203,7 @@
 				// door
 				var doorGeo = new THREE.BoxGeometry( 1.2, doorHeight, thickness/2 );
 				doorGeo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, doorHeight/2, 0 ) );
-				var doorMat = window.doorMat = new THREE.MeshLambertMaterial({
+				var doorMat = new THREE.MeshLambertMaterial({
 					color: 0x6b8d71,
 					transparent: true,
 					opacity: 0.7
