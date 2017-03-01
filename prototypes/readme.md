@@ -8,4 +8,5 @@
 + [Spline Path](./spline-path.html)
 + [Boilerplate](./webvr-boilerplate.html)
 + [Inception](./inception.html)
++ [Bedroom](./bedroom-assets.html)
 + [Room Door Boolean](./room-door.html)

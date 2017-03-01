@@ -38,25 +38,15 @@
 
 		<!-- Project specific files -->
 
-		<script src="../release/third-party/url.js"></script>
-		<script src="../release/third-party/has.js"></script>
-		<script src="../release/third-party/three.js"></script>
-
-		<script src="../release/third-party/three/js/effects/VREffect.js"></script>
-		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
-		<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
-		<script src="../release/third-party/three/js/controls/DeviceOrientationControls.js"></script>
-		<script src="../release/third-party/three/js/controls/VRControls.js"></script>
-		<script src="../release/third-party/three/js/vr/DaydreamController.js"></script>
-		<script src="../release/third-party/orientation-arm-model.js"></script>
-		<script src="../release/third-party/three/js/vr/ViveController.js"></script>
-
-		<audio id="audio" src="../assets/audio/03 Under Neon Lights.mp3"></audio>
+		<audio id="audio"></audio>
 
 		<script>
 
+			var audio = document.getElementById( 'audio' );
+			audio.src = /localhost/.test(window.location.href) ? '../assets/audio/03 Under Neon Lights.mp3' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets/audio/03 Under Neon Lights.mp3';
+
 			var editor = new Editor();
-			editor.setAudio( document.getElementById( 'audio' ) );
+			editor.setAudio( audio );
 
 			// TOFIX:
 
@@ -84,16 +74,13 @@
 
 			// LocalStorage
 
-			var signals = editor.signals;
-
-			/*
-			signals.animationAdded.add( saveState );
-			signals.animationModified.add( saveState );
-			signals.animationRemoved.add( saveState );
-			signals.effectCompiled.add( saveState );
-			signals.includeChanged.add( saveState );
-			signals.includeRemoved.add( saveState );
-			signals.editorCleared.add( saveState );
+			editor.signals.animationAdded.add( saveState );
+			editor.signals.animationModified.add( saveState );
+			editor.signals.animationRemoved.add( saveState );
+			editor.signals.effectCompiled.add( saveState );
+			editor.signals.includeChanged.add( saveState );
+			editor.signals.includeRemoved.add( saveState );
+			editor.signals.editorCleared.add( saveState );
 
 			var timeout;
 
@@ -118,7 +105,6 @@
 				editor.fromJSON( JSON.parse( state ) );
 
 			}
-			*/
 
 			// Short-cuts
 

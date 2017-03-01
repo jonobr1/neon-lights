@@ -50,6 +50,14 @@ input.Number {
 	cursor: col-resize;
 }
 
+select {
+	color: #3AC785;
+	font-size: 12px;
+	background-color: #444;
+	border: 0px;
+	padding: 2px 4px;
+}
+
 .CodeMirror {
 
 	position: absolute !important;
