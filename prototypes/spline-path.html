@@ -103,11 +103,13 @@
 			};
 
 			// 0 - 1 percentage along path
+			// duration should probably be spline.getLength()
+			// how to update duration when adding or modifying point? create new tween?
 			var pct = { t: 0 };
 			var tween = new TWEEN.Tween( pct )
 				.to({ t: 1 }, 2000)
 				.onUpdate(function() {
-					// console.log(this.t);
+
 				})
 				.repeat( Infinity )
 				.yoyo( true );
