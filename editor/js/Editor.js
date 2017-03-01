@@ -396,6 +396,7 @@ Editor.prototype = {
 
 	clear: function () {
 
+		this.libraries = [];
 		this.includes = [];
 		this.effects = [];
 
