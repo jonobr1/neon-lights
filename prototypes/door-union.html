@@ -60,12 +60,6 @@
 					loop();
 				});
 
-				var gridHelper = new THREE.GridHelper( 5, 10, 0x333333 );
-				scene.add( gridHelper );
-
-				var aLight = new THREE.AmbientLight( 0xffffff );
-				scene.add( aLight );
-
 				//
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -139,6 +133,11 @@
 
 				// custom scene assets here
 
+				var aLight = new THREE.AmbientLight( 0xffffff );
+				scene.add( aLight );
+
+				// annie
+
 				var annie = new THREE.Group();
 				annie.rotation.y = Math.PI;
 				annie.position.set( 0, 0, -1 );
@@ -155,6 +154,8 @@
 					setup();
 				});
 
+				// -----------------------------
+
 				// lights to separate planes of room
 
 				var dLight = new THREE.DirectionalLight( 0xcccccc, 0.7 );
@@ -165,11 +166,16 @@
 				dLight2.position.copy( dLight.position ).multiplyScalar( -1 );
 				scene.add( dLight2 )
 
-				var dlh = new THREE.DirectionalLightHelper( dLight, 0.2 );
-				scene.add( dlh );
+				// var dlh = new THREE.DirectionalLightHelper( dLight, 0.2 );
+				// scene.add( dlh );
 
-				dlh2 = new THREE.DirectionalLightHelper( dLight2, 0.2 );
-				scene.add( dlh2 );
+				// dlh2 = new THREE.DirectionalLightHelper( dLight2, 0.2 );
+				// scene.add( dlh2 );
+
+				// var gridHelper = new THREE.GridHelper( 5, 10, 0x333333 );
+				// scene.add( gridHelper );
+
+				// -----------------------------
 
 				// room
 
