@@ -171,9 +171,9 @@
 				var p1 = gui.addFolder('path 1');
 				p1.add(path.pct, 't', 0, 1).name('percent').listen();
 				p1.add(path.curve, 'closed').onChange( function(){ path.updateSplineOutline(); } );
+				p1.add(path, 'visible').onChange(function(){ transformControl.detach( transformControl.object ); });
 				p1.add(path.curve, 'type', ['centripetal', 'catmullrom', 'chordal']).onChange( function(){ path.updateSplineOutline(); } );
 				p1.add(path.curve, 'tension', 0, 1).step(0.1).onChange( function(){ path.updateSplineOutline(); } );
-				p1.add(path.curveMesh, 'visible');
 				p1.add(path, 'addPoint');
 				p1.add(path, 'removePoint');
 				p1.add(path, 'export');
