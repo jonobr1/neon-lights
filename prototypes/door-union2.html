@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>door union</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #333333;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+		<script src="../release/third-party/three.js"></script>
+		<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+		<script src="../release/third-party/three/js/controls/VRControls.js"></script>
+		<script src="../release/third-party/three/js/effects/VREffect.js"></script>
+		<script src="../release/third-party/three/js/vr/ViveController.js"></script>
+		<script src="../release/third-party/three/js/vr/WebVR.js"></script>
+		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+		<script src="../release/third-party/ThreeCSG.js"></script>
+
+		<script>
+
+			// https://github.com/chandlerprall/ThreeCSG/blob/master/ThreeCSG.js
+			// http://learningthreejs.com/blog/2011/12/10/constructive-solid-geometry-with-csg-js/
+			// http://evanw.github.io/csg.js/
+			// http://stackoverflow.com/questions/9814229/it-is-possible-to-cut-parts-of-the-shape-geometry-away-in-three-js
+			// http://stackoverflow.com/questions/25413335/unexpected-mesh-results-from-threecsg-boolean-operation
+			// https://stemkoski.github.io/Three.js/CSG.html
+
+			var clock = new THREE.Clock();
+			var time;
+
+			var container;
+			var camera, scene, renderer;
+			var effect, controls;
+			var controller1, controller2;
+
+			init();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
+				camera.position.set(8,12,8);
+				scene.add( camera );
+
+				var setup = _.after(1, function(){
+					document.body.appendChild( container );
+					loop();
+				});
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0x505050 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.sortObjects = false;
+				container.appendChild( renderer.domElement );
+
+				controls = {
+					vr: new THREE.VRControls( camera ),
+					orbit: new THREE.OrbitControls( camera, renderer.domElement )
+				};
+
+				controls.vr.standing = true;
+				controls.orbit.target.set( 0, 0, -1 );
+
+				// controllers
+
+				controller1 = new THREE.ViveController( 0 );
+				controller1.standingMatrix = controls.vr.getStandingMatrix();
+				controller1.addEventListener( 'triggerdown', onTriggerDown );
+				controller1.addEventListener( 'triggerup', onTriggerUp );
+				scene.add( controller1 );
+
+				controller2 = new THREE.ViveController( 1 );
+				controller2.standingMatrix = controls.vr.getStandingMatrix();
+				controller2.addEventListener( 'triggerdown', onTriggerDown );
+				controller2.addEventListener( 'triggerup', onTriggerUp );
+				scene.add( controller2 );
+
+				var cubeGeo = new THREE.BoxBufferGeometry(0.08,0.08,0.08);
+				var cubeMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+
+				controller1.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+				controller2.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+
+				controller1.add( controller1.userData.mesh );
+				controller2.add( controller2.userData.mesh );
+
+				//
+
+				effect = new THREE.VREffect( renderer );
+
+				if ( WEBVR.isAvailable() ) {
+
+					window.addEventListener( 'vrdisplaypresentchange', function() {
+						if ( !effect.isPresenting ) {
+						}
+					}, false );
+
+					window.addEventListener( 'vrdisplayactivate', function() {
+						controls.vr.resetPose();
+					}, false );
+
+					window.addEventListener('keydown', function(e) {
+						if (e.which == 90) { // z
+							controls.vr.resetPose();
+						}
+					}, false);
+
+					document.body.appendChild( WEBVR.getButton( effect ) );
+
+				} else {
+
+					document.body.appendChild( WEBVR.getMessage() );
+
+				}
+
+				// ----------------------------------------------------------------
+
+				// custom scene assets here
+
+				var aLight = new THREE.AmbientLight( 0xffffff );
+				scene.add( aLight );
+
+				// annie
+
+				var annie = new THREE.Group();
+				annie.rotation.y = Math.PI;
+				annie.position.set( 0, 0, -1 );
+				scene.add( annie );
+
+				var loader = new THREE.FBXLoader();
+
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+				root = [root, '/models/forest/'].join('');
+
+				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+					annie.add( obj.skeleton.bones[0] );
+					setup();
+				});
+
+				// -----------------------------
+
+				// lights to separate planes of room
+
+				var dLight = new THREE.DirectionalLight( 0xcccccc, 0.7 );
+				dLight.position.set(2,4,1).normalize();
+				scene.add( dLight );
+
+				var dLight2 = new THREE.DirectionalLight( dLight.color, 0.3 );
+				dLight2.position.copy( dLight.position ).multiplyScalar( -1 );
+				scene.add( dLight2 )
+
+				// var dlh = new THREE.DirectionalLightHelper( dLight, 0.2 );
+				// scene.add( dlh );
+
+				// dlh2 = new THREE.DirectionalLightHelper( dLight2, 0.2 );
+				// scene.add( dlh2 );
+
+				// var gridHelper = new THREE.GridHelper( 5, 10, 0x333333 );
+				// scene.add( gridHelper );
+
+				// -----------------------------
+
+				// room
+
+				var roomWidth = 6;
+				var roomHeight = 3;
+				var roomDepth = 5;
+				var thickness = 0.3;
+				var doorHeight = roomHeight / 1.2;
+
+				// inner wall
+				var roomGeo = new THREE.BoxGeometry( roomWidth, roomHeight, roomDepth );
+				var roomMat = new THREE.MeshPhongMaterial({
+					color: 0x8bb893,
+					shading: THREE.FlatShading,
+					side: THREE.BackSide
+				});
+
+				var roomMesh = new THREE.Mesh( roomGeo, roomMat );
+				roomMesh.position.y = roomHeight / 2;
+				// scene.add( roomMesh );
+
+				var roomMesh2 = new THREE.Mesh( roomGeo, roomMat );
+				roomMesh2.position.x = roomWidth/2;
+				roomMesh2.position.y = roomHeight / 2;
+				roomMesh2.position.z =  - (roomDepth + thickness/2);
+				// scene.add( roomMesh2 );
+
+				var roomMesh3 = new THREE.Mesh( roomGeo, roomMat );
+				roomMesh3.position.x = roomWidth + thickness/2;
+				roomMesh3.position.y = roomHeight / 2;
+				// scene.add( roomMesh3 );
+
+				var roomMesh4 = new THREE.Mesh( roomGeo, roomMat );
+				roomMesh4.position.x = roomWidth/2;
+				roomMesh4.position.y = roomHeight / 2;
+				roomMesh4.position.z =  roomDepth + thickness/2;
+				// scene.add( roomMesh4 );
+
+				// outer wall
+				var outsideGeo = new THREE.BoxGeometry(
+					roomWidth + thickness,
+					roomHeight + thickness,
+					roomDepth + thickness
+				);
+				var outsideMesh = new THREE.Mesh( outsideGeo, roomMat );
+				outsideMesh.position.y = roomHeight / 2;
+				// scene.add( outsideMesh );
+
+				// door
+				var doorGeo = new THREE.BoxGeometry( 1.2, doorHeight, thickness/2 );
+				doorGeo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, doorHeight/2, 0 ) );
+				var doorMat = window.doorMat = new THREE.MeshLambertMaterial({
+					color: 0x6b8d71,
+					transparent: true,
+					opacity: 0.7
+				});
+
+				var doorMesh = new THREE.Mesh( doorGeo, doorMat );
+				doorMesh.position.x = roomWidth/4;
+				doorMesh.position.z = -roomDepth/2 - thickness/4;
+				scene.add( doorMesh );
+
+				var doorMesh2 = new THREE.Mesh( doorGeo, doorMat );
+				doorMesh2.position.x = roomWidth - roomWidth/4;
+				doorMesh2.position.z = -roomDepth/2 - thickness/4;
+				scene.add( doorMesh2 );
+
+				var doorMesh3 = new THREE.Mesh( doorGeo, doorMat );
+				doorMesh3.position.x = roomWidth/4;
+				doorMesh3.position.z = roomDepth/2 + thickness/4;
+				scene.add( doorMesh3 );
+
+				var doorMesh4 = new THREE.Mesh( doorGeo, doorMat );
+				doorMesh4.position.x = roomWidth - roomWidth/4;
+				doorMesh4.position.z = roomDepth/2 + thickness/4;
+				scene.add( doorMesh4 );
+
+				// CSG boolean subtraction
+
+				var roomBSP = new ThreeBSP( roomMesh );
+				var roomBSP2 = new ThreeBSP( roomMesh2 );
+				var roomBSP3 = new ThreeBSP( roomMesh3 );
+				var roomBSP4 = new ThreeBSP( roomMesh4 );
+
+				var doorBSP = new ThreeBSP( doorMesh );
+				var doorBSP2 = new ThreeBSP( doorMesh2 );
+				var doorBSP3 = new ThreeBSP( doorMesh3 );
+				var doorBSP4 = new ThreeBSP( doorMesh4 );
+
+				var union_bsp = roomBSP2.union( roomBSP );
+				var union_bsp2 = union_bsp.union( roomBSP3 );
+				var union_bsp3 = union_bsp2.union( roomBSP4 );
+				
+				var union_bsp4 = union_bsp3.union( doorBSP );
+				var union_bsp5 = union_bsp4.union( doorBSP2 );
+				var union_bsp6 = union_bsp5.union( doorBSP3 );
+				var union_bsp7 = union_bsp6.union( doorBSP4 );
+
+				var resultMesh = union_bsp7.toMesh( roomMat );
+				resultMesh.geometry.computeVertexNormals();
+				scene.add( resultMesh );
+
+				// ----------------------------------------------------------------
+
+				window.addEventListener( 'resize', resize, false );
+
+			}
+
+			function onTriggerDown(e) {
+				var controller = e.target;
+				controller.userData.mesh.material.color.setHex( 0xff0000 );
+			}
+
+			function onTriggerUp(e) {
+				var controller = e.target;
+				controller.userData.mesh.material.color.setHex( 0xcccccc );
+			}
+
+			function resize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				effect.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			//
+
+			function loop() {
+
+				effect.requestAnimationFrame( loop );
+
+				time = clock.getElapsedTime();
+
+				controller1.update();
+				controller2.update();
+
+				if ( effect.isPresenting ) {
+					controls.vr.update();
+				} else {
+					controls.orbit.update();
+				}
+
+				doorMat.opacity = Math.abs(Math.sin(time));
+
+				effect.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
