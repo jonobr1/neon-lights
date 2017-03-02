@@ -417,6 +417,7 @@
 
                   if (child instanceof THREE.Mesh) {
 
+                    child.material.side = THREE.DoubleSide;
                     child.userData.name = file;
                     child.userData.offset = new THREE.Vector2(
                       Math.random(),
