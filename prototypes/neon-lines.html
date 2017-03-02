@@ -407,40 +407,13 @@
           ];
           files.loaded = 0;
           files.root = [root, '/models/forest/'].join('');
-          files.limit = files.length + 2;
+          files.limit = files.length + 1;
           files.complete = function() {
             files.loaded++;
             if (files.loaded === files.limit) {
               setup();
             }
           };
-
-          loader.load(files.root + 'mdl_env_1_forest_ground_v01.fbx', function(obj) {
-
-            var meshes = [];
-            var pluck = function(obj) {
-              for (var i = 0; i < obj.children.length; i++) {
-
-                var child = obj.children[i];
-
-                if (child instanceof THREE.Mesh) {
-                  meshes.push(child);
-                }
-                if (child.children && child.children.length > 0) {
-                  pluck(child);
-                }
-              }
-            };
-
-            pluck(obj);
-
-            for (var i = 0; i < meshes.length; i++) {
-              forest.userData.floor.add(meshes[i]);
-            }
-
-            files.complete();
-
-          });
 
           loader.load(files.root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 
