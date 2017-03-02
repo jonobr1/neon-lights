@@ -25,94 +25,15 @@
 		<script src="../release/third-party/three/js/controls/TransformControls.js"></script>
 		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
 
+		<script src="../release/src/spline.js"></script>
+
 		<script>
-
-			String.prototype.format = function () {
-
-				var str = this;
-				for ( var i = 0; i < arguments.length; i ++ ) {
-
-					str = str.replace( '{' + i + '}', arguments[ i ] );
-
-				}
-				return str;
-
-			};
 
 			var container;
 			var camera, scene, renderer;
-			var splineHelperObjects = [];
-			var splinePointsLength = 4;
-			var positions = [];
-
-			var geometry = new THREE.BoxGeometry( 20, 20, 20 );
-
-			var ARC_SEGMENTS = 200;
-
-			var spline;
-			var splineMesh;
 
 			var annie;
-			// var clock = new THREE.Clock( false );
-			var time;
-
-			var lookAhead = false; // rotation looks messed up when this is true
-			var binormal = new THREE.Vector3();
-			var normal = new THREE.Vector3();
-
-			// segments for computeFrenetFrames tangents.length
-			// should this be the same as ARC_SEGMENTS?
-			var segments = 200;
-
-			var methods = {
-				addPoint: function() {
-
-					splinePointsLength++;
-					positions.push( addSplineObject().position );
-					updateSplineOutline();
-
-				},
-				removePoint: function() {
-
-					if ( splinePointsLength <= 4 ) {
-						return;
-					}
-
-					splinePointsLength--;
-					positions.pop();
-					scene.remove( splineHelperObjects.pop() );
-
-					updateSplineOutline();
-
-				},
-				exportSpline: function() {
-
-					var p;
-					var strplace = [];
-					for ( i = 0; i < splinePointsLength; i ++ ) {
-
-						p = splineHelperObjects[ i ].position;
-						strplace.push( 'new THREE.Vector3({0}, {1}, {2})'.format( p.x, p.y, p.z ) )
-
-					}
-					console.log( strplace.join( ',\n' ) );
-					var code = '[' + ( strplace.join( ',\n\t' ) ) + ']';
-					prompt( 'copy and paste code', code );
-
-				}
-			};
-
-			// 0 - 1 percentage along path
-			// duration should probably be spline.getLength()
-			// how to update duration when adding or modifying point? create new tween?
-			var pct = { t: 0 };
-			var tween = new TWEEN.Tween( pct )
-				.to({ t: 1 }, 2000)
-				.onUpdate(function() {
-
-				})
-				.repeat( Infinity )
-				.yoyo( true );
+			var path;
 
 			init();
 
@@ -129,8 +50,7 @@
 
 				var setup = _.after(1, function(){
 					document.body.appendChild( container );
-					// clock.start();
-					tween.start();
+					path.tween.start();
 					loop();
 				});
 
@@ -152,6 +72,48 @@
 				renderer.shadowMap.enabled = true;
 				container.appendChild( renderer.domElement );
 
+				// -----------------------------------------------------------
+
+				annie = new THREE.Group();
+				annie.rotation.y = Math.PI;
+				annie.position.set( 0, 0, -1 );
+				annie.scale.set(300,300,300);
+
+				scene.add( annie );
+
+				var loader = new THREE.FBXLoader();
+
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+				root = [root, '/models/forest/'].join('');
+
+				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+					annie.add( obj.skeleton.bones[0] );
+					setup();
+				});
+
+				// ------------------------------------------------------------
+
+				// Curves
+
+				path = new Spline();
+
+				// paste here from exporter
+				path.load( [new THREE.Vector3(585.4862002622943, 0, -355.93588110283287),
+						new THREE.Vector3(519.840916794848, 0, 217.9043100234957),
+						new THREE.Vector3(120.08046290154687, 0, 229.8310428229078),
+						new THREE.Vector3(2.2546910150528348, 0, -296.4480079223864),
+						new THREE.Vector3(-404.65752560786353, 0, -270.5418718125909),
+						new THREE.Vector3(-423.87167927009193, 0, 225.15329391051)] );
+
+				// var path2 = new Spline();
+				// path2.load( [new THREE.Vector3(703.4899491653263, 0, 247.13644957591197),
+				// 		new THREE.Vector3(487.0861803522189, 0, 464.93976420834053),
+				// 		new THREE.Vector3(184.22506703275963, 0, 509.4979183979624),
+				// 		new THREE.Vector3(-119.76510524111902, 0, 322.30045852870666),
+				// 		new THREE.Vector3(-398.4270525159362, 0, 477.31150529101916),
+				// 		new THREE.Vector3(-559.5586579789438, 0, 207.61503740855665)] );
+
 				// ------------------------------------------------------------
 
 				// Controls
@@ -166,9 +128,14 @@
 				transformControl.addEventListener( 'change', function( e ) { cancelHideTransorm(); } );
 				transformControl.addEventListener( 'mouseDown', function( e ) { cancelHideTransorm(); } );
 				transformControl.addEventListener( 'mouseUp', function( e ) { delayHideTransform(); } );
-				transformControl.addEventListener( 'objectChange', function( e ) { updateSplineOutline(); } );
+				transformControl.addEventListener( 'objectChange', function( e ) {
+					path.updateSplineOutline();
+					// path2.updateSplineOutline();
+				} );
 
-				var dragcontrols = new THREE.DragControls( splineHelperObjects, camera, renderer.domElement );
+				var dragcontrols = new THREE.DragControls( path.splineHelperObjects, camera, renderer.domElement );
+				// var helperObjects = path.splineHelperObjects.concat( path2.splineHelperObjects );
+				// var dragcontrols = new THREE.DragControls( helperObjects, camera, renderer.domElement );
 				dragcontrols.enabled = false;
 
 				dragcontrols.addEventListener( 'hoveron', function ( event ) {
@@ -200,89 +167,19 @@
 
 				// ------------------------------------------------------------
 
-				// Curves
-
-				var i;
-				for ( i = 0; i < splinePointsLength; i ++ ) {
-
-					addSplineObject( positions[ i ] );
-
-				}
-				positions = [];
-				for ( i = 0; i < splinePointsLength; i ++ ) {
-
-					positions.push( splineHelperObjects[ i ].position );
-
-				}
-
-				var geometry = new THREE.Geometry();
-
-				for ( var i = 0; i < ARC_SEGMENTS; i ++ ) {
-
-					geometry.vertices.push( new THREE.Vector3() );
-
-				}
-
-				spline = new THREE.CatmullRomCurve3( positions );
-				spline.type = 'centripetal';
-				spline.closed = false;
-				spline.mesh = new THREE.Line(
-					geometry.clone(),
-					new THREE.LineBasicMaterial( {
-						color: 0xff0000,
-						opacity: 0.35,
-						linewidth: 2
-					} )
-				);
-				scene.add( spline.mesh );
-
-				spline.tension = 0.5; // only for uniform 'catmullrom' spline.type
-
-				// paste here from exporter
-				load( [new THREE.Vector3(585.4862002622943, 0, -355.93588110283287),
-						new THREE.Vector3(519.840916794848, 0, 217.9043100234957),
-						new THREE.Vector3(120.08046290154687, 0, 229.8310428229078),
-						new THREE.Vector3(2.2546910150528348, 0, -296.4480079223864),
-						new THREE.Vector3(-404.65752560786353, 0, -270.5418718125909),
-						new THREE.Vector3(-423.87167927009193, 0, 225.15329391051)] );
-
-				// ------------------------------------------------------------
-
-				// var cylGeo = new THREE.CylinderBufferGeometry( 50, 50, 200, 32 );
-				// var cylMat = new THREE.MeshBasicMaterial({ color: 0xaaaaaa });
-				// cylinder = new THREE.Mesh( cylGeo, cylMat );
-				// scene.add( cylinder );
-
-				annie = new THREE.Group();
-				annie.rotation.y = Math.PI;
-				annie.position.set( 0, 0, -1 );
-				annie.scale.set(300,300,300);
-
-				// annie.add( new THREE.AxisHelper(1) );
-
-				scene.add( annie );
-
-				var loader = new THREE.FBXLoader();
-
-				var isLocal = /localhost/i.test(window.location.href);
-				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
-				root = [root, '/models/forest/'].join('');
-
-				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
-					annie.add( obj.skeleton.bones[0] );
-					setup();
-				});
-
-				// ------------------------------------------------------------
-
 				var gui = new dat.GUI();
-				gui.add(pct, 't', 0, 1).name('percent').listen();
-				gui.add(spline, 'closed').onChange( updateSplineOutline );
-				gui.add(spline, 'type', ['centripetal', 'catmullrom', 'chordal']).onChange( updateSplineOutline );
-				gui.add(spline, 'tension', 0, 1).step(0.1).onChange( updateSplineOutline );
-				gui.add(methods, 'addPoint');
-				gui.add(methods, 'removePoint');
-				gui.add(methods, 'exportSpline');
+				var p1 = gui.addFolder('path 1');
+				p1.add(path.pct, 't', 0, 1).name('percent').listen();
+				p1.add(path.curve, 'closed').onChange( function(){ path.updateSplineOutline(); } );
+				p1.add(path.curve, 'type', ['centripetal', 'catmullrom', 'chordal']).onChange( function(){ path.updateSplineOutline(); } );
+				p1.add(path.curve, 'tension', 0, 1).step(0.1).onChange( function(){ path.updateSplineOutline(); } );
+				p1.add(path.curveMesh, 'visible');
+				p1.add(path, 'addPoint');
+				p1.add(path, 'removePoint');
+				p1.add(path, 'export');
+				// p1.add(path, 'start');
+				// p1.add(path, 'stop');
+				p1.open();
 
 				// ------------------------------------------------------------
 
@@ -296,78 +193,6 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 
-			function addSplineObject( position ) {
-
-				var object = new THREE.Mesh(
-					geometry,
-					new THREE.MeshLambertMaterial( {
-						color: Math.random() * 0xffffff
-					} )
-				);
-
-				if ( position ) {
-
-					object.position.copy( position );
-
-				} else {
-
-					object.position.x = Math.random() * 1000 - 500;
-					// object.position.y = Math.random() * 600;
-					object.position.y = 0;
-					object.position.z = Math.random() * 800 - 400;
-
-				}
-
-				object.castShadow = true;
-				object.receiveShadow = true;
-				scene.add( object );
-				splineHelperObjects.push( object );
-				return object;
-
-			}
-
-			function updateSplineOutline() {
-
-				var p;
-
-				splineMesh = spline.mesh;
-
-				for ( var i = 0; i < ARC_SEGMENTS; i ++ ) {
-
-					p = splineMesh.geometry.vertices[ i ];
-					p.copy( spline.getPoint( i /  ( ARC_SEGMENTS - 1 ) ) );
-
-				}
-
-				splineMesh.geometry.verticesNeedUpdate = true;
-
-			}
-
-
-			function load( new_positions ) {
-
-				while ( new_positions.length > positions.length ) {
-
-					methods.addPoint();
-
-				}
-
-				while ( new_positions.length < positions.length ) {
-
-					methods.removePoint();
-
-				}
-
-				for ( i = 0; i < positions.length; i ++ ) {
-
-					positions[ i ].copy( new_positions[ i ] );
-
-				}
-
-				updateSplineOutline();
-
-			}
-
 			function loop() {
 
 				requestAnimationFrame( loop );
@@ -375,50 +200,8 @@
 				controls.update();
 				transformControl.update();
 				TWEEN.update();
-
-				// time = clock.getElapsedTime();
-				// var t = (Math.sin(time) + 1) / 2; // 0 - 1
-
-				var t = pct.t;
-				var pos = spline.getPointAt( t );
-
-				// annie.position.copy( pos );
-
-				// ------------------------------------------------------------------
-
-				// from webgl_geometry_extrude_splines example:
-
-				// see http://www.cs.indiana.edu/pub/techreports/TR425.pdf
-				var frames = spline.computeFrenetFrames( segments, spline.closed );
-
-				var pickt = t * segments;
-				var pick = Math.floor( pickt );
-				var pickNext = ( pick + 1 ) % segments;
-
-				// http://gamedev.stackexchange.com/questions/51399/what-are-normal-tangent-and-binormal-vectors-and-how-are-they-used
-				binormal.subVectors( frames.binormals[ pickNext ], frames.binormals[ pick ] );
-				binormal.multiplyScalar( pickt - pick ).add( frames.binormals[ pick ] );
-
-				var dir = spline.getTangentAt( t );
-
-				var offset = 15;
-
-				normal.copy( binormal ).cross( dir );
-
-				// We move on a offset on its binormal
-				pos.add( normal.clone().multiplyScalar( offset ) );
-
-				annie.position.copy( pos );
-
-				// Using arclength for stablization in look ahead.
-				var lookAt = spline.getPointAt( ( t + 30 / spline.getLength() ) % 1 );
-
-				// Camera Orientation 2 - up orientation via normal
-				if ( !lookAhead ) lookAt.copy( pos ).add( dir.multiplyScalar(-1) );
-				annie.matrix.lookAt(annie.position, lookAt, normal.multiplyScalar(-1) );
-				annie.rotation.setFromRotationMatrix( annie.matrix, annie.rotation.order );
-
-				// ------------------------------------------------------------------
+				
+				path.update( annie );
 
 				renderer.render( scene, camera );
 
