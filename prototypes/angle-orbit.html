@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webvr boilerplate</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #333333;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+		<script src="../release/third-party/three.js"></script>
+		<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+		<script src="../release/third-party/three/js/controls/VRControls.js"></script>
+		<script src="../release/third-party/three/js/effects/VREffect.js"></script>
+		<script src="../release/third-party/three/js/vr/ViveController.js"></script>
+		<script src="../release/third-party/three/js/vr/WebVR.js"></script>
+		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+		
+		<script src="../release/third-party/xhr.js"></script>
+		<script src="../release/src/text/three-bmfont-text-bundle.js"></script>
+		<script src="../release/src/text/sdf-shader.js"></script>
+		<script src="../release/src/text/text-bitmap.js"></script>
+
+		<script>
+
+			var clock = new THREE.Clock();
+
+			var container;
+			var camera, scene, renderer;
+			var effect, controls;
+			var controller1, controller2;
+
+			var camGroup;
+
+			var annie;
+
+			var up = new THREE.Vector3(0,1,0);
+
+			init();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+
+				scene = new THREE.Scene();
+
+				var ah = new THREE.AxisHelper(0.5);
+				ah.position.y = 0.02;
+				scene.add( ah );
+
+				var cubeGeo = new THREE.BoxBufferGeometry(0.08,0.08,0.08);
+				var cubeMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
+				// scene.add( camera );
+
+				var setup = _.after(2, function(){
+					document.body.appendChild( container );
+					loop();
+				});
+
+				var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
+				scene.add( gridHelper );
+
+				var aLight = new THREE.AmbientLight( 0xffffff );
+				scene.add( aLight );
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0x505050 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.sortObjects = false;
+				container.appendChild( renderer.domElement );
+
+				controls = {
+					vr: new THREE.VRControls( camera ),
+					orbit: new THREE.OrbitControls( camera, renderer.domElement )
+				};
+
+				controls.vr.standing = true;
+				controls.orbit.target.set( 0, 0, -1 );
+
+
+				camGroup = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+				camGroup.material.wireframe = true;
+
+				camGroup2 = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+				camGroup2.material.wireframe = true;
+				camGroup2.position.y = 0.25;
+				camGroup2.position.z = -1;
+				camGroup2.rotation.y = Math.PI;
+
+				camGroup.add( camGroup2 );
+				camGroup2.add( camera );
+
+				// controllers
+
+				controller1 = new THREE.ViveController( 0 );
+				controller1.standingMatrix = controls.vr.getStandingMatrix();
+				controller1.userData.downPosition = new THREE.Vector3();
+				controller1.addEventListener( 'triggerdown', onTriggerDown );
+				controller1.addEventListener( 'triggerup', onTriggerUp );
+				camGroup2.add( controller1 );
+
+				controller2 = new THREE.ViveController( 1 );
+				controller2.standingMatrix = controls.vr.getStandingMatrix();
+				controller2.userData.downPosition = new THREE.Vector3();
+				controller2.addEventListener( 'triggerdown', onTriggerDown );
+				controller2.addEventListener( 'triggerup', onTriggerUp );
+				camGroup2.add( controller2 );
+
+				controller1.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+				controller2.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+
+				controller1.add( controller1.userData.mesh );
+				controller2.add( controller2.userData.mesh );
+
+				xhr.get( '../release/src/text/roboto-bold.json', function(font){
+					setup();
+
+					font = JSON.parse( font );
+
+					function createText() {
+
+						bmtext = new TextBitmap({
+							bmtext: 'angle',
+							width: 500,
+							align: 'center',
+							font: font,
+							lineHeight: font.common.lineHeight - 10,
+							letterSpacing: 1,
+							scale: 0.0004,
+							color: "#fff"
+						}, renderer );
+
+						var s = bmtext.config.scale;
+						bmtext.group.scale.set( s, s, s );
+						bmtext.group.position.y = 0.1;
+
+						return bmtext;
+					}
+
+					controller1.bmtext = createText();
+					controller1.add( controller1.bmtext.group );
+
+					controller2.bmtext = createText();
+					controller2.add( controller2.bmtext.group );
+				});
+
+				//
+
+				effect = new THREE.VREffect( renderer );
+
+				if ( WEBVR.isAvailable() ) {
+
+					window.addEventListener( 'vrdisplaypresentchange', function() {
+						if ( !effect.isPresenting ) {
+						}
+					}, false );
+
+					window.addEventListener( 'vrdisplayactivate', function() {
+						controls.vr.resetPose();
+					}, false );
+
+					window.addEventListener('keydown', function(e) {
+						if (e.which == 90) { // z
+							controls.vr.resetPose();
+						}
+					}, false);
+
+					document.body.appendChild( WEBVR.getButton( effect ) );
+
+				} else {
+
+					document.body.appendChild( WEBVR.getMessage() );
+
+				}
+
+				// ----------------------------------------------------------------
+
+				// custom scene assets here
+
+				annie = new THREE.Group();
+				annie.rotation.y = Math.PI;
+				annie.position.set( 0, 0, -1 );
+				scene.add( annie );
+
+				annie.add( camGroup );
+
+				var loader = new THREE.FBXLoader();
+
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+				root = [root, '/models/forest/'].join('');
+
+				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+					annie.add( obj.skeleton.bones[0] );
+					setup();
+				});
+
+				// ----------------------------------------------------------------
+
+				window.addEventListener( 'resize', resize, false );
+
+			}
+
+			function onTriggerDown(e) {
+				var controller = e.target;
+				controller.userData.mesh.material.color.setHex( 0xff0000 );
+
+				controller.userData.dragging = true;
+				controller.userData.downPosition.copy( controller.position );
+
+				// http://stackoverflow.com/questions/26714230/draw-arrow-helper-along-three-line-or-two-vectors
+				var from = annie.position.clone();
+				var to = controller.userData.downPosition.clone();
+				to.applyMatrix4( controller.standingMatrix );
+				from.y = to.y = 0;
+				var direction = to.clone().sub(from);
+				var length = direction.length();
+				controller.userData.downArrowHelper = new THREE.ArrowHelper( direction.normalize(), from, length, 0xff0000 );
+				controller.userData.downDirection = direction;
+				scene.add( controller.userData.downArrowHelper );
+
+				camGroup.userData.downRotationY = camGroup.rotation.y;
+			}
+
+			function onTriggerUp(e) {
+				var controller = e.target;
+				controller.userData.mesh.material.color.setHex( 0xcccccc );
+
+				controller.userData.dragging = false;
+				scene.remove( controller.userData.downArrowHelper );
+				scene.remove( controller.userData.dragArrowHelper );
+
+				controller.bmtext.text = 'angle';
+			}
+
+			function resize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				effect.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			//
+
+			function drag( controller ) {
+				if (controller.userData.dragArrowHelper) {
+					scene.remove( controller.userData.dragArrowHelper );
+				}
+
+				var from = annie.position.clone();
+				var to = controller.position.clone();
+				to.applyMatrix4( controller.standingMatrix );
+				from.y = to.y = 0;
+				var direction = to.clone().sub(from);
+				var length = direction.length();
+				controller.userData.dragArrowHelper = new THREE.ArrowHelper( direction.normalize(), from, length, 0xff0000 );
+				controller.userData.dragDirection = direction;
+				scene.add( controller.userData.dragArrowHelper );
+
+				// calculate angle
+				var angle = controller.userData.downDirection.angleTo( controller.userData.dragDirection );
+				// clockwise or counter clockwise?
+				var cross = controller.userData.downDirection.clone().cross( direction );
+				var dot = cross.dot( up );
+				angle *= (dot > 0) ? 1 : -1;
+
+				var deg = THREE.Math.radToDeg( angle ).toFixed(0);
+				controller.bmtext.text = deg;
+
+				camGroup.rotation.y = camGroup.userData.downRotationY + angle * 4;
+			}
+
+			function loop() {
+
+				effect.requestAnimationFrame( loop );
+
+				var delta = clock.getDelta();
+
+				controller1.update();
+				controller2.update();
+
+				if (controller2.userData.dragging) {
+					drag( controller2 );
+				} else if ( controller1.userData.dragging ) {
+					drag( controller1 );
+				}
+
+				if ( effect.isPresenting ) {
+					controls.vr.update();
+				} else {
+					controls.orbit.update();
+				}
+
+				effect.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
