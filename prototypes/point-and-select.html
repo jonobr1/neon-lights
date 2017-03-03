@@ -1,0 +1,651 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Point and Select</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="../release/styles/main.css">
+  </head>
+  <body>
+    <div class="scripts">
+
+      <script src="../release/third-party/has.js"></script>
+      <script src="../release/third-party/url.js"></script>
+      <script src="../release/third-party/tween.js"></script>
+      <script src="../release/third-party/three.js"></script>
+
+      <script src="../release/third-party/three/js/effects/VREffect.js"></script>
+      <script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+      <script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+      <script src="../release/third-party/three/js/controls/DeviceOrientationControls.js"></script>
+      <script src="../release/third-party/three/js/controls/VRControls.js"></script>
+      <script src='../release/third-party/three/js/vr/MouseController.js'></script>
+      <script src="../release/third-party/three/js/vr/DaydreamController.js"></script>
+      <script src="../release/third-party/orientation-arm-model.js"></script>
+      <script src="../release/third-party/three/js/vr/ViveController.js"></script>
+
+      <script src="../release/src/mouse-controls.js"></script>
+
+      <script>
+
+        var Selector = function( scene, camera ) {
+
+          this.camera = camera;
+          this.mouse = Selector.zero.clone();
+          this.raycaster = new THREE.Raycaster();
+          this.scene = scene;
+
+        };
+
+        Selector.zero = new THREE.Vector2();
+
+        Selector.prototype = {
+
+          intersected: null,
+
+          cast: function ( controller ) {
+
+            if ( controller instanceof THREE.MouseController ) {
+
+              controller.getNormal( this.mouse );
+              // this.mouse.y = 1 - this.mouse.y;
+
+              // console.log( this.mouse );
+              this.raycaster.setFromCamera( this.mouse, this.camera );
+
+            } else {
+
+              var matrix = new THREE.Matrix4();
+              matrix.extractRotation( controller.matrix );
+
+              var direction = new THREE.Vector3( 0, 0, - 1 );
+              direction = direction.applyMatrix4( matrix );
+
+              this.raycaster.set( controller.position, direction );
+
+            }
+
+            var intersections = this.raycaster.intersectObjects( this.scene.children );
+
+            if ( intersections.length > 0 ) {
+
+              var intersected = intersections[ 0 ].object;
+
+              if ( intersected !== this.intersected ) {
+
+                if ( this.intersected ) {
+                  this.onDeselect( this.intersected );
+                }
+
+                this.intersected = intersected;
+                this.onSelect( intersected );
+
+              }
+
+              return intersected;
+
+            } else if ( this.intersected ) {
+
+              this.onDeselect( this.intersected );
+              this.intersected = null
+
+            }
+
+            return null;
+
+          },
+
+          onSelect: function ( object ) {},
+
+          onDeselect: function ( object ) {}
+
+        };
+
+        var step = { current: 0.1, destination: 0.1, drag: 0.33 };
+        var theta = { current: Math.PI / 2, destination: Math.PI / 2,
+          drag: 0.33, scale: 10 };
+        var size = 72;
+        var amount = 1024;
+
+        var cursor = new THREE.Vector2();
+        cursor.userData = {};
+        cursor.userData.ghost = new THREE.Object3D();
+
+        var clock = new THREE.Clock();
+
+        var renderer = new THREE.WebGLRenderer({ antialias: true });
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        scene.add(new THREE.Group().add(camera));
+
+        var forest = new THREE.Group();
+        var light = new THREE.AmbientLight('white');
+
+        var selector = new Selector(forest, camera);
+
+        selector.onSelect = function(object) {
+
+          var a = new TWEEN.Tween(object.scale)
+            .to({ y: 2 }, 350)
+            .easing(TWEEN.Easing.Elastic.Out)
+            .onComplete(function() {
+              b.start();
+            })
+            .start();
+
+          var b = new TWEEN.Tween(object.scale)
+            .to({ y: 1 }, 350)
+            .easing(TWEEN.Easing.Elastic.Out);
+        };
+
+        selector.onDeselect = function(object) {
+
+        };
+
+        renderer.setClearColor('#333');
+        scene.fog = new THREE.Fog(renderer.getClearColor(), size / 8, size / 2);
+
+        camera.userData.update = function() {
+
+          switch (camera.userData.type) {
+
+            case 'VRControls':
+            case 'DeviceOrientationControls':
+              camera.rotation.copy(cursor.userData.ghost.rotation);
+              camera.position.copy(cursor.userData.ghost.position);
+              break;
+            case 'MouseControls':
+              theta.destination = cursor.userData.ghost.rotation.y * theta.scale;
+              step.destination = camera.userData.controls.dragging ? 0 : 0.1;
+              break;
+
+          }
+
+        };
+
+        var controllers = {
+          mouse: new THREE.MouseController(renderer.domElement),
+          daydream: new THREE.DaydreamController(0),
+          left: new THREE.ViveController(0),
+          right: new THREE.ViveController(1),
+          setup: function(scene) {
+
+            // var geometry = new THREE.CylinderBufferGeometry( 0, 0.001, 1, 8, 1, true );
+            // var material = new THREE.MeshBasicMaterial({
+            //   color: 0x36b8b7,
+            //   transparent: true,
+            //   opacity: 0.3
+            // });
+            //
+            // geometry.applyMatrix(
+            //   new THREE.Matrix4().makeTranslation( 0, 0.5, 0 ) );
+            //
+            // var mesh = new THREE.Mesh(geometry, material);
+            // mesh.rotation.x = - Math.PI / 2;
+            // mesh.scale.y = 2;
+
+            var mesh = new THREE.Mesh(
+              new THREE.BoxBufferGeometry(0.08,0.08,0.08),
+              new THREE.MeshBasicMaterial({ color: 0xcccccc })
+            );
+
+            camera.parent.add(controllers.daydream);
+            camera.parent.add(controllers.left);
+            camera.parent.add(controllers.right);
+
+            controllers.daydream.add(mesh);
+            controllers.left.add(mesh.clone());
+            controllers.right.add(mesh.clone());
+
+            controllers.previous = new THREE.Vector3();
+
+            controllers.mouse.addEventListener('mousedown', function() {
+              controllers.previous.copy(controllers.mouse.position);
+              controllers.mouse.userData.dragging = true;
+              controllers.onTriggerDown();
+            });
+            controllers.mouse.addEventListener('mouseup', function() {
+              controllers.mouse.userData.dragging = false;
+              controllers.onTriggerUp();
+            });
+
+            controllers.left.addEventListener('triggerdown', function() {
+              controllers.previous.copy(controllers.left.position);
+              controllers.left.userData.dragging = true;
+              controllers.onTriggerDown();
+            });
+            controllers.right.addEventListener('triggerdown', function() {
+              controllers.previous.copy(controllers.right.position);
+              controllers.right.userData.dragging = true;
+              controllers.onTriggerDown();
+            });
+            controllers.left.addEventListener('triggerup', function() {
+              controllers.left.userData.dragging = false;
+              controllers.onTriggerUp();
+            });
+            controllers.right.addEventListener('triggerup', function() {
+              controllers.right.userData.dragging = false;
+              controllers.onTriggerUp();
+            });
+
+            controllers.daydream.addEventListener('touchpaddown', function() {
+              controllers.previous.copy(controllers.daydream.position);
+              controllers.daydream.userData.dragging = true;
+              controllers.onTriggerDown();
+            });
+            controllers.daydream.addEventListener('touchpadup', function() {
+              controllers.daydream.userData.dragging = false;
+              controllers.onTriggerUp();
+            });
+
+            controllers.daydream.visible = controllers.left.visible =
+              controllers.right.visible = false;
+
+            if (camera.userData.controls instanceof THREE.VRControls) {
+              camera.userData.controls.standing = true;
+              controllers.left.standingMatrix = controllers.right.standingMatrix
+                = camera.userData.controls.getStandingMatrix();
+            }
+
+          },
+          update: function(camera) {
+
+            if (has.mobile) {
+
+              var daydreamPad = controllers.daydream.getGamepad();
+
+              if (daydreamPad) {
+
+                var pose = daydreamPad.pose;
+                var controllerOrientation = controllers.daydream.quaternion
+                  .fromArray(pose.orientation);
+                var arm = controllers.daydream.arm;
+
+                arm.setHeadOrientation(camera.quaternion);
+                arm.setHeadPosition(camera.position);
+                arm.setControllerOrientation(controllerOrientation);
+                arm.update();
+
+                var pose = arm.getPose(); // includes position
+                controllers.daydream.position.copy(pose.position);
+
+              }
+
+              controllers.daydream.update();
+
+            } else {
+
+              controllers.left.update();
+              controllers.right.update();
+              controllers.mouse.update();
+
+            }
+
+          },
+          onTriggerDown: function() {
+            step.destination = 0;
+          },
+          onTriggerUp: function() {
+            step.destination = 0.1;
+          }
+        };
+
+        controllers.daydream.quaternion = new THREE.Quaternion();
+        controllers.daydream.arm = new OrientationArmModel();
+
+        forest.userData.elements = [];
+        forest.userData.floor = new THREE.Group();
+
+        // forest.add(forest.userData.floor);
+        scene.add(forest.userData.floor);
+
+        forest.userData.setup = function() {
+          var elements = forest.userData.elements;
+          var length = elements.length;
+          var i = 0;
+          while (elements.length < amount) {
+            var id = i % length;
+            var element = elements[id];
+            var shape = new THREE.Mesh(element.geometry, element.material.clone());
+            shape.userData.offset = new THREE.Vector2(
+              Math.random(),
+              Math.random()
+            );
+            shape.rotation.y = Math.random() * Math.PI * 2;
+            elements.push(shape);
+            forest.add(shape);
+            i++;
+          }
+        };
+
+        forest.userData.update = function(cursor) {
+
+          var elements = forest.userData.elements;
+
+          for (var i = 0; i < elements.length; i++) {
+
+            var shape = elements[i];
+            var offset = shape.userData.offset;
+
+            var x = mod(cursor.x + offset.x, 1) - 0.5;
+            var y = mod(cursor.y + offset.y, 1) - 0.5;
+
+            var angle = Math.atan2(- y, - x);
+            var buffer = 0.08 * (128 / size);
+            var phi = angle + Math.PI;
+
+            shape.position.x = x + Math.cos(phi) * (buffer);
+            shape.position.z = y + Math.sin(phi) * (buffer);
+
+            shape.position.x *= size;
+            shape.position.z *= size;
+
+          }
+
+        };
+
+        var annie = new THREE.Group();
+        annie.rotation.y = Math.PI;
+        annie.scale.setScalar(3);
+
+        function setup() {
+
+          if (!url.boolean('mono') && (has.webvr || has.mobile)) {
+            renderer.effect = new THREE[!has.webvr ? 'StereoEffect' : 'VREffect'](renderer);
+          } else {
+            renderer.effect = renderer;
+          }
+
+          camera.parent.position.y = 4;
+          camera.parent.position.z = 10;
+          // camera.parent.lookAt(new THREE.Vector3(0, 1, 0));
+
+          camera.userData.type = 'VRControls';
+          camera.userData.controls = new THREE[camera.userData.type](
+            cursor.userData.ghost, renderer.domElement);
+          // camera.userData.controls = new THREE.OrbitControls(
+          //  camera, renderer.domElement);
+
+          controllers.setup(scene);
+
+          forest.userData.setup();
+
+          scene.add(light);
+          scene.add(forest);
+          scene.add(annie);
+
+          document.body.appendChild(renderer.domElement);
+          renderer.domElement.style.position = 'absolute';
+          renderer.domElement.style.top = 0;
+          renderer.domElement.style.left = 0;
+
+          window.addEventListener('resize', resize, false);
+          resize();
+
+          if (has.mobile && camera.userData.controls && camera.userData.controls.connect) {
+            camera.userData.controls.connect();
+          }
+
+          if (has.webvr) {
+            var vrButton = document.createElement('div');
+            vrButton.classList.add('vr-button');
+            vrButton.innerText = 'Enter VR';
+            document.body.appendChild(vrButton);
+
+            vrButton.addEventListener('click', function(e) {
+              e.preventDefault();
+              var effect = renderer.effect;
+              effect.isPresenting ? effect.exitPresent() : effect.requestPresent();
+            }, false);
+
+            window.addEventListener( 'vrdisplaypresentchange', function ( event ) {
+              vrButton.textContent = renderer.effect.isPresenting ? 'Exit VR' : 'Enter VR';
+            });
+
+            window.addEventListener( 'vrdisplayactivate', function() {
+              camera.userData.controls.resetPose();
+            }, false );
+          }
+
+          loop();
+
+        }
+
+        function resize() {
+
+          var width = window.innerWidth;
+          var height = window.innerHeight;
+
+          renderer.setSize(width, height);
+
+          if (renderer.effect && renderer.effect.setSize) {
+            renderer.effect.setSize(width, height);
+          }
+          controllers.mouse.resize();
+
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+
+        }
+
+        var frameCount = 0;
+
+        function loop() {
+
+          if (renderer.effect.requestAnimationFrame) {
+            renderer.effect.requestAnimationFrame(loop);
+          } else {
+            requestAnimationFrame(loop);
+          }
+
+          TWEEN.update();
+
+          var t = clock.getDelta();
+          frameCount++;
+
+          if (camera.userData.controls) {
+            camera.userData.controls.update();
+          }
+          camera.userData.update();
+          controllers.update(camera);
+
+          if (controllers.daydream.userData.dragging) {
+            theta.destination += (controllers.daydream.position.x - controllers.previous.x) * theta.scale;
+            controllers.previous.copy(controllers.daydream.position);
+          } else if (controllers.left.userData.dragging) {
+            theta.destination -= (controllers.left.position.x - controllers.previous.x) * theta.scale;
+            controllers.previous.copy(controllers.left.position);
+          } else if (controllers.right.userData.dragging) {
+            theta.destination -= (controllers.right.position.x - controllers.previous.x) * theta.scale;
+            controllers.previous.copy(controllers.right.position);
+          } else if (controllers.mouse.userData.dragging) {
+            theta.destination += (controllers.mouse.position.x - controllers.previous.x) * theta.scale;
+            controllers.previous.copy(controllers.mouse.position);
+          }
+
+          step.current += (step.destination - step.current) * step.drag;
+          theta.current += (theta.destination - theta.current) * theta.drag;
+
+          cursor.x += (step.current * t) * Math.cos(theta.current);
+          cursor.y += (step.current * t) * Math.sin(theta.current);
+
+          forest.rotation.y = theta.current - Math.PI / 2;
+
+          forest.userData.update(cursor);
+
+          renderer.effect.render(scene, camera);
+
+
+          // if (!(frameCount % 30)) {
+            if (controllers.mouse.visible) {
+              selector.cast(controllers.mouse);
+            }
+            if (controllers.daydream.visible) {
+              selector.cast(controllers.daydream);
+            }
+            if (controllers.left.visible) {
+              selector.cast(controllers.left);
+            }
+            if (controllers.right.visible) {
+              selector.cast(controllers.right);
+            }
+          }
+        //
+        // }
+
+        function loadModels() {
+
+          var isLocal = /localhost/i.test(window.location.href);
+          var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+
+          var loader = new THREE.FBXLoader();
+          var files = [
+            'mdl_env_1_forest_flower_a_v01.fbx',
+
+      			'mdl_env_1_forest_grass_a01_v01.fbx',
+      			'mdl_env_1_forest_grass_a02_v01.fbx',
+      			'mdl_env_1_forest_grass_b01_v01.fbx',
+      			'mdl_env_1_forest_grass_b02_v01.fbx',
+      			'mdl_env_1_forest_grass_c01_v01.fbx',
+      			'mdl_env_1_forest_grass_c02_v01.fbx',
+      			'mdl_env_1_forest_grass_c03_v01.fbx',
+      			'mdl_env_1_forest_grass_d_v01.fbx',
+      			'mdl_env_1_forest_grass_e_v01.fbx',
+      			'mdl_env_1_forest_grass_f_v01.fbx',
+      			'mdl_env_1_forest_grass_g_v01.fbx',
+
+      			'mdl_env_1_forest_rock_a_v01.fbx',
+      			'mdl_env_1_forest_rock_b_v01.fbx',
+
+      			'mdl_env_1_forest_mushroom_a_v01.fbx',
+      			'mdl_env_1_forest_mushroom_b_v01.fbx',
+      			'mdl_env_1_forest_mushroom_c_v01.fbx',
+
+      			'mdl_env_1_forest_tree_a_v01.fbx',
+      			'mdl_env_1_forest_tree_b_v01.fbx',
+      			'mdl_env_1_forest_tree_c_v01.fbx',
+      			'mdl_env_1_forest_tree_d_v01.fbx',
+      			'mdl_env_1_forest_tree_e_v01.fbx',
+      			'mdl_env_1_forest_tree_f_v01.fbx',
+      			'mdl_env_1_forest_tree_g_v01.fbx',
+      			'mdl_env_1_forest_tree_h_v01.fbx'
+          ];
+          files.loaded = 0;
+          files.root = [root, '/models/forest/'].join('');
+          files.limit = files.length + 2;
+          files.complete = function() {
+            files.loaded++;
+            if (files.loaded === files.limit) {
+              setup();
+            }
+          };
+
+          loader.load(files.root + 'mdl_env_1_forest_ground_v01.fbx', function(obj) {
+
+            var meshes = [];
+            var pluck = function(obj) {
+              for (var i = 0; i < obj.children.length; i++) {
+
+                var child = obj.children[i];
+
+                if (child instanceof THREE.Mesh) {
+                  meshes.push(child);
+                }
+                if (child.children && child.children.length > 0) {
+                  pluck(child);
+                }
+              }
+            };
+
+            pluck(obj);
+
+            for (var i = 0; i < meshes.length; i++) {
+              forest.userData.floor.add(meshes[i]);
+            }
+
+            files.complete();
+
+          });
+
+          loader.load(files.root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+
+            var meshes = [];
+            var pluck = function(obj) {
+              for (var i = 0; i < obj.children.length; i++) {
+
+                var child = obj.children[i];
+
+                if (child instanceof THREE.Mesh) {
+                  meshes.push(child);
+                }
+                if (child.children && child.children.length > 0) {
+                  pluck(child);
+                }
+              }
+            };
+
+            pluck(obj);
+
+            for (var i = 0; i < meshes.length; i++) {
+              annie.add(meshes[i]);
+            }
+
+            files.complete();
+
+          });
+
+          files.forEach(function(file) {
+            loader.load(files.root + file, function(obj) {
+
+              var meshes = [];
+              var pluck = function(obj) {
+                for (var i = 0; i < obj.children.length; i++) {
+
+                  var child = obj.children[i];
+
+                  if (child instanceof THREE.Mesh) {
+
+                    child.userData.name = file;
+                    child.userData.offset = new THREE.Vector2(
+                      Math.random(),
+                      Math.random()
+                    );
+                    child.scale.setScalar(2 * Math.random() / 5);
+
+                    meshes.push(child);
+
+                  }
+                  if (child.children && child.children.length > 0) {
+                    pluck(child);
+                  }
+                }
+              };
+
+              pluck(obj);
+
+              for (var i = 0; i < meshes.length; i++) {
+                forest.add(meshes[i]);
+                forest.userData.elements.push(meshes[i]);
+              }
+              files.complete();
+
+            });
+          });
+
+        }
+
+        function mod(v, l) {
+          while (v < 0) {
+            v += l;
+          }
+          return v % l;
+        }
+
+        has.ready(loadModels)
+
+      </script>
+    </div>
+  </body>
+</html>

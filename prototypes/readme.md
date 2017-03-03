@@ -12,3 +12,4 @@
 + [Bedroom](./bedroom-assets.html)
 + [Door Subtraction](./door-subtract.html)
 + [Door Union](./door-union.html)
++ [Point and Select](./point-and-select.html)
