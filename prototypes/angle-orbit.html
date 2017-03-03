@@ -43,7 +43,6 @@
 
 			var annie;
 
-			var angleText;
 			var up = new THREE.Vector3(0,1,0);
 
 			init();
@@ -132,21 +131,31 @@
 
 					font = JSON.parse( font );
 
-					angleText = new TextBitmap({
-						text: 'angle',
-						width: 500,
-						align: 'center',
-						font: font,
-						lineHeight: font.common.lineHeight - 10,
-						letterSpacing: 1,
-						scale: 0.0004,
-						color: "#fff"
-					}, renderer );
+					function createText() {
 
-					var s = angleText.config.scale;
-					angleText.group.scale.set( s, s, s );
-					angleText.group.position.y = 0.1;
-					controller2.add( angleText.group );
+						bmtext = new TextBitmap({
+							bmtext: 'angle',
+							width: 500,
+							align: 'center',
+							font: font,
+							lineHeight: font.common.lineHeight - 10,
+							letterSpacing: 1,
+							scale: 0.0004,
+							color: "#fff"
+						}, renderer );
+
+						var s = bmtext.config.scale;
+						bmtext.group.scale.set( s, s, s );
+						bmtext.group.position.y = 0.1;
+
+						return bmtext;
+					}
+
+					controller1.bmtext = createText();
+					controller1.add( controller1.bmtext.group );
+
+					controller2.bmtext = createText();
+					controller2.add( controller2.bmtext.group );
 				});
 
 				//
@@ -235,7 +244,7 @@
 				scene.remove( controller.userData.downArrowHelper );
 				scene.remove( controller.userData.dragArrowHelper );
 
-				angleText.text = 'angle';
+				controller.bmtext.text = 'angle';
 			}
 
 			function resize() {
@@ -245,6 +254,34 @@
 			}
 
 			//
+
+			function drag( controller ) {
+				if (controller.userData.dragArrowHelper) {
+					scene.remove( controller.userData.dragArrowHelper );
+				}
+
+				var from = annie.position.clone();
+				var to = controller.position.clone();
+				to.applyMatrix4( controller.standingMatrix );
+				from.y = to.y = 0;
+				var direction = to.clone().sub(from);
+				var length = direction.length();
+				controller.userData.dragArrowHelper = new THREE.ArrowHelper( direction.normalize(), from, length, 0xff0000 );
+				controller.userData.dragDirection = direction;
+				scene.add( controller.userData.dragArrowHelper );
+
+				// calculate angle
+				var angle = controller.userData.downDirection.angleTo( controller.userData.dragDirection );
+				// clockwise or counter clockwise?
+				var cross = controller.userData.downDirection.clone().cross( direction );
+				var dot = cross.dot( up );
+				angle *= (dot > 0) ? 1 : -1;
+
+				var deg = THREE.Math.radToDeg( angle ).toFixed(0);
+				controller.bmtext.text = deg;
+
+				camGroup.rotation.y = camGroup.userData.downRotationY + angle * 4;
+			}
 
 			function loop() {
 
@@ -256,29 +293,9 @@
 				controller2.update();
 
 				if (controller2.userData.dragging) {
-					if (controller2.userData.dragArrowHelper) scene.remove( controller2.userData.dragArrowHelper );
-					var from = annie.position.clone();
-					var to = controller2.position.clone();
-					to.applyMatrix4( controller2.standingMatrix );
-					from.y = to.y = 0;
-					var direction = to.clone().sub(from);
-					var length = direction.length();
-					controller2.userData.dragArrowHelper = new THREE.ArrowHelper( direction.normalize(), from, length, 0xff0000 );
-					controller2.userData.dragDirection = direction;
-					scene.add( controller2.userData.dragArrowHelper );
-
-					// calculate angle
-					var angle = controller2.userData.downDirection.angleTo( controller2.userData.dragDirection );
-
-					var cross = controller2.userData.downDirection.clone().cross( direction );
-					var dot = cross.dot( up );
-
-					angle *= (dot > 0) ? 1 : -1;
-
-					var deg = THREE.Math.radToDeg( angle ).toFixed(0);
-					angleText.text = deg;
-
-					camGroup.rotation.y = camGroup.userData.downRotationY + angle * 4;
+					drag( controller2 );
+				} else if ( controller1.userData.dragging ) {
+					drag( controller1 );
 				}
 
 				if ( effect.isPresenting ) {
