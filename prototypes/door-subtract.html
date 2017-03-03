@@ -152,7 +152,10 @@
 
 				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 					var mesh = obj.skeleton.bones[0];
-					mesh.material.side = THREE.DoubleSide;
+					mesh.material = new THREE.MeshBasicMaterial({
+						vertexColors: THREE.VertexColors,
+						side: THREE.DoubleSide
+					});
 					annie.add( mesh );
 					setup();
 				});

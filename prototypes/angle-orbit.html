@@ -204,7 +204,10 @@
 
 				loader.load(root + '/models/forest/mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 					var mesh = obj.skeleton.bones[0];
-					mesh.material.side = THREE.DoubleSide;
+					mesh.material = new THREE.MeshBasicMaterial({
+						vertexColors: THREE.VertexColors,
+						side: THREE.DoubleSide
+					});
 					annie.add( mesh );
 					setup();
 				});
@@ -231,11 +234,11 @@
 
 				files.forEach(function(file, i) {
 					loader.load(root + '/models/bedroom/' + file + '.fbx', function(obj) {
-
-						setup();
-
 						var mesh = obj.skeleton.bones[0];
-						mesh.material.side = THREE.DoubleSide;
+						mesh.material = new THREE.MeshBasicMaterial({
+							vertexColors: THREE.VertexColors,
+							side: THREE.DoubleSide
+						});
 
 						// randomly positioned in a circle
 						// mesh.position.x = THREE.Math.randFloatSpread( 10 );
@@ -252,6 +255,7 @@
 
 						scene.userData[file] = mesh;
 
+						setup();
 					});
 				});
 
