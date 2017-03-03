@@ -95,7 +95,7 @@
 				camGroup2 = new THREE.Mesh( cubeGeo, cubeMat.clone() );
 				camGroup2.material.wireframe = true;
 				camGroup2.position.y = 0.1;
-				camGroup2.position.z = -1;
+				camGroup2.position.z = -2;
 				camGroup2.rotation.y = Math.PI;
 
 				camGroup.add( camGroup2 );
@@ -309,7 +309,7 @@
 				// clockwise or counter clockwise?
 				var cross = controller.userData.downDirection.clone().cross( direction );
 				var dot = cross.dot( up );
-				angle *= (dot > 0) ? 1 : -1;
+				angle *= (dot > 0) ? -1 : 1;
 
 				var deg = THREE.Math.radToDeg( angle ).toFixed(0);
 				controller.bmtext.text = deg;
@@ -337,7 +337,7 @@
 				if (camGroup.rotation.y !== camGroup.userData.destination) {
 					camGroup.rotation.y += (camGroup.userData.destination - camGroup.rotation.y) * 0.1;
 
-					if (Math.abs(camGroup.userData.destination - camGroup.rotation.y) < 0.01) {
+					if (Math.abs(camGroup.userData.destination - camGroup.rotation.y) < 0.005) {
 						camGroup.rotation.y = camGroup.userData.destination;
 					}
 				}
