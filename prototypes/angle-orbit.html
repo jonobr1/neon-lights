@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>three.js webvr boilerplate</title>
@@ -63,11 +63,6 @@
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
 				// scene.add( camera );
 
-				var setup = _.after(2, function(){
-					document.body.appendChild( container );
-					loop();
-				});
-
 				var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
 				scene.add( gridHelper );
 
@@ -91,13 +86,15 @@
 				controls.vr.standing = true;
 				controls.orbit.target.set( 0, 0, -1 );
 
+				//
 
 				camGroup = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+				camGroup.userData.destination = 0;
 				camGroup.material.wireframe = true;
 
 				camGroup2 = new THREE.Mesh( cubeGeo, cubeMat.clone() );
 				camGroup2.material.wireframe = true;
-				camGroup2.position.y = 0.25;
+				camGroup2.position.y = 0.1;
 				camGroup2.position.z = -1;
 				camGroup2.rotation.y = Math.PI;
 
@@ -202,11 +199,48 @@
 
 				var isLocal = /localhost/i.test(window.location.href);
 				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
-				root = [root, '/models/forest/'].join('');
 
-				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
-					annie.add( obj.skeleton.bones[0] );
+				loader.load(root + '/models/forest/mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+					var mesh = obj.skeleton.bones[0];
+					mesh.material.side = THREE.DoubleSide;
+					annie.add( mesh );
 					setup();
+				});
+
+				//
+
+				var files = [
+					'ball-blue.fbx',
+					'ball-green.fbx',
+					'ball-purple.fbx',
+					'bed.fbx',
+					'bunny.fbx',
+					'castle.fbx',
+					'closet.fbx',
+					'elephant.fbx',
+					'giraffe.fbx',
+					'slide.fbx',
+					'teddy.fbx',
+					'tent.fbx',
+					'tricycle.fbx'
+				];
+
+				files.forEach(function(file) {
+					loader.load(root + '/models/bedroom/' + file, function(obj) {
+						setup();
+						var mesh = obj.skeleton.bones[0];
+						mesh.material.side = THREE.DoubleSide;
+						mesh.position.x = THREE.Math.randFloatSpread( 10 );
+						mesh.position.z = THREE.Math.randFloatSpread( 10 );
+						scene.add( mesh );
+					});
+				});
+
+				// ----------------------------------------------------------------
+
+				var setup = _.after(2 + files.length, function(){
+					document.body.appendChild( container );
+					loop();
 				});
 
 				// ----------------------------------------------------------------
@@ -280,7 +314,7 @@
 				var deg = THREE.Math.radToDeg( angle ).toFixed(0);
 				controller.bmtext.text = deg;
 
-				camGroup.rotation.y = camGroup.userData.downRotationY + angle * 4;
+				camGroup.userData.destination = camGroup.userData.downRotationY + angle * 4;
 			}
 
 			function loop() {
@@ -292,10 +326,20 @@
 				controller1.update();
 				controller2.update();
 
+				// drag to orbit
 				if (controller2.userData.dragging) {
 					drag( controller2 );
 				} else if ( controller1.userData.dragging ) {
 					drag( controller1 );
+				}
+
+				// camera easing
+				if (camGroup.rotation.y !== camGroup.userData.destination) {
+					camGroup.rotation.y += (camGroup.userData.destination - camGroup.rotation.y) * 0.1;
+
+					if (Math.abs(camGroup.userData.destination - camGroup.rotation.y) < 0.01) {
+						camGroup.rotation.y = camGroup.userData.destination;
+					}
 				}
 
 				if ( effect.isPresenting ) {
