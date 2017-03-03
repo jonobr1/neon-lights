@@ -30,6 +30,8 @@
 		<script src="../release/src/text/sdf-shader.js"></script>
 		<script src="../release/src/text/text-bitmap.js"></script>
 
+		<script src="../release/third-party/ThreeCSG.js"></script>
+
 		<script>
 
 			var clock = new THREE.Clock();
@@ -53,9 +55,9 @@
 
 				scene = new THREE.Scene();
 
-				var ah = new THREE.AxisHelper(0.5);
-				ah.position.y = 0.02;
-				scene.add( ah );
+				// var ah = new THREE.AxisHelper(0.5);
+				// ah.position.y = 0.02;
+				// scene.add( ah );
 
 				var cubeGeo = new THREE.BoxBufferGeometry(0.08,0.08,0.08);
 				var cubeMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
@@ -63,8 +65,8 @@
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
 				// scene.add( camera );
 
-				var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
-				scene.add( gridHelper );
+				// var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
+				// scene.add( gridHelper );
 
 				var aLight = new THREE.AmbientLight( 0xffffff );
 				scene.add( aLight );
@@ -210,36 +212,117 @@
 				//
 
 				var files = [
-					'ball-blue.fbx',
-					'ball-green.fbx',
-					'ball-purple.fbx',
-					'bed.fbx',
-					'bunny.fbx',
-					'castle.fbx',
-					'closet.fbx',
-					'elephant.fbx',
-					'giraffe.fbx',
-					'slide.fbx',
-					'teddy.fbx',
-					'tent.fbx',
-					'tricycle.fbx'
+					'slide',
+					'ball-blue',
+					'ball-purple',
+					'bed',
+					'ball-green',
+					'bunny',
+					// 'castle',
+					'closet',
+					'elephant',
+					'giraffe',
+					'teddy',
+					// 'tent',
+					'tricycle'
 				];
 
-				files.forEach(function(file) {
-					loader.load(root + '/models/bedroom/' + file, function(obj) {
+				var TWO_PI = 2 * Math.PI;
+
+				files.forEach(function(file, i) {
+					loader.load(root + '/models/bedroom/' + file + '.fbx', function(obj) {
+
 						setup();
+
 						var mesh = obj.skeleton.bones[0];
 						mesh.material.side = THREE.DoubleSide;
-						mesh.position.x = THREE.Math.randFloatSpread( 10 );
-						mesh.position.z = THREE.Math.randFloatSpread( 10 );
+
+						// randomly positioned in a circle
+						// mesh.position.x = THREE.Math.randFloatSpread( 10 );
+						// mesh.position.z = THREE.Math.randFloatSpread( 10 );
+						// mesh.position.normalize().multiplyScalar( 3 );
+						// mesh.rotation.y = THREE.Math.randFloat( 0, TWO_PI );
+
+						// evenly spaced in a circle
+						var theta = 2 * Math.PI * i / files.length;
+						mesh.position.x = Math.cos( theta ) * 2.7;
+						mesh.position.z = Math.sin( theta ) * 2.7;
+
 						scene.add( mesh );
+
+						scene.userData[file] = mesh;
+
 					});
 				});
 
 				// ----------------------------------------------------------------
 
+				// lights to separate planes of room
+
+				var dLight = new THREE.DirectionalLight( 0xcccccc, 0.7 );
+				dLight.position.set(2,4,1).normalize();
+				scene.add( dLight );
+
+				var dLight2 = new THREE.DirectionalLight( dLight.color, 0.3 );
+				dLight2.position.copy( dLight.position ).multiplyScalar( -1 );
+				scene.add( dLight2 )
+
+				// room
+
+				var roomWidth = 7.6;
+				var roomHeight = 3;
+				var roomDepth = 7.6;
+				var thickness = 0.3;
+				var doorHeight = roomHeight / 1.2;
+
+				// inner wall
+				var roomGeo = new THREE.BoxGeometry( roomWidth, roomHeight, roomDepth );
+				var roomMat = new THREE.MeshPhongMaterial({
+					color: 0x192f3c,
+					shading: THREE.FlatShading,
+					side: THREE.BackSide
+				});
+
+				var roomMesh = new THREE.Mesh( roomGeo, roomMat );
+				roomMesh.position.y = roomHeight / 2;
+				// scene.add( roomMesh );
+
+				var roomMesh2 = new THREE.Mesh( roomGeo, roomMat );
+				roomMesh2.position.y = roomHeight / 2;
+				roomMesh2.position.z =  - (roomDepth + thickness/2);
+				// scene.add( roomMesh2 );
+
+				// door
+				var doorGeo = new THREE.BoxGeometry( 1.2, doorHeight, thickness/2 );
+				doorGeo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, doorHeight/2, 0 ) );
+				var doorMat = window.doorMat = new THREE.MeshLambertMaterial({
+					color: 0x6b8d71,
+					transparent: true,
+					opacity: 0.7
+				});
+				var doorMesh = new THREE.Mesh( doorGeo, doorMat );
+				doorMesh.position.set( 2, 0, -roomDepth/2 - thickness/4 );
+				// scene.add( doorMesh );
+
+				// CSG boolean
+
+				var roomBSP = new ThreeBSP( roomMesh );
+				var roomBSP2 = new ThreeBSP( roomMesh2 );
+				var union_bsp = roomBSP2.union( roomBSP );
+
+				var doorBSP = new ThreeBSP( doorMesh );
+				var union_bsp2 = union_bsp.union( doorBSP );
+				var resultMesh = union_bsp2.toMesh( roomMat );
+				resultMesh.geometry.computeVertexNormals();
+				scene.add( resultMesh );
+
+				// ----------------------------------------------------------------
+
 				var setup = _.after(2 + files.length, function(){
 					document.body.appendChild( container );
+					// scene.userData.bed.rotation.y = Math.PI/2;
+					scene.userData.slide.rotation.y = -Math.PI;
+					scene.userData.closet.rotation.y = -Math.PI/2;
 					loop();
 				});
 
