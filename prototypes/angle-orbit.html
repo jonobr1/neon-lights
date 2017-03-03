@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webvr boilerplate</title>
+		<title>angle orbit room</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<style>
@@ -55,9 +55,9 @@
 
 				scene = new THREE.Scene();
 
-				// var ah = new THREE.AxisHelper(0.5);
-				// ah.position.y = 0.02;
-				// scene.add( ah );
+				var ah = new THREE.AxisHelper(0.2);
+				ah.position.y = 0.02;
+				scene.add( ah );
 
 				var cubeGeo = new THREE.BoxBufferGeometry(0.08,0.08,0.08);
 				var cubeMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
@@ -97,7 +97,7 @@
 				camGroup2 = new THREE.Mesh( cubeGeo, cubeMat.clone() );
 				camGroup2.material.wireframe = true;
 				camGroup2.position.y = 0.1;
-				camGroup2.position.z = -2;
+				camGroup2.position.z = -1.5;
 				camGroup2.rotation.y = Math.PI;
 
 				camGroup.add( camGroup2 );
@@ -192,7 +192,7 @@
 
 				annie = new THREE.Group();
 				annie.rotation.y = Math.PI;
-				annie.position.set( 0, 0, -1 );
+				annie.position.set( 0, 0, -0.5 );
 				scene.add( annie );
 
 				annie.add( camGroup );
