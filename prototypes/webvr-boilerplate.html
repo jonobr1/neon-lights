@@ -141,7 +141,9 @@
 				root = [root, '/models/forest/'].join('');
 
 				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
-					annie.add( obj.skeleton.bones[0] );
+					var mesh = obj.skeleton.bones[0];
+					mesh.material.side = THREE.DoubleSide;
+					annie.add( mesh );
 					setup();
 				});
 
