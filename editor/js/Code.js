@@ -67,7 +67,7 @@ var Code = function ( editor ) {
 
 			if ( currentInclude !== null ) {
 
-				currentInclude[ 1 ] = codemirror.getValue();
+				currentInclude.source = codemirror.getValue();
 
 				editor.signals.includeChanged.dispatch();
 
@@ -160,8 +160,8 @@ var Code = function ( editor ) {
 
 		container.setDisplay( '' );
 
-		title.setValue( include[ 0 ] );
-		codemirror.setValue( include[ 1 ] );
+		title.setValue( include.name );
+		codemirror.setValue( include.source );
 
 		currentEffect = null;
 		currentInclude = include;

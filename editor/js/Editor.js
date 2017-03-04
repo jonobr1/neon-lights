@@ -216,7 +216,7 @@ Editor.prototype = {
 	addLibrary: function ( url, content ) {
 
 		var script = document.createElement( 'script' );
-		script.textContent = '( function () { ' + content + '} )()';
+		script.textContent = '( function () { ' + content + ' } )()';
 		document.head.appendChild( script );
 
 		this.libraries.push( url );
@@ -226,71 +226,20 @@ Editor.prototype = {
 
 	// includes
 
-	addInclude: function ( include ) {
+	addInclude: function ( name, source ) {
 
 		var script = document.createElement( 'script' );
-		script.textContent = '( function () { ' + include[ 1 ] + '} )()';
-		script.id = this.getIncludeId( include );
+		script.textContent = '( function () { ' + source + ' } )()';
 		document.head.appendChild( script );
 
-		this.includes.push( include );
-		this.signals.includeAdded.dispatch( include );
+		this.includes.push( { name: name, source: source } );
+		this.signals.includeAdded.dispatch();
 
 	},
 
 	selectInclude: function ( include ) {
 
 		this.signals.includeSelected.dispatch( include );
-
-	},
-
-	/*
-	moveInclude: function ( include, index ) {
-
-		var i = this.includes.indexOf( include );
-
-		if ( index !== - 1 ) {
-
-			this.includes.splice( i, 1 );
-			this.includes.splice( index, 0, include );
-			this.signals.includeMoved.dispatch( include );
-
-		}
-
-	},
-	*/
-
-	removeInclude: function ( include ) {
-
-		var index = this.includes.indexOf( include );
-		var selector = this.getIncludeId( include, true );
-		var script = document.head.querySelector( selector );
-
-		if ( index !== - 1 ) {
-
-			this.includes.splice( index, 1 );
-			this.signals.includeRemoved.dispatch( include );
-
-		}
-
-		if ( script ) {
-
-			var parent = script.parentElement || script.parentNode;
-
-			if ( parent ) {
-
-				parent.removeChild( script );
-
-			}
-
-		}
-
-	},
-
-	getIncludeId: function ( include, isSelector ) {
-
-		var id = include[0].replace(/\W/ig, '-');
-		return !!isSelector ? '#' + id : id;
 
 	},
 
@@ -464,7 +413,14 @@ Editor.prototype = {
 
 			for ( var i = 0, l = includes.length; i < l; i ++ ) {
 
-				scope.addInclude( includes[ i ] );
+				var data = includes[ i ];
+
+				var name = data[ 0 ];
+				var source = data[ 1 ];
+
+				if ( Array.isArray( source ) ) source = source.join( '\n' );
+
+				scope.addInclude( name, source );
 
 			}
 
@@ -472,7 +428,12 @@ Editor.prototype = {
 
 				var data = effects[ i ];
 
-				scope.addEffect( new FRAME.Effect( data[ 0 ], data[ 1 ] ) );
+				var name = data[ 0 ];
+				var source = data[ 1 ];
+
+				if ( Array.isArray( source ) ) source = source.join( '\n' );
+
+				scope.addEffect( new FRAME.Effect( name, source ) );
 
 			}
 
@@ -503,7 +464,7 @@ Editor.prototype = {
 		var json = {
 			"config": {},
 			"libraries": this.libraries.slice(),
-			"includes": this.includes.slice(),
+			"includes": [],
 			"effects": [],
 			// "curves": [],
 			"animations": []
@@ -527,6 +488,21 @@ Editor.prototype = {
 		}
 		*/
 
+		// includes
+
+		var includes = editor.includes;
+
+		for ( var i = 0, l = includes.length; i < l; i ++ ) {
+
+			var include = includes[ i ];
+
+			var name = include.name;
+			var source = include.source;
+
+			json.includes.push( [ name, source.split( '\n' ) ] );
+
+		}
+
 		// effects
 
 		var effects = editor.effects;
@@ -535,10 +511,10 @@ Editor.prototype = {
 
 			var effect = effects[ i ];
 
-			json.effects.push( [
-				effect.name,
-				effect.source
-			] );
+			var name = effect.name;
+			var source = effect.source;
+
+			json.effects.push( [ name, source.split( '\n' ) ] );
 
 		}
 
