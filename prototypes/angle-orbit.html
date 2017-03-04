@@ -232,8 +232,14 @@
 
 				var TWO_PI = 2 * Math.PI;
 
+				var roomGroup = new THREE.Group();
+				scene.add( roomGroup );
+
 				files.forEach(function(file, i) {
 					loader.load(root + '/models/bedroom/' + file + '.fbx', function(obj) {
+
+						setup();
+
 						var mesh = obj.skeleton.bones[0];
 						mesh.material = new THREE.MeshBasicMaterial({
 							vertexColors: THREE.VertexColors,
@@ -251,11 +257,10 @@
 						mesh.position.x = Math.cos( theta ) * 2.7;
 						mesh.position.z = Math.sin( theta ) * 2.7;
 
-						scene.add( mesh );
+						roomGroup.add( mesh );
 
 						scene.userData[file] = mesh;
 
-						setup();
 					});
 				});
 
@@ -300,13 +305,13 @@
 				var doorGeo = new THREE.BoxGeometry( 1.2, doorHeight, thickness/2 );
 				doorGeo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, doorHeight/2, 0 ) );
 				var doorMat = window.doorMat = new THREE.MeshLambertMaterial({
-					color: 0x6b8d71,
+					color: 0x061c28,
 					transparent: true,
-					opacity: 0.7
+					opacity: 1
 				});
 				var doorMesh = new THREE.Mesh( doorGeo, doorMat );
 				doorMesh.position.set( 2, 0, -roomDepth/2 - thickness/4 );
-				// scene.add( doorMesh );
+				scene.add( doorMesh );
 
 				// CSG boolean
 
@@ -327,6 +332,12 @@
 					// scene.userData.bed.rotation.y = Math.PI/2;
 					scene.userData.slide.rotation.y = -Math.PI;
 					scene.userData.closet.rotation.y = -Math.PI/2;
+
+					var roomGroup2 = roomGroup.clone();
+					roomGroup2.position.z = -roomDepth;
+					roomGroup2.rotation.y = -Math.PI/2;
+					scene.add( roomGroup2 );
+
 					loop();
 				});
 
