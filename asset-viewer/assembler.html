@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	<title>Neon Lights: Assembler</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			margin: 0;
+		}
+		#ui {
+			position: absolute;
+			top: 0px;
+			padding: 10px;
+		}
+	</style>
+	</head>
+	<body>
+		<div id="content"></div>
+		<div id="ui">
+			<!-- <button id="import">IMPORT</button> -->
+			<button id="export">EXPORT</button>
+		</div>
+		<script src="../release/third-party/three.js"></script>
+		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+		<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+		<script>
+
+			var PER_ROW = 8;
+			var SPACING = 15;
+
+			var count = 0;
+
+			var renderer = new THREE.WebGLRenderer({ antialias: true });
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera();
+			var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+			var loader = new THREE.FBXLoader();
+			var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+			//
+
+			var NUMBER_PRECISION = 6;
+
+			function parseNumber( key, value ) {
+
+				return typeof value === 'number' ? parseFloat( value.toFixed( NUMBER_PRECISION ) ) : value;
+
+			}
+
+			var exportButton = document.getElementById( 'export' );
+			exportButton.addEventListener( 'click', function () {
+
+				var output = JSON.stringify( scene.toJSON(), parseNumber );
+
+				var blob = new Blob( [ output ], { type: 'text/plain' } );
+				var objectURL = URL.createObjectURL( blob );
+
+				window.open( objectURL, '_blank' );
+				window.focus();
+
+			} );
+
+			//
+
+			setup();
+
+			function setup() {
+
+				scene.add(new THREE.AmbientLight('white'));
+
+				camera.position.set(0, 3, 4);
+
+				var $content = document.querySelector('#content');
+
+				$content.appendChild(renderer.domElement);
+
+				window.addEventListener('resize', resize, false);
+				resize();
+
+				document.addEventListener( 'dragover', function ( event ) {
+
+					event.preventDefault();
+					event.dataTransfer.dropEffect = 'copy';
+
+				}, false );
+
+				document.addEventListener( 'drop', function ( event ) {
+
+					event.preventDefault();
+
+					if ( event.dataTransfer.files.length > 0 ) {
+
+						loadFiles( event.dataTransfer.files );
+
+					}
+
+				}, false );
+
+				loop();
+
+			}
+
+			function resize() {
+
+				var width = window.innerWidth;
+				var height = window.innerHeight;
+
+				renderer.setSize(width, height);
+				camera.aspect = width / height;
+				camera.updateProjectionMatrix();
+
+			}
+
+			function loop() {
+
+				requestAnimationFrame(loop);
+
+				controls.update();
+
+				renderer.render(scene, camera);
+
+			}
+
+			function loadFiles( files ) {
+
+				for ( var i = 0; i < files.length; i ++ ) {
+
+					loadFile( files[ i ] );
+
+				}
+
+			}
+
+			function loadFile( file ) {
+
+				console.log( file.name );
+
+				var reader = new FileReader();
+				reader.addEventListener( 'load', function ( event ) {
+
+					var contents = event.target.result;
+
+					var loader = new THREE.FBXLoader();
+					var object = loader.parse( contents );
+
+					var geometry = getGeometry( object );
+
+					var mesh = new THREE.Mesh( geometry, material );
+					mesh.position.x = Math.floor( count % PER_ROW ) * SPACING;
+					mesh.position.z = - Math.floor( count / PER_ROW ) * SPACING;
+					scene.add( mesh );
+
+					count ++;
+
+				}, false );
+				reader.readAsText( file );
+
+			}
+
+			function getGeometry( object ) {
+
+				var geometry = object.children[ 0 ].geometry;
+
+				geometry.removeAttribute( 'normal' );
+				geometry.removeAttribute( 'uv' );
+
+				return geometry;
+
+			}
+
+			/*
+			var clock = new THREE.Clock();
+
+			var renderer = new THREE.WebGLRenderer({ antialias: true });
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera();
+			var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+			var loader = new THREE.FBXLoader();
+			var annie;
+
+			function setup() {
+
+				scene.add(new THREE.AmbientLight('white'));
+				scene.add(annie);
+
+				camera.position.set(0, 3, 4);
+
+				var $content = document.querySelector('#content');
+
+				$content.appendChild(renderer.domElement);
+				$content.style.position = 'absolute';
+				$content.style.top = 0;
+				$content.style.left = 0;
+
+				window.addEventListener('resize', resize, false);
+				resize();
+
+				loop();
+
+			}
+
+			function resize() {
+
+				var width = window.innerWidth;
+				var height = window.innerHeight;
+
+				renderer.setSize(width, height);
+				camera.aspect = width / height;
+				camera.updateProjectionMatrix();
+
+			}
+
+			function loop() {
+
+				requestAnimationFrame(loop);
+
+				controls.update();
+
+				var delta = clock.getDelta();
+				annie.mixer.update(delta);
+
+				renderer.render(scene, camera);
+
+			}
+
+			function loadModels() {
+
+				var $navigation = document.querySelector('#navigation');
+
+				$navigation.style.position = 'absolute';
+				$navigation.style.bottom = 0;
+				$navigation.style.left = 0;
+				$navigation.style.right = 0;
+				$navigation.style.textAlign = 'center';
+
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+
+				var files = {
+
+					path: '/models/annie/',
+
+					model: 'ani_chr_1-forest_bindpose_v03.fbx',
+					animations: ['ani_chr_1-forest_idle_v03.fbx',
+						'ani_chr_1-forest_run_v03.fbx', 'ani_chr_1-forest_walk_v03.fbx'],
+					loaded: 0,
+					complete: function() {
+
+						files.loaded++;
+
+						if (files.loaded === files.animations.length) {
+
+							annie.animations.forEach(function(animation) {
+
+								var button = document.createElement('button');
+								button.innerHTML = animation.name.match(/\d\-(\w+)\_/i)[1];
+
+								button.addEventListener('click', function() {
+									annie.animations.forEach(function(a) {
+										var event = a === animation ? 'play' : 'stop';
+										a.action[event]();
+									});
+								}, false);
+								$navigation.appendChild(button);
+
+							});
+
+							setup();
+
+						}
+
+					}
+
+				};
+
+				loader.load(root + files.path + files.model, function(model) {
+
+					annie = model;
+					annie.traverse(function(child) {
+						if (child.isMesh) {
+							child.material.side = THREE.DoubleSide;
+						}
+					});
+					annie.mixer = new THREE.AnimationMixer(annie);
+
+					files.animations.forEach(function(modelPath) {
+
+						loader.load(root + files.path + modelPath, function(fbx) {
+
+							fbx.animations.forEach(function(animation) {
+								animation.name = [animation.name, ':', modelPath].join('');
+								animation.action = annie.mixer.clipAction(animation);
+							});
+							annie.animations = annie.animations.concat(fbx.animations);
+
+							files.complete();
+
+						});
+
+					});
+
+				});
+
+			}
+
+			loadModels();
+			*/
+
+		</script>
+	</body>
+</html>
