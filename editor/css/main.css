@@ -31,7 +31,6 @@ button {
 	/* No support for these yet */
 	-o-user-select: none;
 	user-select: none;
-	overflow: auto;
 }
 
 input.Input {
