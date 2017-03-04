@@ -497,7 +497,7 @@ Editor.prototype = {
 		/*
 		// curves
 
-		var curves = editor.timeline.curves;
+		var curves = this.timeline.curves;
 
 		for ( var i = 0, l = curves.length; i < l; i ++ ) {
 
@@ -514,7 +514,7 @@ Editor.prototype = {
 
 		// includes
 
-		var includes = editor.includes;
+		var includes = this.includes;
 
 		for ( var i = 0, l = includes.length; i < l; i ++ ) {
 
@@ -529,7 +529,7 @@ Editor.prototype = {
 
 		// effects
 
-		var effects = editor.effects;
+		var effects = this.effects;
 
 		for ( var i = 0, l = effects.length; i < l; i ++ ) {
 
@@ -544,7 +544,7 @@ Editor.prototype = {
 
 		// animations
 
-		var animations = editor.timeline.animations;
+		var animations = this.timeline.animations;
 
 		for ( var i = 0, l = animations.length; i < l; i ++ ) {
 
@@ -566,7 +566,7 @@ Editor.prototype = {
 				animation.start,
 				animation.end,
 				animation.layer,
-				editor.effects.indexOf( animation.effect )
+				this.effects.indexOf( animation.effect )
 			] );
 
 		}
