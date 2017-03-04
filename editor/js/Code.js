@@ -76,6 +76,8 @@ var Code = function ( editor ) {
 				var error;
 				var currentSource = currentEffect.source;
 
+				if ( currentEffect.program ) currentEffect.program.end();
+
 				try {
 
 					currentEffect.source = codemirror.getValue();
