@@ -52,14 +52,13 @@ Sidebar.Project = function ( editor ) {
 		var includes = editor.includes.slice( 0 );
 		var effects = editor.effects.slice( 0 );
 
-		editor.signals.includesCleared.dispatch();
+		editor.clearIncludes();
 
 		for ( var i = 0; i < includes.length; i++ ) {
 
 			var include = includes[ i ];
 
-			editor.removeInclude( include );
-			editor.addInclude( include );
+			editor.addInclude( include.name, include.source );
 
 		}
 

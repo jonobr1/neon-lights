@@ -218,6 +218,7 @@ Editor.prototype = {
 	addLibrary: function ( url, content ) {
 
 		var script = document.createElement( 'script' );
+		script.id = 'library-' + this.libraries.length;
 		script.textContent = '( function () { ' + content + ' } )()';
 		document.head.appendChild( script );
 
@@ -231,6 +232,7 @@ Editor.prototype = {
 	addInclude: function ( name, source ) {
 
 		var script = document.createElement( 'script' );
+		script.id = 'include-' + this.includes.length;
 		script.textContent = '( function () { ' + source + ' } )()';
 		document.head.appendChild( script );
 
@@ -242,6 +244,21 @@ Editor.prototype = {
 	selectInclude: function ( include ) {
 
 		this.signals.includeSelected.dispatch( include );
+
+	},
+
+	clearIncludes: function () {
+
+		while ( editor.includes.length ) {
+
+			editor.includes.pop();
+
+			var script = document.getElementById( 'include-' + editor.includes.length );
+			document.head.removeChild( script );
+
+		}
+
+		this.signals.includesCleared.dispatch();
 
 	},
 
