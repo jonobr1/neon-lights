@@ -175,29 +175,22 @@ Sidebar.Animation = function ( editor ) {
 
 		var animation = selected;
 
-		var title = new UI.Text( animation.name ).setId( 'name' );
-		container.add( title );
+		//
 
-		var rename = new UI.Button( 'RENAME' );
-		rename.setPosition( 'absolute' );
-		rename.setRight( '8px' );
-		rename.onClick( function () {
+		var row = new UI.Row();
+		row.add( new UI.Text( 'Name' ).setWidth( '90px' ) );
+		container.add( row );
 
-			var name = prompt( '', animation.name );
+		var animationName = new UI.Input( animation.name )
+		animationName.onChange( function () {
 
-			if ( name !== null ) {
-
-				animation.name = name;
-				title.setValue( name );
-
-				signals.animationRenamed.dispatch( animation );
-
-			}
+			animation.name = this.getValue();
+			signals.animationRenamed.dispatch( animation );
 
 		} );
-		container.add( rename );
+		row.add( animationName );
 
-		container.add( new UI.HorizontalRule() );
+		//
 
 		var parameters = animation.effect.program.parameters;
 
@@ -211,39 +204,30 @@ Sidebar.Animation = function ( editor ) {
 
 		var effect = animation.effect;
 
-		container.add( new UI.HorizontalRule() );
+		container.add( new UI.Break(), new UI.Break() );
+		container.add( new UI.Text( 'Effect' ).setTextTransform( 'uppercase' ) );
+		container.add( new UI.Break(), new UI.Break() );
 
-		var effectName = new UI.Text( effect.name ).setId( 'name' );
-		container.add( effectName );
+		var row = new UI.Row();
+		row.add( new UI.Text( 'Name' ).setWidth( '90px' ) );
+		container.add( row );
 
-		var edit = new UI.Button( 'EDIT' );
-		edit.setPosition( 'absolute' );
-		edit.setRight( '70px' );
+		var effectName = new UI.Input( effect.name );
+		effectName.onChange( function () {
+
+			effect.name = this.getValue();
+			signals.effectRenamed.dispatch( effect );
+
+		} );
+		row.add( effectName );
+
+		var edit = new UI.Button( 'EDIT' ).setMarginLeft( '4px' );
 		edit.onClick( function () {
 
 			editor.selectEffect( effect );
 
 		} );
-		container.add( edit );
-
-		var rename = new UI.Button( 'RENAME' );
-		rename.setPosition( 'absolute' );
-		rename.setRight( '8px' );
-		rename.onClick( function () {
-
-			var name = prompt( '', effect.name );
-
-			if ( name !== null ) {
-
-				effect.name = name;
-				effectName.setValue( name );
-
-				signals.effectRenamed.dispatch( effect );
-
-			}
-
-		} );
-		container.add( rename );
+		row.add( edit );
 
 	}
 
