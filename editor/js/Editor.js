@@ -153,8 +153,6 @@ Editor.prototype = {
 
 		}
 
-		this.timeline.pause();
-
 		this.isPlaying = false;
 		this.signals.playingChanged.dispatch( false );
 
