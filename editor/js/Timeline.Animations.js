@@ -133,14 +133,8 @@ Timeline.Animations = function ( editor ) {
 		}, false );
 		dom.appendChild( resizeLeft );
 
-		// TODO: This is kind of hacked together... Sorry Ricardo! @jonobr1
-		animation.updateDOM = function() {
-			name.innerHTML = animation.name + ' <span style="opacity:0.5">' + animation.effect.name + '</span>';
-		};
-
 		var name = document.createElement( 'div' );
 		name.className = 'name';
-		animation.updateDOM();
 		dom.appendChild( name );
 
 		var resizeRight = document.createElement( 'div' );
@@ -187,33 +181,45 @@ Timeline.Animations = function ( editor ) {
 		}, false );
 		dom.appendChild( resizeRight );
 
+		//
+
+		function getAnimation() {
+
+			return animation;
+
+		}
+
+		function select() {
+
+			dom.className = 'block selected';
+
+		}
+
+		function deselect() {
+
+			dom.className = 'block';
+
+		}
+
 		function update() {
 
 			dom.style.left = ( animation.start * scale ) + 'px';
 			dom.style.top = ( animation.layer * 32 ) + 'px';
 			dom.style.width = ( ( animation.end - animation.start ) * scale - 2 ) + 'px';
 
+			name.innerHTML = animation.name + ' <span style="opacity:0.5">' + animation.effect.name + '</span>';
+
 		}
 
 		update();
 
-		this.dom = dom;
-
-		this.select = function () {
-
-			dom.className = 'block selected';
-
+		return {
+			dom: dom,
+			getAnimation: getAnimation,
+			select: select,
+			deselect: deselect,
+			update: update
 		};
-
-		this.deselect = function () {
-
-			dom.className = 'block';
-
-		};
-
-		this.update = update;
-
-		return this;
 
 	} );
 
@@ -276,6 +282,28 @@ Timeline.Animations = function ( editor ) {
 		for ( var key in blocks ) {
 
 			blocks[ key ].update();
+
+		}
+
+	} );
+
+	signals.animationRenamed.add( function ( animation ) {
+
+		blocks[ animation.id ].update();
+
+	} );
+
+	signals.effectRenamed.add( function ( effect ) {
+
+		for ( var key in blocks ) {
+
+			var block = blocks[ key ];
+
+			if ( block.getAnimation().effect === effect ) {
+
+				block.update();
+
+			}
 
 		}
 

@@ -25,6 +25,7 @@ var Editor = function () {
 
 		// effects
 
+		effectRenamed: new Signal(),
 		effectRemoved: new Signal(),
 		effectSelected: new Signal(),
 		effectCompiled: new Signal(),
@@ -36,6 +37,7 @@ var Editor = function () {
 
 		// animations
 
+		animationRenamed: new Signal(),
 		animationAdded: new Signal(),
 		animationModified: new Signal(),
 		animationRemoved: new Signal(),
@@ -311,12 +313,6 @@ Editor.prototype = {
 
 		this.timeline.add( animation );
 		this.signals.animationAdded.dispatch( animation );
-
-		if ( animation.updateDOM ) {
-
-			this.signals.effectCompiled.add( animation.updateDOM );
-
-		}
 
 	},
 

@@ -84,7 +84,6 @@ var Code = function ( editor ) {
 					// TODO: Also test init() and start()
 					currentEffect.program.update( 0 );
 
-					title.setValue( currentEffect.name );
 					editor.signals.effectCompiled.dispatch();
 
 				} catch ( e ) {
