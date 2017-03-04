@@ -83,7 +83,7 @@ var Code = function ( editor ) {
 					currentEffect.source = codemirror.getValue();
 					currentEffect.compile();
 
-					// TODO: Also test init() and start()
+					currentEffect.program.start();
 					currentEffect.program.update( 0 );
 
 					editor.signals.effectCompiled.dispatch();
