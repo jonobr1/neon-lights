@@ -76,15 +76,12 @@ var Code = function ( editor ) {
 				var error;
 				var currentSource = currentEffect.source;
 
-				if ( currentEffect.program ) currentEffect.program.end();
+				editor.timeline.reset();
 
 				try {
 
 					currentEffect.source = codemirror.getValue();
 					currentEffect.compile();
-
-					currentEffect.program.start();
-					currentEffect.program.update( 0 );
 
 					editor.signals.effectCompiled.dispatch();
 
@@ -93,6 +90,8 @@ var Code = function ( editor ) {
 					error = e.name + ' : ' + e.message; // e.stack, e.columnNumber, e.lineNumber
 
 				}
+
+				editor.timeline.update( editor.currentTime );
 
 				if ( error !== undefined ) {
 

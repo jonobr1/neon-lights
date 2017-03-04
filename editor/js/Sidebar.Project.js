@@ -62,7 +62,7 @@ Sidebar.Project = function ( editor ) {
 		}
 
 		editor.timeline.reset();
-		editor.setTime( editor.currentTime ); // HACK
+		editor.timeline.update( editor.currentTime );
 
 	} );
 	reload.setMarginLeft( '4px' );
