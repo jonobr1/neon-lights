@@ -53,8 +53,10 @@
 			var camGroup;
 
 			var annie;
+			var path;
 
 			var up = new THREE.Vector3(0,1,0);
+			var orbitTarget = new THREE.Vector3( 0, 0, -0.5 )
 
 			init();
 
@@ -103,6 +105,8 @@
 				camGroup = new THREE.Mesh( cubeGeo, cubeMat.clone() );
 				camGroup.userData.destination = 0;
 				camGroup.material.wireframe = true;
+				camGroup.position.set( 0, 0, -0.5 );
+				scene.add( camGroup );
 
 				camGroup2 = new THREE.Mesh( cubeGeo, cubeMat.clone() );
 				camGroup2.material.wireframe = true;
@@ -204,8 +208,6 @@
 				annie.rotation.y = Math.PI;
 				annie.position.set( 0, 0, -0.5 );
 				scene.add( annie );
-
-				annie.add( camGroup );
 
 				var loader = new THREE.FBXLoader();
 
@@ -339,7 +341,14 @@
 
 				// Curve
 
-				path = new Spline(0.01, true);
+				path = new Spline({
+					scale: 0.01,
+					closed: true,
+					duration: 10000,
+					// yoyo: false,
+					visible: true
+				});
+				// path.visible = false;
 
 				// paste here from exporter
 				path.load( [new THREE.Vector3(1.486896456076772, 0, -0.1389830687964259),
@@ -404,33 +413,22 @@
 				// Curve Gui
 
 				var gui = new dat.GUI();
-				var p1 = gui.addFolder('path 1');
 
-				p1.add(path.pct, 't', 0, 1).name('percent').listen();
+				gui.add(path.pct, 't', 0, 1).name('percent').listen();
 
-				p1.add(path.curve, 'closed').onChange(function(){
+				gui.add(path.curve, 'closed').onChange(function(){
 					path.updateSplineOutline();
 				});
 
-				// p1.add(path.curve, 'type', ['centripetal', 'catmullrom', 'chordal']).onChange(function(){
-				// 	path.updateSplineOutline();
-				// });
-
-				// p1.add(path.curve, 'tension', 0, 1).step(0.1).onChange(function(){
-				// 	path.updateSplineOutline();
-				// });
-
-				p1.add(path, 'visible').onChange(function(){
+				gui.add(path, 'visible').onChange(function(){
 					transformControl.detach( transformControl.object );
 				});
 
-				p1.add(path, 'addPoint');
-				p1.add(path, 'removePoint');
-				p1.add(path, 'export');
-				// p1.add(path, 'start');
-				// p1.add(path, 'stop');
-
-				p1.open();
+				gui.add(path, 'addPoint');
+				gui.add(path, 'removePoint');
+				gui.add(path, 'export');
+				// gui.add(path, 'start');
+				// gui.add(path, 'stop');
 
 				// ----------------------------------------------------------------
 
@@ -444,6 +442,8 @@
 					roomGroup2.position.z = -roomDepth;
 					roomGroup2.rotation.y = -Math.PI/2;
 					scene.add( roomGroup2 );
+
+					path.tween.start();
 
 					loop();
 				});
@@ -462,7 +462,8 @@
 				controller.userData.downPosition.copy( controller.position );
 
 				// http://stackoverflow.com/questions/26714230/draw-arrow-helper-along-three-line-or-two-vectors
-				var from = annie.position.clone();
+				// var from = annie.position.clone();
+				var from = orbitTarget.clone();
 				var to = controller.userData.downPosition.clone();
 				to.applyMatrix4( controller.standingMatrix );
 				from.y = to.y = 0;
@@ -499,7 +500,8 @@
 					scene.remove( controller.userData.dragArrowHelper );
 				}
 
-				var from = annie.position.clone();
+				// var from = annie.position.clone();
+				var from = orbitTarget.clone();
 				var to = controller.position.clone();
 				to.applyMatrix4( controller.standingMatrix );
 				from.y = to.y = 0;
@@ -552,6 +554,10 @@
 				} else {
 					controls.orbit.update();
 				}
+
+				TWEEN.update();
+				path.update( annie );
+				annie.position.y = 0;
 
 				effect.render( scene, camera );
 
