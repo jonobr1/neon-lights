@@ -12,6 +12,9 @@
 				margin: 0px;
 				overflow: hidden;
 			}
+			.dg.ac {
+				z-index: 1000 !important;
+			}
 		</style>
 	</head>
 	<body>
@@ -31,6 +34,12 @@
 		<script src="../release/src/text/text-bitmap.js"></script>
 
 		<script src="../release/third-party/ThreeCSG.js"></script>
+
+		<script src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/tween.js/16.6.0/Tween.min.js"></script>
+		<script src="../release/third-party/three/js/controls/DragControls.js"></script>
+		<script src="../release/third-party/three/js/controls/TransformControls.js"></script>
+		<script src="../release/src/spline.js"></script>
 
 		<script>
 
@@ -87,6 +96,7 @@
 
 				controls.vr.standing = true;
 				controls.orbit.target.set( 0, 0, -1 );
+				controls.orbit.damping = 0.2;
 
 				//
 
@@ -324,6 +334,103 @@
 				var resultMesh = union_bsp2.toMesh( roomMat );
 				resultMesh.geometry.computeVertexNormals();
 				scene.add( resultMesh );
+
+				// ----------------------------------------------------------------
+
+				// Curve
+
+				path = new Spline(0.01, true);
+
+				// paste here from exporter
+				path.load( [new THREE.Vector3(1.486896456076772, 0, -0.1389830687964259),
+					new THREE.Vector3(2.5274963163079582, 0, -4.070653530789008),
+					new THREE.Vector3(1.5695528184508425, 0, -7.450175932246012),
+					new THREE.Vector3(0.25230937947511234, 0, -8.675618865044484),
+					new THREE.Vector3(-0.7096233456837077, 0, -7.97434072050657),
+					new THREE.Vector3(-0.44631989916706294, 0, -6.388168906197249),
+					new THREE.Vector3(1.9278114910432413, 0, -4.025720247567536),
+					new THREE.Vector3(0.875252688923837, 0, -2.3438369186294667),
+					new THREE.Vector3(-0.5111905567064451, 0, -0.9148950985664974),
+					new THREE.Vector3(0.0621692051270355, 0, 0.6418818945928692)] );
+
+				// ----------------------
+
+				// Curve Controls
+
+				transformControl = new THREE.TransformControls( camera, renderer.domElement );
+
+				scene.add( transformControl );
+
+				// Hiding transform situation is a little in a mess :()
+				transformControl.addEventListener( 'change', function( e ) { cancelHideTransorm(); } );
+				transformControl.addEventListener( 'mouseDown', function( e ) { cancelHideTransorm(); } );
+				transformControl.addEventListener( 'mouseUp', function( e ) { delayHideTransform(); } );
+				transformControl.addEventListener( 'objectChange', function( e ) {
+					path.updateSplineOutline();
+				} );
+
+				var dragcontrols = new THREE.DragControls( path.splineHelperObjects, camera, renderer.domElement );
+				dragcontrols.enabled = false;
+
+				dragcontrols.addEventListener( 'hoveron', function ( event ) {
+					transformControl.attach( event.object );
+					cancelHideTransorm();
+				} );
+
+				dragcontrols.addEventListener( 'hoveroff', function ( event ) { delayHideTransform(); } );
+
+				controls.orbit.addEventListener( 'start', function() { cancelHideTransorm(); } );
+				controls.orbit.addEventListener( 'end', function() { delayHideTransform(); } );
+
+				var hiding;
+
+				function delayHideTransform() {
+					cancelHideTransorm();
+					hideTransform();
+				}
+
+				function hideTransform() {
+					hiding = setTimeout( function() {
+						transformControl.detach( transformControl.object );
+					}, 2500 );
+				}
+
+				function cancelHideTransorm() {
+					if ( hiding ) clearTimeout( hiding );
+				}
+
+				// ------------
+
+				// Curve Gui
+
+				var gui = new dat.GUI();
+				var p1 = gui.addFolder('path 1');
+
+				p1.add(path.pct, 't', 0, 1).name('percent').listen();
+
+				p1.add(path.curve, 'closed').onChange(function(){
+					path.updateSplineOutline();
+				});
+
+				// p1.add(path.curve, 'type', ['centripetal', 'catmullrom', 'chordal']).onChange(function(){
+				// 	path.updateSplineOutline();
+				// });
+
+				// p1.add(path.curve, 'tension', 0, 1).step(0.1).onChange(function(){
+				// 	path.updateSplineOutline();
+				// });
+
+				p1.add(path, 'visible').onChange(function(){
+					transformControl.detach( transformControl.object );
+				});
+
+				p1.add(path, 'addPoint');
+				p1.add(path, 'removePoint');
+				p1.add(path, 'export');
+				// p1.add(path, 'start');
+				// p1.add(path, 'stop');
+
+				p1.open();
 
 				// ----------------------------------------------------------------
 

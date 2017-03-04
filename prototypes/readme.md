@@ -8,10 +8,10 @@
 + [Blink Transition](./modal-blink.html)
 + [Inception](./inception.html)
 + [Bedroom](./bedroom-assets.html)
-+ [Spline Path](./spline-path.html)
-+ [Door Subtraction](./door-subtract.html)
-+ [Door Union](./door-union.html)
 + [Point and Select](./point-and-select.html)
-+ [4 Doors Union](./door-union2.html)
 + [Angle Orbit](./angle-orbit.html)
++ [Spline Path](./spline-path.html)
+<!-- + [Door Subtraction](./door-subtract.html) -->
+<!-- + [Door Union](./door-union.html) -->
+<!-- + [4 Doors Union](./door-union2.html) -->
 + [Boilerplate](./webvr-boilerplate.html)
