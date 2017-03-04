@@ -49,27 +49,20 @@ Sidebar.Project = function ( editor ) {
 	var reload = new UI.Button( 'Reload Includes' );
 	reload.onClick( function () {
 
-		var includes = editor.includes.slice( 0 );
-		var effects = editor.effects.slice( 0 );
+		editor.reloadIncludes();
 
-		editor.clearIncludes();
-
-		for ( var i = 0; i < includes.length; i++ ) {
-
-			var include = includes[ i ];
-
-			editor.addInclude( include.name, include.source );
-
-		}
+		var effects = editor.effects;
 
 		for ( var j = 0; j < effects.length; j++ ) {
 
 			var effect = effects[ j ];
 
 			effect.compile();
-			effect.program.update( 0 );
 
 		}
+
+		editor.timeline.reset();
+		editor.setTime( editor.currentTime ); // HACK
 
 	} );
 	reload.setMarginLeft( '4px' );

@@ -247,18 +247,29 @@ Editor.prototype = {
 
 	},
 
-	clearIncludes: function () {
+	reloadIncludes: function () {
 
-		while ( editor.includes.length ) {
+		var includes = this.includes;
 
-			editor.includes.pop();
+		for ( var i = 0; i < includes.length; i ++ ) {
 
-			var script = document.getElementById( 'include-' + editor.includes.length );
+			var script = document.getElementById( 'include-' + i );
 			document.head.removeChild( script );
 
 		}
 
 		this.signals.includesCleared.dispatch();
+
+		for ( var i = 0; i < includes.length; i ++ ) {
+
+			var include = includes[ i ];
+
+			var script2 = document.createElement( 'script' );
+			script2.id = 'include-' + i;
+			script2.textContent = '( function () { ' + include.source + ' } )()';
+			document.head.appendChild( script2 );
+
+		}
 
 	},
 
