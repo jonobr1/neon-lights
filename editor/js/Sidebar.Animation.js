@@ -4,12 +4,12 @@
 
 Sidebar.Animation = function ( editor ) {
 
+	var signals = editor.signals;
+
 	var container = new UI.Panel();
 	container.setId( 'animation' );
 
-	// signals
-
-	var signals = editor.signals;
+	//
 
 	var selected = null;
 	var values;
@@ -233,17 +233,24 @@ Sidebar.Animation = function ( editor ) {
 
 	//
 
-	editor.signals.animationSelected.add( function ( animation ) {
+	signals.editorCleared.add( function () {
 
-		selected = animation;
-
+		selected = null;
 		build();
 
 	} );
-	editor.signals.effectCompiled.add( build );
+
+	signals.animationSelected.add( function ( animation ) {
+
+		selected = animation;
+		build();
+
+	} );
+
+	signals.effectCompiled.add( build );
 
 	/*
-	editor.signals.timeChanged.add( function () {
+	signals.timeChanged.add( function () {
 
 		if ( selected !== null ) {
 
