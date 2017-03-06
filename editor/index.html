@@ -46,6 +46,7 @@
 			var audio = document.getElementById( 'audio' );
 			var src = /localhost/.test(window.location.href) ? '../assets/audio/03 Under Neon Lights' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets/audio/03 Under Neon Lights';
 			src += has.Chromium ? '.ogg' : '.mp3';
+			audio.src = src;
 
 			var editor = new Editor();
 			editor.setAudio( audio );
