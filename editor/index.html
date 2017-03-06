@@ -13,6 +13,7 @@
 		<script src="js/libs/codemirror/codemirror.js"></script>
 		<script src="js/libs/codemirror/mode/javascript.js"></script>
 
+		<script src="../release/third-party/has.js"></script>
 		<script src="js/libs/signals.min.js"></script>
 		<script src="js/libs/ui.js"></script>
 
@@ -43,7 +44,8 @@
 		<script>
 
 			var audio = document.getElementById( 'audio' );
-			audio.src = /localhost/.test(window.location.href) ? '../assets/audio/03 Under Neon Lights.mp3' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets/audio/03 Under Neon Lights.mp3';
+			var src = /localhost/.test(window.location.href) ? '../assets/audio/03 Under Neon Lights' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets/audio/03 Under Neon Lights';
+			src += has.Chromium ? '.ogg' : '.mp3';
 
 			var editor = new Editor();
 			editor.setAudio( audio );
@@ -112,7 +114,7 @@
 
 			// Short-cuts
 
-			document.addEventListener( 'keydown', function ( event ) {
+			document.addEventListener( 'keyup', function ( event ) {
 
 				if ( event.metaKey || event.ctrlKey ) {
 
