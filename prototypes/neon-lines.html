@@ -51,7 +51,7 @@
 
         /// Neon Lights Particles prototype //
         var particleScene = new THREE.Scene();
-        var particles = NeonUtils.createParticle(64, 8);
+        var particles = NeonUtils.createParticle(32, 32);
         particleScene.add(particles);
         // Change first pass to render world position
         scene.overrideMaterial = NeonUtils.createWorldPosMaterial();
@@ -248,7 +248,7 @@
 
         var annie = new THREE.Group();
         annie.rotation.y = Math.PI;
-        annie.scale.setScalar(3);
+        annie.scale.setScalar(6);
 
         function setup() {
 
@@ -369,12 +369,12 @@
 
           forest.userData.update(cursor);
 
-          camera.fov = 120;
+          // camera.fov = 120;
           camera.aspect = 1;
           camera.updateProjectionMatrix();
           renderer.render(scene, camera, particles.targetInit);
           particles.simulate(renderer);
-          renderer.effect.render(particleScene, camera);
+          renderer.effect.render(particleScene, camera, null, true);
           // renderer.effect.render(particleScene, debugCamera);
           // scene.overrideMaterial = null;
           // renderer.effect.render(scene, camera);
