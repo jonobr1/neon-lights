@@ -50,26 +50,24 @@
         var light = new THREE.AmbientLight('white');
 
         /// Neon Lights Particles prototype //
-        var SIZE = 32;
-        var TAIL_SIZE = 32;
         var particleScene = new THREE.Scene();
-        var particles = NeonUtils.createParticle(SIZE, TAIL_SIZE);
+        var particles = NeonUtils.createParticle(64, 8);
         particleScene.add(particles);
         // Change first pass to render world position
         scene.overrideMaterial = NeonUtils.createWorldPosMaterial();
         // Debug
         var debugCamera = new THREE.PerspectiveCamera();
         scene.add(debugCamera);
-        debugCamera.position.set(30, 30, 30);
+        debugCamera.position.set(50, 50, 50);
         debugCamera.lookAt(new THREE.Vector3(10, 10, -10));
         // var debugPlane = new THREE.Mesh(
         //   new THREE.PlaneGeometry( 6, 6 ),
-        //   new THREE.MeshBasicMaterial( { map: particles.target0.texture } )
+        //   new THREE.MeshBasicMaterial( { map: particles.targetPos0.texture } )
         // );
         // debugPlane.position.y = 3;
         // debugPlane.position.z = -10;
         // particleScene.add(debugPlane);
-        ///
+        //
 
         renderer.setClearColor('#000');
         scene.fog = new THREE.Fog(renderer.getClearColor(), size / 8, size / 2);
@@ -342,7 +340,7 @@
             requestAnimationFrame(loop);
           }
 
-          var t = clock.getDelta() / 5;
+          var t = 0;//clock.getDelta() / 5;
 
           if (camera.userData.controls) {
             camera.userData.controls.update();
@@ -371,7 +369,7 @@
 
           forest.userData.update(cursor);
 
-          camera.fov = 90;
+          camera.fov = 120;
           camera.aspect = 1;
           camera.updateProjectionMatrix();
           renderer.render(scene, camera, particles.targetInit);
@@ -407,13 +405,40 @@
           ];
           files.loaded = 0;
           files.root = [root, '/models/forest/'].join('');
-          files.limit = files.length + 1;
+          files.limit = files.length + 2;
           files.complete = function() {
             files.loaded++;
             if (files.loaded === files.limit) {
               setup();
             }
           };
+
+          loader.load(files.root + 'mdl_env_1_forest_ground_v01.fbx', function(obj) {
+
+            var meshes = [];
+            var pluck = function(obj) {
+              for (var i = 0; i < obj.children.length; i++) {
+
+                var child = obj.children[i];
+
+                if (child instanceof THREE.Mesh) {
+                  meshes.push(child);
+                }
+                if (child.children && child.children.length > 0) {
+                  pluck(child);
+                }
+              }
+            };
+
+            pluck(obj);
+
+            for (var i = 0; i < meshes.length; i++) {
+              forest.userData.floor.add(meshes[i]);
+            }
+
+            files.complete();
+
+          });
 
           loader.load(files.root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 
