@@ -29,7 +29,7 @@ var Controls = function ( editor ) {
 
 	var timeText = new UI.Text();
 	timeText.setColor( '#bbb' );
-	timeText.setMarginLeft( '5px' );
+	timeText.setMarginLeft( '10px' );
 	timeText.setValue( '0:00.00' );
 	container.add( timeText );
 
@@ -45,7 +45,7 @@ var Controls = function ( editor ) {
 
 	var playbackRateText = new UI.Text();
 	playbackRateText.setColor( '#999' );
-	playbackRateText.setMarginLeft( '5px' );
+	playbackRateText.setMarginLeft( '8px' );
 	playbackRateText.setValue( '1.0x' );
 	container.add( playbackRateText );
 
@@ -54,6 +54,21 @@ var Controls = function ( editor ) {
 		playbackRateText.setValue( value.toFixed( 1 ) + 'x' );
 
 	}
+
+	var muteCheckbox = new UI.Checkbox( false );
+	muteCheckbox.setColor( '#999' );
+	muteCheckbox.setMarginLeft( '20px' );
+	muteCheckbox.onChange( function () {
+
+		editor.audio.muted = this.getValue();
+
+	} );
+	container.add( muteCheckbox );
+
+	var muteText = new UI.Text( 'Muted' );
+	muteText.setColor( '#999' );
+	muteText.setMarginLeft( '4px' );
+	container.add( muteText );
 
 	//
 
