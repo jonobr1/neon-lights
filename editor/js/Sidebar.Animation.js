@@ -202,21 +202,44 @@ Sidebar.Animation = function ( editor ) {
 
 		//
 
-		var effect = animation.effect;
-
 		container.add( new UI.Break(), new UI.Break() );
 		container.add( new UI.Text( 'Effect' ).setTextTransform( 'uppercase' ) );
+		container.add( new UI.Break(), new UI.Break() );
+
+		var effects = editor.effects;
+		var options = {};
+
+		for ( var i = 0; i < effects.length; i ++ ) {
+
+			var effect = effects[ i ];
+			options[ i ] = effect.name;
+
+		}
+
+		var effectsSelect = new UI.Select().setMarginLeft( '90px' );
+		effectsSelect.setOptions( options ).setValue( effects.indexOf( animation.effect ) );
+		effectsSelect.onChange( function () {
+
+			editor.timeline.reset();
+			animation.effect = editor.effects[ this.getValue() ];
+
+			signals.animationModified.dispatch( animation );
+			build();
+
+		} );
+		container.add( effectsSelect );
+
 		container.add( new UI.Break(), new UI.Break() );
 
 		var row = new UI.Row();
 		row.add( new UI.Text( 'Name' ).setWidth( '90px' ) );
 		container.add( row );
 
-		var effectName = new UI.Input( effect.name );
+		var effectName = new UI.Input( animation.effect.name );
 		effectName.onChange( function () {
 
-			effect.name = this.getValue();
-			signals.effectRenamed.dispatch( effect );
+			animation.effect.name = this.getValue();
+			signals.effectRenamed.dispatch( animation.effect );
 
 		} );
 		row.add( effectName );
