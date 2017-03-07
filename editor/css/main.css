@@ -50,7 +50,7 @@ input.Number {
 	cursor: col-resize;
 }
 
-select {
+select.Select {
 	color: #3AC785;
 	font-size: 12px;
 	background-color: #444;
