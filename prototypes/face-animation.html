@@ -184,11 +184,6 @@
 				planeMesh.position.set( 0, .9, 0.15 );
 				annie.add( planeMesh );
 
-				var wireframe = new THREE.WireframeGeometry( planeGeo );
-				line = new THREE.LineSegments( wireframe );
-				line.material.color.setHex(0x111111);
-				planeMesh.add( line );
-
 				// ------------------------------------------------------------
 
 				// keyframe track
@@ -238,8 +233,15 @@
 
 				// ------------------------------------------------------------
 
+				var wireframe = new THREE.WireframeGeometry( planeGeo );
+				line = new THREE.LineSegments( wireframe );
+				line.material.color.setHex(0x111111);
+				line.visible = false;
+				planeMesh.add( line );
+
 				var gui = new dat.GUI();
 				gui.add(texAnimator, 'currentTile', 0, 15).step( 1 ).listen();
+				gui.add(line, 'visible').name('wireframe');
 
 				// ----------------------------------------------------------------
 
