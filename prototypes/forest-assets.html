@@ -264,7 +264,7 @@
             renderer.effect = renderer;
           }
 
-          renderer.neonEffect = new THREE.NeonEffect(renderer.effect, renderer, 32, 32);
+          renderer.neonEffect = new THREE.NeonEffect( renderer.effect, renderer );
 
           camera.parent.position.y = 4;
           camera.parent.position.z = 10;
@@ -378,8 +378,7 @@
           forest.userData.update(cursor);
 
           renderer.neonEffect.enabled = neonEffectOn;
-          renderer.neonEffect.render(scene, camera);
-          // renderer.effect.render(scene, camera);
+          renderer.neonEffect.render( scene, camera );
 
         }
 
