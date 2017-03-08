@@ -59,7 +59,7 @@
 				camera.position.set(0,1,0);
 				scene.add( camera );
 
-				var setup = _.after(1, function(){
+				var setup = _.after(2, function(){
 					document.body.appendChild( container );
 					loop();
 				});
@@ -168,7 +168,7 @@
 				var textureLoader = new THREE.TextureLoader();
 				textureLoader.setCrossOrigin( true );
 
-				var faceTexture = textureLoader.load( root + '/textures/annie-face-test.png' );
+				var faceTexture = textureLoader.load( root + '/textures/annie-face-test.png', setup );
 				texAnimator = new TextureAnimator( faceTexture, 4, 4 ); // texture, #horiz, #vert
 				texAnimator.currentTile = 4;
 
