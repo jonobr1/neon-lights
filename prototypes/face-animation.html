@@ -1,0 +1,296 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webvr boilerplate</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #333333;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			.dg.ac {
+				z-index: 1000 !important;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+		<script src="../release/third-party/three.js"></script>
+		<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+		<script src="../release/third-party/three/js/controls/VRControls.js"></script>
+		<script src="../release/third-party/three/js/effects/VREffect.js"></script>
+		<script src="../release/third-party/three/js/vr/ViveController.js"></script>
+		<script src="../release/third-party/three/js/vr/WebVR.js"></script>
+		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+		<script src="../release/third-party/texture-animator.js"></script>
+		<script src="../release/third-party/storyline.js"></script>
+
+		<script>
+
+			var clock = new THREE.Clock();
+
+			var container;
+			var camera, scene, renderer;
+			var effect, controls;
+			var controller1, controller2;
+
+			var texAnimator;
+			var mixer;
+			var track;
+			var clip;
+
+			var storyline;
+
+			init();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
+				camera.position.set(0,1,0);
+				scene.add( camera );
+
+				var setup = _.after(1, function(){
+					document.body.appendChild( container );
+					loop();
+				});
+
+				var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
+				scene.add( gridHelper );
+
+				var aLight = new THREE.AmbientLight( 0xffffff );
+				scene.add( aLight );
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0x505050 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.sortObjects = false;
+				container.appendChild( renderer.domElement );
+
+				controls = {
+					vr: new THREE.VRControls( camera ),
+					orbit: new THREE.OrbitControls( camera, renderer.domElement )
+				};
+
+				controls.vr.standing = true;
+				controls.orbit.target.set( 0, 0.75, -0.5 );
+
+				// controllers
+
+				controller1 = new THREE.ViveController( 0 );
+				controller1.standingMatrix = controls.vr.getStandingMatrix();
+				controller1.addEventListener( 'triggerdown', onTriggerDown );
+				controller1.addEventListener( 'triggerup', onTriggerUp );
+				scene.add( controller1 );
+
+				controller2 = new THREE.ViveController( 1 );
+				controller2.standingMatrix = controls.vr.getStandingMatrix();
+				controller2.addEventListener( 'triggerdown', onTriggerDown );
+				controller2.addEventListener( 'triggerup', onTriggerUp );
+				scene.add( controller2 );
+
+				var cubeGeo = new THREE.BoxBufferGeometry(0.08,0.08,0.08);
+				var cubeMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+
+				controller1.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+				controller2.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+
+				controller1.add( controller1.userData.mesh );
+				controller2.add( controller2.userData.mesh );
+
+				//
+
+				effect = new THREE.VREffect( renderer );
+
+				if ( WEBVR.isAvailable() ) {
+
+					window.addEventListener( 'vrdisplaypresentchange', function() {
+						if ( !effect.isPresenting ) {
+						}
+					}, false );
+
+					window.addEventListener( 'vrdisplayactivate', function() {
+						controls.vr.resetPose();
+					}, false );
+
+					window.addEventListener('keydown', function(e) {
+						if (e.which == 90) { // z
+							controls.vr.resetPose();
+						}
+					}, false);
+
+					document.body.appendChild( WEBVR.getButton( effect ) );
+
+				} else {
+
+					document.body.appendChild( WEBVR.getMessage() );
+
+				}
+
+				// ----------------------------------------------------------------
+
+				// custom scene assets here
+
+				var annie = new THREE.Group();
+				// annie.rotation.y = Math.PI;
+				annie.position.set( 0, 0, -0.5 );
+				scene.add( annie );
+
+				var fbxLoader = new THREE.FBXLoader();
+
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+				root = [root, '/models/forest/'].join('');
+
+				fbxLoader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+					var mesh = obj.skeleton.bones[0];
+					mesh.material = new THREE.MeshBasicMaterial({
+						vertexColors: THREE.VertexColors,
+						side: THREE.DoubleSide
+					});
+					annie.add( mesh );
+					setup();
+				});
+
+				// plane
+
+				var textureLoader = new THREE.TextureLoader();
+
+				var faceTexture = textureLoader.load( '../assets/textures/annie-face-test.png' );
+				texAnimator = new TextureAnimator( faceTexture, 4, 4 ); // texture, #horiz, #vert
+				texAnimator.currentTile = 4;
+
+				var planeGeo = new THREE.PlaneBufferGeometry( 0.1, 0.1, 0.1 );
+				var planeMat = new THREE.MeshBasicMaterial({
+					map: faceTexture,
+					transparent: true,
+					side: THREE.DoubleSide
+				});
+				var planeMesh = new THREE.Mesh( planeGeo, planeMat );
+				// planeMesh.position.set( -0.7, 1, -1 );
+				// scene.add( planeMesh );
+				planeMesh.position.set( 0, .9, 0.15 );
+				annie.add( planeMesh );
+
+				var wireframe = new THREE.WireframeGeometry( planeGeo );
+				line = new THREE.LineSegments( wireframe );
+				line.material.color.setHex(0x111111);
+				planeMesh.add( line );
+
+				// ------------------------------------------------------------
+
+				// keyframe track
+
+				// https://threejs.org/docs/index.html?q=keyframe#Reference/Animation/KeyframeTrack
+				// https://threejs.org/docs/index.html?q=keyframe#Reference/Animation.Tracks/NumberKeyframeTrack
+				// https://threejs.org/docs/index.html?q=animation#Reference/Animation/AnimationClip
+
+				// mixer = new THREE.AnimationMixer( texAnimator );
+
+				// track = new THREE.NumberKeyframeTrack(
+				// 	'.currentTile',
+				// 	[ 0, 1, 2, 3, 4, 5 ], // keyframe times
+				// 	[ 4, 5, 6, 7, 8, 9 ] // Fkeyframe values
+				// 	// THREE.InterpolateDiscrete // interpolation
+				// );
+
+				// var duration = 6;
+				// clip = new THREE.AnimationClip('mouth', duration, [ track ] );
+				// clip.action = mixer.clipAction( clip );
+				// clip.action.play();
+
+				// ------------------------------------------------------------
+
+				// https://github.com/spite/Storyline.js
+
+				storyline = STORYLINE.parseStoryline( {
+					"tile": [
+						"0 cut to 4",
+						"0.3 cut to 5",
+						"0.4 cut to 6",
+						"0.5 cut to 5",
+						"0.6 cut to 4",
+
+						"1.0 cut to 7",
+						"1.1 cut to 6",
+						"1.2 cut to 7",
+						"1.3 cut to 4",
+
+						"2.0 cut to 4",
+						"2.1 cut to 5",
+						"2.2 cut to 6",
+						"2.3 cut to 5",
+						"2.4 cut to 4"
+					]
+				} );
+
+				// ------------------------------------------------------------
+
+				var gui = new dat.GUI();
+				gui.add(texAnimator, 'currentTile', 0, 15).step( 1 ).listen();
+
+				// ----------------------------------------------------------------
+
+				window.addEventListener( 'resize', resize, false );
+
+			}
+
+			function onTriggerDown(e) {
+				var controller = e.target;
+				controller.userData.mesh.material.color.setHex( 0xff0000 );
+			}
+
+			function onTriggerUp(e) {
+				var controller = e.target;
+				controller.userData.mesh.material.color.setHex( 0xcccccc );
+			}
+
+			function resize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				effect.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			//
+
+			function loop() {
+
+				effect.requestAnimationFrame( loop );
+
+				controller1.update();
+				controller2.update();
+
+				if ( effect.isPresenting ) {
+					controls.vr.update();
+				} else {
+					controls.orbit.update();
+				}
+
+				// var time = ( Date.now() / 1000 ) % 10;
+				var time = clock.getElapsedTime();
+				var tile = storyline.get( 'tile', time );
+
+				// only do this for first 3 seconds so you can use dat.gui slider afterwords
+				if (time < 3) {
+					texAnimator.currentTile = tile;
+				}
+
+				effect.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
