@@ -166,6 +166,7 @@
 				// plane
 
 				var textureLoader = new THREE.TextureLoader();
+				textureLoader.setCrossOrigin( true );
 
 				var faceTexture = textureLoader.load( root + '/textures/annie-face-test.png' );
 				texAnimator = new TextureAnimator( faceTexture, 4, 4 ); // texture, #horiz, #vert
