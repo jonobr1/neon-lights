@@ -9,6 +9,7 @@
 + [Inception](./inception.html)
 + [Bedroom](./bedroom-assets.html)
 + [Point and Select](./point-and-select.html)
++ [Face Animation](./face-animation.html)
 + [Angle Orbit](./angle-orbit.html)
 + [Spline Path](./spline-path.html)
 <!-- + [Door Subtraction](./door-subtract.html) -->
