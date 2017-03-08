@@ -152,9 +152,8 @@
 
 				var isLocal = /localhost/i.test(window.location.href);
 				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
-				root = [root, '/models/forest/'].join('');
 
-				fbxLoader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
+				fbxLoader.load(root + '/models/forest/mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 					var mesh = obj.skeleton.bones[0];
 					mesh.material = new THREE.MeshBasicMaterial({
 						vertexColors: THREE.VertexColors,
@@ -168,7 +167,7 @@
 
 				var textureLoader = new THREE.TextureLoader();
 
-				var faceTexture = textureLoader.load( '../assets/textures/annie-face-test.png' );
+				var faceTexture = textureLoader.load( root + '/textures/annie-face-test.png' );
 				texAnimator = new TextureAnimator( faceTexture, 4, 4 ); // texture, #horiz, #vert
 				texAnimator.currentTile = 4;
 
@@ -278,14 +277,9 @@
 					controls.orbit.update();
 				}
 
-				// var time = ( Date.now() / 1000 ) % 10;
-				var time = clock.getElapsedTime();
+				var time = clock.getElapsedTime() % 3; // repeat the same 3 seconds
 				var tile = storyline.get( 'tile', time );
-
-				// only do this for first 3 seconds so you can use dat.gui slider afterwords
-				if (time < 3) {
-					texAnimator.currentTile = tile;
-				}
+				texAnimator.currentTile = tile;
 
 				effect.render( scene, camera );
 
