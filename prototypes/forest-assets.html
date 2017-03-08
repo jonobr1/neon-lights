@@ -24,6 +24,10 @@
 
       <script src="../release/src/mouse-controls.js"></script>
 
+      <script src="../release/third-party/three/js/ShaderPass.js"></script>
+      <script src="../release/third-party/xhr.js"></script>
+      <script src="../release/src/NeonEffect.js"></script>
+
       <script>
 
         var step = { current: 0.1, destination: 0.1, drag: 0.33 };
@@ -31,6 +35,8 @@
           drag: 0.33, scale: 10 };
         var size = 72;
         var amount = 1024;
+        var neonEffectOn = false;
+        var triggerTime = 0;
 
         var cursor = new THREE.Vector2();
         cursor.userData = {};
@@ -131,6 +137,10 @@
               controllers.onTriggerUp();
             });
 
+            window.addEventListener('keyup', function(event) {
+              if (event.keyCode == 32) neonEffectOn = !neonEffectOn;
+            });
+
             controllers.daydream.visible = controllers.left.visible =
               controllers.right.visible = false;
 
@@ -176,9 +186,12 @@
           },
           onTriggerDown: function() {
             step.destination = 0;
+            triggerTime = new Date().getTime();
           },
           onTriggerUp: function() {
             step.destination = 0.1;
+            triggerTime = new Date().getTime() - triggerTime;
+            if (triggerTime < 1000) neonEffectOn = !neonEffectOn;
           }
         };
 
@@ -240,7 +253,8 @@
 
         var annie = new THREE.Group();
         annie.rotation.y = Math.PI;
-        annie.scale.setScalar(3);
+        annie.scale.setScalar(5);
+
 
         function setup() {
 
@@ -249,6 +263,8 @@
           } else {
             renderer.effect = renderer;
           }
+
+          renderer.neonEffect = new THREE.NeonEffect(renderer.effect, renderer, 32, 32);
 
           camera.parent.position.y = 4;
           camera.parent.position.z = 10;
@@ -332,7 +348,7 @@
             requestAnimationFrame(loop);
           }
 
-          var t = clock.getDelta();
+          var t = clock.getDelta() * 0.1;
 
           if (camera.userData.controls) {
             camera.userData.controls.update();
@@ -360,7 +376,10 @@
           forest.rotation.y = theta.current - Math.PI / 2;
 
           forest.userData.update(cursor);
-          renderer.effect.render(scene, camera);
+
+          renderer.neonEffect.enabled = neonEffectOn;
+          renderer.neonEffect.render(scene, camera);
+          // renderer.effect.render(scene, camera);
 
         }
 
