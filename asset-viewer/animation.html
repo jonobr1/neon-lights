@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-  <title>Neon Lights: Animation Viewer</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>Neon Lights: Animation Viewer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style type="text/css">
+      body {
+        font-family: Monospace;
+        background-color: #333333;
+        color: #fff;
+        margin: 0px;
+        overflow: hidden;
+      }
+    </style>
   </head>
   <body>
     <div id="content"></div>
@@ -36,7 +45,8 @@
         scene.add(new THREE.AmbientLight('white'));
         scene.add(annie);
 
-        camera.position.set(0, 3, 4);
+        camera.position.set(0, 1, 2);
+        controls.target.set(0, 0.6, 0);
 
         var $content = document.querySelector('#content');
 
