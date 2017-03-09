@@ -62,18 +62,18 @@
           "mouth": [
             "0 cut to 4",
             "0.3 cut to 5",
-            "0.4 cut to 6",
+            "0.4 cut to 7",
             "0.5 cut to 5",
             "0.6 cut to 4",
 
-            "0.7 cut to 7",
-            "0.8 cut to 6",
-            "0.9 cut to 7",
+            "0.7 cut to 6",
+            "0.8 cut to 7",
+            "0.9 cut to 6",
             "1.0 cut to 4",
 
             "1.1 cut to 4",
             "1.2 cut to 5",
-            "1.3 cut to 6",
+            "1.3 cut to 7",
             "1.4 cut to 5",
             "1.5 cut to 4"
           ],
@@ -144,9 +144,16 @@
 
           path: '/models/annie/',
 
-          model: 'ani_chr_1-forest_bindpose_v03.fbx',
-          animations: ['ani_chr_1-forest_idle_v03.fbx',
-            'ani_chr_1-forest_run_v03.fbx', 'ani_chr_1-forest_walk_v03.fbx'],
+          model: 'ani_chr_1-forest_bindpose_v01.fbx',
+          animations: [
+            'ani_chr_1-forest_idle_v03.fbx',
+            'ani_chr_1-forest_run_v03.fbx',
+            'ani_chr_1-forest_walk_v03.fbx',
+            // 'ani_chr_1-forest_flyAll_v01.fbx',
+            // 'ani_chr_1-forest_flyTakeOff_v01.fbx',
+            // 'ani_chr_1-forest_flyFlying_v01.fbx',
+            // 'ani_chr_1-forest_flyLanding_v01.fbx'
+          ],
           loaded: 0,
           complete: function() {
 
@@ -207,7 +214,7 @@
 
           var image = document.createElement('img');
           image.crossOrigin = 'anonymous';
-          image.src = root + '/textures/annie-face-test.png';
+          image.src = root + '/textures/TX_annieFacial_A01_C.png';
 
           var mouthTexture = new THREE.Texture( image );
           var leftEyeTexture = new THREE.Texture( image );
@@ -251,7 +258,7 @@
           rightEyeMesh.rotation.y = THREE.Math.degToRad( -22.183 );
           rightEyeMesh.rotation.z = THREE.Math.degToRad( 1.924 );
 
-          var headBone = annie.children[1].skeleton.bones[2];
+          var headBone = annie.children[1].skeleton.bones[16];
 
           headBone.add( mouthMesh );
           headBone.add( leftEyeMesh );
