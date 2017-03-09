@@ -211,8 +211,7 @@ Sidebar.Animation = function ( editor ) {
 
 		for ( var i = 0; i < effects.length; i ++ ) {
 
-			var effect = effects[ i ];
-			options[ i ] = effect.name;
+			options[ i ] = effects[ i ].name;
 
 		}
 
@@ -247,7 +246,7 @@ Sidebar.Animation = function ( editor ) {
 		var edit = new UI.Button( 'EDIT' ).setMarginLeft( '4px' );
 		edit.onClick( function () {
 
-			editor.selectEffect( effect );
+			editor.selectEffect( animation.effect );
 
 		} );
 		row.add( edit );
