@@ -175,7 +175,7 @@ Sidebar.Animation = function ( editor ) {
 
 		var animation = selected;
 
-		//
+		// Name
 
 		var row = new UI.Row();
 		row.add( new UI.Text( 'Name' ).setWidth( '90px' ) );
@@ -189,6 +189,34 @@ Sidebar.Animation = function ( editor ) {
 
 		} );
 		row.add( animationName );
+
+		// Start
+
+		var row = new UI.Row();
+		row.add( new UI.Text( 'Position' ).setWidth( '90px' ) );
+		container.add( row );
+
+		var animationStart = new UI.Number( animation.start ).setWidth( '80px' );
+		animationStart.onChange( function () {
+
+			animation.start = this.getValue();
+			signals.animationModified.dispatch( animation );
+
+		} );
+		row.add( animationStart );
+
+		var animationEnd = new UI.Number( animation.end ).setWidth( '80px' );
+		animationEnd.onChange( function () {
+
+			animation.end = this.getValue();
+			signals.animationModified.dispatch( animation );
+
+		} );
+		row.add( animationEnd );
+
+		//
+
+		container.add( new UI.HorizontalRule() );
 
 		//
 
@@ -223,6 +251,7 @@ Sidebar.Animation = function ( editor ) {
 			animation.effect = editor.effects[ this.getValue() ];
 
 			signals.animationModified.dispatch( animation );
+
 			build();
 
 		} );

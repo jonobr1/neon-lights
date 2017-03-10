@@ -73,8 +73,6 @@ Timeline.Animations = function ( editor ) {
 
 				}
 
-				update();
-
 				signals.animationModified.dispatch( animation );
 
 			}
@@ -107,8 +105,6 @@ Timeline.Animations = function ( editor ) {
 				movementX = event.movementX | event.webkitMovementX | event.mozMovementX | 0;
 
 				animation.start += movementX / scale;
-
-				update();
 
 				signals.animationModified.dispatch( animation );
 
@@ -155,8 +151,6 @@ Timeline.Animations = function ( editor ) {
 				movementX = event.movementX | event.webkitMovementX | event.mozMovementX | 0;
 
 				animation.end += movementX / scale;
-
-				update();
 
 				signals.animationModified.dispatch( animation );
 
@@ -248,6 +242,12 @@ Timeline.Animations = function ( editor ) {
 		container.dom.appendChild( block.dom );
 
 		blocks[ animation.id ] = block;
+
+	} );
+
+	signals.animationModified.add( function ( animation ) {
+
+		blocks[ animation.id ].update();
 
 	} );
 
