@@ -19,34 +19,32 @@ Menubar.Edit = function ( editor ) {
 	options.setClass( 'options' );
 	container.add( options );
 
-	/*
-	// clone
+	// duplicate
 
 	var option = new UI.Panel();
 	option.setClass( 'option' );
-	option.setTextContent( 'Clone' );
+	option.setTextContent( 'Duplicate' );
 	option.onClick( function () {
 
 		if ( editor.selected === null ) return;
 
 		var selected = editor.selected;
 
-		var element = new FRAME.TimelineElement(
-			selected.name,
-			selected.layer,
-			selected.start,
-			selected.duration,
-			selected.module,
-			JSON.parse( JSON.stringify( selected.parameters ) )
-		);
-		element.start += element.duration;
+		var offset = selected.end - selected.start;
 
-		editor.add( element );
-		editor.select( element );
+		var animation = new FRAME.Animation(
+			selected.name,
+			selected.start + offset,
+			selected.end + offset,
+			selected.layer,
+			selected.effect
+		);
+
+		editor.addAnimation( animation );
+		editor.selectAnimation( animation );
 
 	} );
 	options.add( option );
-	*/
 
 	// remove
 
@@ -58,7 +56,7 @@ Menubar.Edit = function ( editor ) {
 		if ( editor.selected === null ) return;
 
 		editor.removeAnimation( editor.selected );
-		editor.select( null );
+		editor.selectAnimation( null );
 
 	} );
 	options.add( option );

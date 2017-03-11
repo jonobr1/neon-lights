@@ -342,6 +342,15 @@ Editor.prototype = {
 
 	},
 
+	selectAnimation: function ( animation ) {
+
+		if ( this.selected === animation ) return;
+
+		this.selected = animation;
+		this.signals.animationSelected.dispatch( animation );
+
+	},
+
 	removeAnimation: function ( animation ) {
 
 		this.timeline.remove( animation );
@@ -353,15 +362,6 @@ Editor.prototype = {
 
 		this.timeline.curves.push( curve );
 		this.signals.curveAdded.dispatch( curve );
-
-	},
-
-	select: function ( animation ) {
-
-		if ( this.selected === animation ) return;
-
-		this.selected = animation;
-		this.signals.animationSelected.dispatch( animation );
 
 	},
 

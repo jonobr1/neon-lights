@@ -33,7 +33,7 @@ Timeline.Animations = function ( editor ) {
 		dom.style.height = '30px';
 		dom.addEventListener( 'click', function ( event ) {
 
-			editor.select( animation );
+			editor.selectAnimation( animation );
 
 		} );
 		dom.addEventListener( 'mousedown', function ( event ) {
@@ -114,7 +114,7 @@ Timeline.Animations = function ( editor ) {
 
 				if ( Math.abs( movementX ) < 2 ) {
 
-					editor.select( animation );
+					editor.selectAnimation( animation );
 
 				}
 
@@ -160,7 +160,7 @@ Timeline.Animations = function ( editor ) {
 
 				if ( Math.abs( movementX ) < 2 ) {
 
-					editor.select( animation );
+					editor.selectAnimation( animation );
 
 				}
 
