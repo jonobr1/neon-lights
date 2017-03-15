@@ -256,8 +256,6 @@
         annie.rotation.y = Math.PI;
         annie.scale.setScalar(3);
 
-        var annieParticles = new THREE.NeonParticles( renderer );
-
         function setup() {
 
           if (!url.boolean('mono') && (has.webvr || has.mobile)) {
@@ -267,6 +265,7 @@
           }
 
           renderer.neonEffect = new THREE.NeonEffect( renderer.effect, renderer );
+          renderer.neonEffect.annie = annie;
 
           camera.parent.position.y = 4;
           camera.parent.position.z = 10;
@@ -286,7 +285,6 @@
           scene.add(light);
           scene.add(forest);
           scene.add(annie);
-          scene.add(annieParticles);
 
           document.body.appendChild(renderer.domElement);
           renderer.domElement.style.position = 'absolute';
@@ -379,10 +377,6 @@
           forest.rotation.y = theta.current - Math.PI / 2;
 
           forest.userData.update(cursor);
-
-          annieParticles.sampleObject( annie );
-          annieParticles.simulate( camera );
-        //   renderer.neonEffect.render( annieParticles._scene, annieParticles._camera );
 
           renderer.neonEffect.enabled = neonEffectOn;
           renderer.neonEffect.render( scene, camera );
