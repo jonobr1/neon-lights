@@ -144,11 +144,11 @@
 
           path: '/models/annie/',
 
-          model: 'ani_chr_1-forest_bindpose_v01.fbx',
+          model: 'ani_chr_1-forest_bindpose_v02.fbx',
           animations: [
-            'ani_chr_1-forest_idle_v03.fbx',
-            'ani_chr_1-forest_run_v03.fbx',
-            'ani_chr_1-forest_walk_v03.fbx',
+            'ani_chr_1-forest_idle_v02.fbx',
+            'ani_chr_1-forest_run_v02.fbx',
+            'ani_chr_1-forest_walk_v02.fbx',
             // 'ani_chr_1-forest_flyAll_v01.fbx',
             // 'ani_chr_1-forest_flyTakeOff_v01.fbx',
             // 'ani_chr_1-forest_flyFlying_v01.fbx',
@@ -258,7 +258,15 @@
           rightEyeMesh.rotation.y = THREE.Math.degToRad( -22.183 );
           rightEyeMesh.rotation.z = THREE.Math.degToRad( 1.924 );
 
-          var headBone = annie.children[1].skeleton.bones[16];
+          var headBones = {
+            child: 'annieHead',
+            teenager: 'annieTeenHead',
+            adult: 'annieGrownHead'
+          };
+
+          var age = 'child';
+
+          var headBone = annie.children[0].getObjectByName( headBones[age] );
 
           headBone.add( mouthMesh );
           headBone.add( leftEyeMesh );

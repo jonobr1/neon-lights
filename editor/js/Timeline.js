@@ -72,7 +72,7 @@ var Timeline = function ( editor ) {
 
 			event.preventDefault();
 
-			scale = Math.min( 120, Math.max( 2, scale + ( event.deltaY / 10 ) ) );
+			scale = Math.max( 2, scale + ( event.deltaY / 10 ) );
 
 			signals.timelineScaled.dispatch( scale );
 
@@ -90,7 +90,7 @@ var Timeline = function ( editor ) {
 
 		function onMouseMove( event ) {
 
-			editor.setTime( event.offsetX / scale );
+			editor.setTime( ( event.offsetX + scroller.scrollLeft ) / scale );
 
 		}
 
@@ -111,7 +111,7 @@ var Timeline = function ( editor ) {
 
 	function updateMarks() {
 
-		canvas.width = duration * scale;
+		canvas.width = scroller.clientWidth;
 
 		var context = canvas.getContext( '2d', { alpha: false } );
 
@@ -121,17 +121,18 @@ var Timeline = function ( editor ) {
 		context.strokeStyle = '#888';
 		context.beginPath();
 
+		context.translate( - scroller.scrollLeft, 0 );
+
+		var width = duration * scale;
 		var scale4 = scale / 4;
 
-		for ( var i = 0.5; i <= canvas.width; i += scale ) {
+		for ( var i = 0.5; i <= width; i += scale ) {
 
 			context.moveTo( i + ( scale4 * 0 ), 18 ); context.lineTo( i + ( scale4 * 0 ), 26 );
-
 
 			if ( scale > 16 ) context.moveTo( i + ( scale4 * 1 ), 22 ), context.lineTo( i + ( scale4 * 1 ), 26 );
 			if ( scale >  8 ) context.moveTo( i + ( scale4 * 2 ), 22 ), context.lineTo( i + ( scale4 * 2 ), 26 );
 			if ( scale > 16 ) context.moveTo( i + ( scale4 * 3 ), 22 ), context.lineTo( i + ( scale4 * 3 ), 26 );
-
 
 		}
 
@@ -141,9 +142,9 @@ var Timeline = function ( editor ) {
 		context.fillStyle = '#888'
 		context.textAlign = 'center';
 
-		var step = Math.max( 1, Math.floor( 32 / scale ) );
+		var step = Math.max( 1, Math.floor( 64 / scale ) );
 
-		for ( var i = scale, j = 1; i < canvas.width; i += scale * step, j += step ) {
+		for ( var i = 0, j = 0; i < width; i += scale * step, j += step ) {
 
 			var minute = Math.floor( j / 60 );
 			var second = Math.floor( j % 60 );
@@ -164,7 +165,7 @@ var Timeline = function ( editor ) {
 	scroller.style.overflow = 'auto';
 	scroller.addEventListener( 'scroll', function ( event ) {
 
-		canvas.style.left = ( - scroller.scrollLeft ) + 'px';
+		updateMarks();
 		updateTimeMark();
 
 	}, false );
@@ -219,8 +220,6 @@ var Timeline = function ( editor ) {
 		timeMark.style.left = ( time * scale ) - scroller.scrollLeft - 8 + 'px';
 
 	}
-
-	updateMarks();
 
 	// signals
 
