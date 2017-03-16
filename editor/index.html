@@ -101,6 +101,14 @@
 
 					editor.config.setKey( 'state', JSON.stringify( editor.toJSON() ) );
 
+					var effect = FRAME.getResource( 'effect' );
+					var camera = FRAME.getResource( 'camera' );
+					var scene = FRAME.getResource( 'scene' );
+
+					if ( effect && camera && scene ) {
+						effect.render( scene, camera );
+					}
+
 				}, 1000 );
 
 			}
