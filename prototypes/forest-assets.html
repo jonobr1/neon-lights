@@ -25,8 +25,9 @@
       <script src="../release/src/mouse-controls.js"></script>
 
       <script src="../release/third-party/three/js/ShaderPass.js"></script>
-      <script src="../release/src/NeonEffect.js"></script>
       <script src="../release/src/NeonShader.js"></script>
+      <script src="../release/src/NeonParticles.js"></script>
+      <script src="../release/src/NeonEffect.js"></script>
 
       <script>
 
@@ -253,8 +254,7 @@
 
         var annie = new THREE.Group();
         annie.rotation.y = Math.PI;
-        annie.scale.setScalar(5);
-
+        annie.scale.setScalar(3);
 
         function setup() {
 
@@ -265,6 +265,7 @@
           }
 
           renderer.neonEffect = new THREE.NeonEffect( renderer.effect, renderer );
+          renderer.neonEffect.annie = annie;
 
           camera.parent.position.y = 4;
           camera.parent.position.z = 10;
