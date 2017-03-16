@@ -19,6 +19,7 @@ var Controls = function ( editor ) {
 		editor.isPlaying ? editor.stop() : editor.play();
 
 	} );
+	playButton.onKeyDown( function ( event ) { event.preventDefault(); } ); // Ignore [space]
 	container.add( playButton );
 
 	signals.playingChanged.add( function ( isPlaying ) {

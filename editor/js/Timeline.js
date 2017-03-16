@@ -144,14 +144,14 @@ var Timeline = function ( editor ) {
 
 		var step = Math.max( 1, Math.floor( 64 / scale ) );
 
-		for ( var i = 0, j = 0; i < width; i += scale * step, j += step ) {
+		for ( var i = 0; i < duration; i += step ) {
 
-			var minute = Math.floor( j / 60 );
-			var second = Math.floor( j % 60 );
+			var minute = Math.floor( i / 60 );
+			var second = Math.floor( i % 60 );
 
 			var text = ( minute > 0 ? minute + ':' : '' ) + ( '0' + second ).slice( - 2 );
 
-			context.fillText( text, i, 13 );
+			context.fillText( text, i * scale, 13 );
 
 		}
 

@@ -149,10 +149,7 @@
             'ani_chr_1-forest_idle_v02.fbx',
             'ani_chr_1-forest_run_v02.fbx',
             'ani_chr_1-forest_walk_v02.fbx',
-            // 'ani_chr_1-forest_flyAll_v01.fbx',
-            // 'ani_chr_1-forest_flyTakeOff_v01.fbx',
-            // 'ani_chr_1-forest_flyFlying_v01.fbx',
-            // 'ani_chr_1-forest_flyLanding_v01.fbx'
+            // 'ani_chr_1-forest_flyAll_v02.fbx'
           ],
           loaded: 0,
           complete: function() {
@@ -210,6 +207,8 @@
 
           });
 
+          // ------------------------------------------------------------
+
           // face
 
           var image = document.createElement('img');
@@ -231,10 +230,7 @@
           mouthAnimator.currentTile = 4;
 
           leftEyeAnimator = new TextureAnimator( leftEyeTexture, 4, 4 );
-          leftEyeAnimator.currentTile = 0;
-
           rightEyeAnimator = new TextureAnimator( rightEyeTexture, 4, 4 );
-          rightEyeAnimator.currentTile = 0;
 
           var planeGeo = new THREE.PlaneBufferGeometry( 0.1, 0.1, 0.1 );
 
@@ -243,20 +239,67 @@
           var rightEyeMat = new THREE.MeshBasicMaterial({ transparent: true, map: rightEyeTexture });
 
           var mouthMesh = new THREE.Mesh( planeGeo, mouthMat );
+          var eyeLeftMesh = new THREE.Mesh( planeGeo, leftEyeMat );
+          var eyeRightMesh = new THREE.Mesh( planeGeo, rightEyeMat );
+
+          // child face transforms
+
+          leftEyeAnimator.currentTile = 0;
+          rightEyeAnimator.currentTile = 0;
+
+          eyeLeftMesh.position.set( 0.106, 0.129, 0.134 );
+          eyeLeftMesh.rotation.x = THREE.Math.degToRad( 11.182 );
+          eyeLeftMesh.rotation.y = THREE.Math.degToRad( 22.183 );
+          eyeLeftMesh.rotation.z = THREE.Math.degToRad( 1.924 );
+          eyeLeftMesh.scale.set( 0.77, 0.77, 0.77 );
+
+          eyeRightMesh.position.set( -0.106, 0.129, 0.134 );
+          eyeRightMesh.rotation.x = THREE.Math.degToRad( 11.182 );
+          eyeRightMesh.rotation.y = THREE.Math.degToRad( -22.183 );
+          eyeRightMesh.rotation.z = THREE.Math.degToRad( 1.924 );
+          eyeRightMesh.scale.set( 0.77, 0.77, 0.77 );
+
           mouthMesh.position.set( 0, 0.058, 0.131 );
           mouthMesh.rotation.x = THREE.Math.degToRad( 29.534 );
+          mouthMesh.scale.set( 1.28, 1.28, 1.28 );
 
-          var leftEyeMesh = new THREE.Mesh( planeGeo, leftEyeMat );
-          leftEyeMesh.position.set( 0.106, 0.129, 0.134 );
-          leftEyeMesh.rotation.x = THREE.Math.degToRad( 11.182 );
-          leftEyeMesh.rotation.y = THREE.Math.degToRad( 22.183 );
-          leftEyeMesh.rotation.z = THREE.Math.degToRad( 1.924 );
+          // teen face transforms
 
-          var rightEyeMesh = new THREE.Mesh( planeGeo, rightEyeMat );
-          rightEyeMesh.position.set( -0.106, 0.129, 0.134 );
-          rightEyeMesh.rotation.x = THREE.Math.degToRad( 11.182 );
-          rightEyeMesh.rotation.y = THREE.Math.degToRad( -22.183 );
-          rightEyeMesh.rotation.z = THREE.Math.degToRad( 1.924 );
+          // leftEyeAnimator.currentTile = 2;
+          // rightEyeAnimator.currentTile = 2;
+
+          // eyeLeftMesh.position.set( 0.108, 0.116, 0.146 );
+          // eyeLeftMesh.rotation.x = THREE.Math.degToRad( 15.641 );
+          // eyeLeftMesh.rotation.y = THREE.Math.degToRad( 33.377 );
+          // eyeLeftMesh.rotation.z = THREE.Math.degToRad( 0.148 );
+
+          // eyeRightMesh.position.set( -0.108, 0.116, 0.146 );
+          // eyeRightMesh.rotation.x = THREE.Math.degToRad( 15.641 );
+          // eyeRightMesh.rotation.y = THREE.Math.degToRad( -33.377 );
+          // eyeRightMesh.rotation.z = THREE.Math.degToRad( 0.148 );
+
+          // mouthMesh.position.set( 0, 0.049, 0.154 );
+          // mouthMesh.rotation.x = THREE.Math.degToRad( 28.713 );
+          // mouthMesh.scale.set( 1.1, 1.1, 1.1 );
+
+          // adult face transforms
+
+          // leftEyeAnimator.currentTile = 2;
+          // rightEyeAnimator.currentTile = 2;
+
+          // eyeLeftMesh.position.set( 0.113, 0.132, 0.156 );
+          // eyeLeftMesh.rotation.x = THREE.Math.degToRad( 5.452 );
+          // eyeLeftMesh.rotation.y = THREE.Math.degToRad( 30.268 );
+          // eyeLeftMesh.scale.set( 1.2, 1.2, 1.2 );
+
+          // eyeRightMesh.position.set( -0.113, 0.132, 0.156 );
+          // eyeRightMesh.rotation.x = THREE.Math.degToRad( 5.452 );
+          // eyeRightMesh.rotation.y = THREE.Math.degToRad( -30.268 );
+          // eyeRightMesh.scale.set( 1.2, 1.2, 1.2 );
+
+          // mouthMesh.position.set( 0, 0.056, 0.167 );
+          // mouthMesh.rotation.x = THREE.Math.degToRad( 28.975 );
+          // mouthMesh.scale.set( 1.28, 1.28, 1.28 );
 
           var headBones = {
             child: 'annieHead',
@@ -269,8 +312,10 @@
           var headBone = annie.children[0].getObjectByName( headBones[age] );
 
           headBone.add( mouthMesh );
-          headBone.add( leftEyeMesh );
-          headBone.add( rightEyeMesh );
+          headBone.add( eyeLeftMesh );
+          headBone.add( eyeRightMesh );
+
+          // ------------------------------------------------------------
 
         });
 
