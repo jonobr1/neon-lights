@@ -1,0 +1,707 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>neon lights intro</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #333333;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+		<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> -->
+		<script src="../release/third-party/three.js"></script>
+		<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+		<script src="../release/third-party/three/js/controls/VRControls.js"></script>
+		<script src="../release/third-party/three/js/effects/VREffect.js"></script>
+		<script src="../release/third-party/three/js/vr/ViveController.js"></script>
+		<script src="../release/third-party/three/js/vr/WebVR.js"></script>
+		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+		<script src="../release/third-party/texture-animator.js"></script>
+		<script src="../release/third-party/storyline.js"></script>
+
+		<script src="../release/third-party/xhr.js"></script>
+		<script src="../release/src/text/three-bmfont-text-bundle.js"></script>
+		<script src="../release/src/text/sdf-shader.js"></script>
+		<script src="../release/src/text/text-bitmap.js"></script>
+
+		<script>
+
+
+			var container;
+			var camera, scene, renderer;
+			var effect, controls;
+			var controller1, controller2;
+
+			var annie;
+			var clock = new THREE.Clock();
+			var storyline;
+
+			init();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
+				camera.position.set( 0, 1, 0 );
+				scene.add( camera );
+
+				// var setup = _.after(1, function(){
+				// 	document.body.appendChild( container );
+				// 	loop();
+				// });
+
+				// var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
+				// scene.add( gridHelper );
+
+				// grass
+				var circleGeo = new THREE.CircleBufferGeometry( 0.5, 20 );
+				var circleMat = new THREE.MeshBasicMaterial({ color: 0x002b07 });
+				var circle = new THREE.Mesh( circleGeo, circleMat );
+				circle.position.z = -2;
+				circle.rotation.x = - Math.PI/2;
+				scene.add( circle );
+
+				var aLight = new THREE.AmbientLight( 0xffffff );
+				scene.add( aLight );
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setClearColor( 0x111111 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.sortObjects = false;
+				container.appendChild( renderer.domElement );
+
+				controls = {
+					vr: new THREE.VRControls( camera ),
+					orbit: new THREE.OrbitControls( camera, renderer.domElement )
+				};
+
+				controls.vr.standing = true;
+				controls.orbit.target.set( 0, 0.7, -2 );
+
+				controls.orbit.minPolarAngle = Math.PI/6;
+				controls.orbit.maxPolarAngle = Math.PI/2;
+				controls.orbit.minDistance = .5;
+				controls.orbit.maxDistance = 10;
+				controls.orbit.enablePan = false;
+
+				var loader = new THREE.FBXLoader();
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+
+				// controllers
+
+				controller1 = new THREE.ViveController( 0 );
+				controller1.standingMatrix = controls.vr.getStandingMatrix();
+				controller1.addEventListener( 'triggerdown', onTriggerDown );
+				controller1.addEventListener( 'triggerup', onTriggerUp );
+				scene.add( controller1 );
+
+				controller2 = new THREE.ViveController( 1 );
+				controller2.standingMatrix = controls.vr.getStandingMatrix();
+				controller2.addEventListener( 'triggerdown', onTriggerDown );
+				controller2.addEventListener( 'triggerup', onTriggerUp );
+				scene.add( controller2 );
+
+				loader.load(root + '/models/controllers/controller-ascii.fbx', function( fbx ) {
+					fbx.scale.setScalar( 0.125 );
+
+					controller1.userData.mesh = fbx;
+					controller2.userData.mesh = fbx.clone();
+
+					controller1.add( controller1.userData.mesh );
+					controller2.add( controller2.userData.mesh );
+
+					// setup();
+				});
+
+				//
+
+				effect = new THREE.VREffect( renderer );
+
+				if ( WEBVR.isAvailable() ) {
+
+					window.addEventListener( 'vrdisplaypresentchange', function() {
+						if ( !effect.isPresenting ) {
+							// reset camera
+							camera.position.set( 0, 1, 0 );
+							controls.orbit.target.set( 0, 0.7, -2 );
+						}
+					}, false );
+
+					window.addEventListener( 'vrdisplayactivate', function() {
+						controls.vr.resetPose();
+					}, false );
+
+					window.addEventListener('keydown', function(e) {
+						if (e.which == 90) { // z
+							controls.vr.resetPose();
+						}
+					}, false);
+
+					document.body.appendChild( WEBVR.getButton( effect ) );
+
+				} else {
+
+					document.body.appendChild( WEBVR.getMessage() );
+
+				}
+
+				// ----------------------------------------------------------------
+				// ----------------------------------------------------------------
+
+				storyline = STORYLINE.parseStoryline({
+					"eyes": [
+						"0 cut to 0",
+
+						"2 cut to 1",
+						"2.1 cut to 0",
+
+						"4.0 cut to 1",
+						"4.1 cut to 0",
+						"4.2 cut to 1",
+						"4.3 cut to 0"
+					]
+				});
+
+				// ----------------------------------------------------------------
+
+				// custom scene assets here
+
+				// var dolly = FRAME.getResource( 'dolly' );
+				// var material = FRAME.getResource( 'materials' ).annie.skinned;
+				
+				var material = new THREE.MeshBasicMaterial({
+					vertexColors: THREE.VertexColors,
+					side: THREE.DoubleSide,
+					skinning: true
+				});
+
+				annie = new THREE.Group();
+				annie.position.set( 0, 0, -2 );
+				scene.add( annie );
+
+				var path = [root, '/models/annie/'].join('');
+
+				var files = window.files = {
+					models: {
+						child: 'ani_chr_1-forest_bindpose_v02.fbx',
+						teenager: 'ani_chr_2-house_bindpose_v02.fbx',
+						adult: 'ani_chr_3-city_bindpose_v02.fbx'
+					},
+					animations: {
+						child: {
+							run: 'ani_chr_1-forest_run_v02.fbx',
+							idle: 'ani_chr_1-forest_idle_v02.fbx'
+						},
+						teenager: {
+							run: 'ani_chr_2-house_run_v02.fbx',
+							idle: 'ani_chr_2-house_idle_v02.fbx'
+						},
+						adult: {
+							run: 'ani_chr_3-city_run_v02.fbx',
+							idle: 'ani_chr_3-city_idle_v02.fbx'
+						}
+					}
+				};
+
+				annie.userData.models = {};
+				annie.userData.animations = { child: {}, teenager: {}, adult: {} };
+				annie.userData.model = null;
+
+				enhance( annie.userData.models, 4 );
+				enhance( annie.userData.animations, 6 );
+
+				annie.userData.age = function ( age ) {
+					annie.userData.models.complete.ready( function () {
+
+						var model = annie.userData.models[ age ];
+						model.visible = true;
+
+						if (annie.userData.model != model && annie.userData.model) {
+							annie.userData.prevModel = annie.userData.model;
+							annie.userData.transitionTime = 0;
+
+							// annie.userData.prevModel.userData.skeletonHelper.visible = false;
+						}
+
+						// model.userData.skeletonHelper.visible = true;
+						
+						annie.userData.model = model;
+
+						var bb = model.userData.boundingBox;
+						var height = bb.max.y - bb.min.y;
+						// dolly.userData.target.y = height * 0.66;
+						controls.orbit.target.y = height * 0.66;
+
+					} );
+				};
+
+				annie.userData.prevModel = null;
+				// annie.userData.transitionLength = 1;
+				annie.userData.transitionLength = 0; // 0 bc the clip doesn't work without the custom shader
+				annie.userData.transitionTime = 1;
+
+				annie.userData.updateAnimation = function( dt ) {
+					annie.userData.transitionTime += dt;
+					if ( dt == 0 || dt > 0.1) annie.userData.transitionTime = 1;
+					var weight = annie.userData.transitionTime / annie.userData.transitionLength;
+					if ( annie.userData.model ) {
+						annie.userData.model.mixer.update( dt );
+						setClipRange( annie.userData.model, 0 , weight * 2 );
+					}
+					if ( annie.userData.prevModel ) {
+						annie.userData.prevModel.mixer.update( dt );
+						if (weight > 1) {
+							annie.userData.prevModel.visible = false;
+							delete annie.userData.prevModel;
+						} else {
+							setClipRange( annie.userData.prevModel, 2 * weight, 2 );
+						}
+					}
+				}
+
+				annie.userData.play = function ( action, forced ) {
+
+					annie.userData.animations.complete.ready( function () {
+						if ( !annie.userData.model ) return;
+
+						var model = annie.userData.model;
+						var animations = model.userData.animations;
+						var current = model.userData.currentAnimation;
+						
+						if ( current && current.type === action ) {
+							return;
+						}
+
+						for ( var k in animations ) {
+							var animation = animations[ k ];
+							if ( k !== action ) {
+								continue;
+							}
+							if ( current ) {
+								if ( current === animation ) {
+									break;
+								}
+								if ( !!forced ) {
+									current.action.stop();
+								} else {
+									animation.action.crossFadeFrom( current.action, 0.35 );
+								}
+								animation.action.stop().play();
+							} else {
+								animation.action.play();
+							}
+							model.userData.currentAnimation = animation;
+						}
+
+					} );
+					
+				};
+
+				for ( var age in files.models ) {
+
+					loader.load( path + files.models[ age ], loadModel( age ) );
+
+					var animations = files.animations[ age ];
+
+					for ( var action in animations ) {
+
+						var animation = animations[ action ];
+						loader.load( path + animation, animationLoaded( age, action ) );
+
+					}
+
+				}
+
+				var faceImage = document.createElement('img');
+				faceImage.crossOrigin = 'anonymous';
+				faceImage.src = root + '/textures/TX_annieFacial_A01_C.png';
+
+				faceImage.onload = function() {
+
+					var models = annie.userData.models;
+
+					models.complete.ready( function () {
+
+						for ( var age in files.models ) {
+
+							models[ age ].userData.eyeLeft.texture.needsUpdate = true;
+							models[ age ].userData.eyeRight.texture.needsUpdate = true;
+							models[ age ].userData.mouth.texture.needsUpdate = true;
+
+						}
+
+					} );
+
+					models.complete();
+
+				};
+
+				annie.userData.models.complete.ready( function () {
+
+					var models = annie.userData.models;
+
+					// child
+
+					models.child.userData.eyeLeft.animator.currentTile = 0;
+					models.child.userData.eyeRight.animator.currentTile = 0;
+
+					var childEyeLeft = models.child.userData.eyeLeft.mesh;
+					childEyeLeft.position.set( 0.106, 0.129, 0.134 );
+					childEyeLeft.rotation.x = THREE.Math.degToRad( 11.182 );
+					childEyeLeft.rotation.y = THREE.Math.degToRad( 22.183 );
+					childEyeLeft.rotation.z = THREE.Math.degToRad( 1.924 );
+					childEyeLeft.scale.set( 0.77, 0.77, 0.77 );
+
+					var childEyeRight = models.child.userData.eyeRight.mesh;
+					childEyeRight.position.set( -0.106, 0.129, 0.134 );
+					childEyeRight.rotation.x = THREE.Math.degToRad( 11.182 );
+					childEyeRight.rotation.y = THREE.Math.degToRad( -22.183 );
+					childEyeRight.rotation.z = THREE.Math.degToRad( 1.924 );
+					childEyeRight.scale.set( 0.77, 0.77, 0.77 );
+
+					var childMouth = models.child.userData.mouth.mesh;
+					childMouth.position.set( 0, 0.058, 0.131 );
+					childMouth.rotation.x = THREE.Math.degToRad( 29.534 );
+					childMouth.scale.set( 1.28, 1.28, 1.28 );
+
+					// teen
+
+					models.teenager.userData.eyeLeft.animator.currentTile = 2;
+					models.teenager.userData.eyeRight.animator.currentTile = 2;
+
+					var teenEyeLeft = models.teenager.userData.eyeLeft.mesh;
+					teenEyeLeft.position.set( 0.108, 0.116, 0.146 );
+					teenEyeLeft.rotation.x = THREE.Math.degToRad( 15.641 );
+					teenEyeLeft.rotation.y = THREE.Math.degToRad( 33.377 );
+					teenEyeLeft.rotation.z = THREE.Math.degToRad( 0.148 );
+
+					var teenEyeRight = models.teenager.userData.eyeRight.mesh;
+					teenEyeRight.position.set( -0.108, 0.116, 0.146 );
+					teenEyeRight.rotation.x = THREE.Math.degToRad( 15.641 );
+					teenEyeRight.rotation.y = THREE.Math.degToRad( -33.377 );
+					teenEyeRight.rotation.z = THREE.Math.degToRad( 0.148 );
+
+					var teenMouth = models.teenager.userData.mouth.mesh;
+					teenMouth.position.set( 0, 0.049, 0.154 );
+					teenMouth.rotation.x = THREE.Math.degToRad( 28.713 );
+					teenMouth.scale.set( 1.1, 1.1, 1.1 );
+
+					// adult
+
+					models.adult.userData.eyeLeft.animator.currentTile = 2;
+					models.adult.userData.eyeRight.animator.currentTile = 2;
+
+					var adultEyeLeft = models.adult.userData.eyeLeft.mesh;
+					adultEyeLeft.position.set( 0.113, 0.132, 0.156 );
+					adultEyeLeft.rotation.x = THREE.Math.degToRad( 5.452 );
+					adultEyeLeft.rotation.y = THREE.Math.degToRad( 30.268 );
+					adultEyeLeft.scale.set( 1.2, 1.2, 1.2 );
+
+					var adultEyeRight = models.adult.userData.eyeRight.mesh;
+					adultEyeRight.position.set( -0.113, 0.132, 0.156 );
+					adultEyeRight.rotation.x = THREE.Math.degToRad( 5.452 );
+					adultEyeRight.rotation.y = THREE.Math.degToRad( -30.268 );
+					adultEyeRight.scale.set( 1.2, 1.2, 1.2 );
+
+					var adultMouth = models.adult.userData.mouth.mesh;
+					adultMouth.position.set( 0, 0.056, 0.167 );
+					adultMouth.rotation.x = THREE.Math.degToRad( 28.975 );
+					adultMouth.scale.set( 1.28, 1.28, 1.28 );
+
+				} );
+
+				var facePlaneGeo = new THREE.PlaneBufferGeometry( 0.1, 0.1, 0.1 );
+
+				var FacePlane = function( parent ) {
+					var texture = this.texture = new THREE.Texture( faceImage );
+					this.animator = new TextureAnimator( texture, 4, 4 );
+					this.animator.currentTile = 0;
+					var material = new THREE.MeshBasicMaterial({ transparent: true, map: texture });
+					var mesh = this.mesh = new THREE.Mesh( facePlaneGeo, material );
+					parent.add( mesh );
+				}
+
+				function loadModel ( age ) {
+
+					return function ( fbx ) {
+
+						annie.userData.models[ age ] = fbx;
+						
+						fbx.traverse( function ( child ) {
+
+							if ( child.isMesh ) {
+
+								var lambert = child.material;
+								child.material = material.clone();
+								lambert.dispose();
+
+								child.geometry.computeBoundingBox();
+								fbx.userData.boundingBox = child.geometry.boundingBox;
+
+							}
+
+						} );
+
+						fbx.mixer = new THREE.AnimationMixer( fbx );
+						fbx.visible = false;
+						fbx.userData.animations = {};
+
+						annie.add( fbx );
+
+						// var helper = new THREE.SkeletonHelper( fbx.children[0] );
+						// helper.material.linewidth = 3;
+						// helper.visible = false;
+						// fbx.userData.skeletonHelper = helper;
+						// scene.add( helper );
+
+						var headBones = {
+							child: 'annieHead',
+							teenager: 'annieTeenHead',
+							adult: 'annieGrownHead'
+						};
+
+						var headBone = fbx.children[0].getObjectByName( headBones[age] );
+
+						fbx.userData.eyeLeft = new FacePlane( headBone );
+						fbx.userData.eyeRight = new FacePlane( headBone );
+						fbx.userData.mouth = new FacePlane( headBone );
+						fbx.userData.mouth.animator.currentTile = 4;
+
+						annie.userData.models.complete();
+
+					};
+					
+				}
+
+				function animationLoaded ( age, action ) {
+					
+					return function ( fbx ) {
+
+						annie.userData.models.complete.ready( function () {
+
+							var model = annie.userData.models[ age ];
+
+							var animation = fbx.animations[ 0 ];
+							animation.name += ': ' + age + ' : ' + action;
+							animation.type = action;
+							animation.action = model.mixer.clipAction( animation );
+
+							if ( /turn/.test( action ) ) {
+								animation.action.loop = THREE.LoopOnce;
+								animation.action.loopCount = 1;
+							}
+
+							model.userData.animations[ action ] = animation;
+							annie.userData.animations[ age ][ action ] = animation;
+							annie.userData.animations.complete();
+
+						} );
+						
+					};
+					
+				}
+
+				function setClipRange ( obj, clipStart, clipEnd )  {
+
+					obj.traverse( function( child ) {
+
+						if ( child.material && child.material.uniforms && child.material.uniforms.clipy ) {
+						  child.material.uniforms.clipy.value.set( clipStart, clipEnd );
+						}
+
+					} );
+
+				}
+
+				function enhance ( obj, length ) {
+
+					var complete = function () {
+
+						complete.index++;
+
+						if ( !complete.completed && complete.index >= complete.amount ) {
+							for ( var i = 0; i < complete.callbacks.length; i++ ) {
+								complete.callbacks[ i ]();
+							}
+							complete.callbacks.length = 0;
+							complete.completed = true;
+						}
+
+					};
+
+					complete.ready = function ( func ) {
+						if ( complete.completed ) {
+							func();
+							return;
+						}
+						complete.callbacks.push( func );
+					};
+
+					complete.completed = false;
+					complete.index = 0;
+					complete.amount = length;
+					complete.callbacks = [];
+
+					obj.complete = complete;
+
+				}
+
+				//
+
+				annie.userData.models.complete.ready( function () {
+					annie.userData.animations.complete.ready( function () {
+
+						document.body.appendChild( container );
+						annie.userData.age('child');
+						annie.userData.play('idle');
+						loop();
+
+					});
+				});
+
+				// ----------------------------------------------------------------
+				// ----------------------------------------------------------------
+
+				xhr.get( '../release/src/text/roboto-bold.json', function(font){
+					// setup();
+
+					// logo text
+
+					font = JSON.parse( font );
+
+					logoBMtext = new TextBitmap({
+						text: 'UNDER NEON LIGHTS',
+						width: 900,
+						align: 'center',
+						font: font,
+						lineHeight: font.common.lineHeight - 10,
+						letterSpacing: 1,
+						scale: 0.003,
+						color: '#111',
+						outlineColor: '#ffaffc',
+						outlineDistance: 0.1,
+						threshold: 0.7
+					}, renderer );
+
+					var s = logoBMtext.config.scale;
+					logoBMtext.group.scale.set( s, s, s );
+					logoBMtext.group.position.set( 0, 1.6, -2 );
+					// logoBMtext.hitBox.visible = true;
+					scene.add( logoBMtext.group );
+
+					// controllers text
+
+					function createText() {
+
+						var bmtext = new TextBitmap({
+							text: 'Start',
+							width: 500,
+							align: 'center',
+							font: font,
+							lineHeight: font.common.lineHeight - 10,
+							letterSpacing: 1,
+							scale: 0.0004,
+							color: "#fff"
+						}, renderer );
+
+						var s = bmtext.config.scale;
+						bmtext.group.scale.set( s, s, s );
+						bmtext.group.position.y = 0.15;
+
+						return bmtext;
+					}
+
+					controller1.bmtext = createText();
+					controller1.add( controller1.bmtext.group );
+
+					controller2.bmtext = createText();
+					controller2.add( controller2.bmtext.group );
+				});
+
+				// Forest Assets
+
+				// var forestPath = [root, '/models/forest/'].join('');
+
+				// var forestFiles = [
+				// 	'mdl_env_1_forest_tree_e_v01.fbx',
+				// 	'mdl_env_1_forest_tree_f_v01.fbx',
+				// 	'mdl_env_1_forest_tree_g_v01.fbx',
+				// 	'mdl_env_1_forest_tree_h_v01.fbx',
+				// 	'mdl_env_1_forest_mushroom_b_v01.fbx',
+				// 	'mdl_env_1_forest_mushroom_c_v01.fbx'
+				// ];
+
+				// ----------------------------------------------------------------
+
+				window.addEventListener( 'resize', resize, false );
+
+			}
+
+			function onTriggerDown(e) {
+				var controller = e.target;
+				// controller.userData.mesh.material.color.setHex( 0xff0000 );
+
+				// todo: fade to black and start Frame.js
+			}
+
+			function onTriggerUp(e) {
+				var controller = e.target;
+				// controller.userData.mesh.material.color.setHex( 0xcccccc );
+			}
+
+			function resize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				effect.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			//
+
+			function loop() {
+
+				effect.requestAnimationFrame( loop );
+
+				var delta = clock.getDelta();
+
+				annie.userData.updateAnimation( delta );
+
+				var eyeTime = clock.getElapsedTime() % 5;
+				var eyeTile = storyline.get( 'eyes', eyeTime );
+				annie.userData.model.userData.eyeLeft.animator.currentTile = eyeTile
+				annie.userData.model.userData.eyeRight.animator.currentTile = eyeTile
+
+				// if ( annie.userData.model.userData.skeletonHelper.visible ) {
+				// 	annie.userData.model.userData.skeletonHelper.update();
+				// }
+
+				controller1.update();
+				controller2.update();
+
+				if ( effect.isPresenting ) {
+					controls.vr.update();
+				} else {
+					controls.orbit.update();
+				}
+
+				effect.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
