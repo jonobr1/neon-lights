@@ -577,16 +577,22 @@
 				// ----------------------------------------------------------------
 				// ----------------------------------------------------------------
 
-				xhr.get( '../release/src/text/roboto-bold.json', function(font){
-					// setup();
+				var fontFolder = '../release/src/text/';
 
-					// logo text
+				xhr.get( fontFolder + 'bryant-bold.json', function(font){
+					// setup();
 
 					font = JSON.parse( font );
 
-					logoBMtext = new TextBitmap({
-						text: 'UNDER NEON LIGHTS',
-						width: 900,
+					var startY = 2.0;
+					var offset = 0.22;
+
+					// logo line 1
+
+					TCBtext = new TextBitmap({
+						imagePath: fontFolder + 'bryant-bold.png',
+						text: 'THE CHEMICAL BROTHERS',
+						width: 1200,
 						align: 'center',
 						font: font,
 						lineHeight: font.common.lineHeight - 10,
@@ -598,11 +604,57 @@
 						threshold: 0.7
 					}, renderer );
 
-					var s = logoBMtext.config.scale;
-					logoBMtext.group.scale.set( s, s, s );
-					logoBMtext.group.position.set( 0, 1.6, -2 );
-					// logoBMtext.hitBox.visible = true;
-					scene.add( logoBMtext.group );
+					var s = TCBtext.config.scale;
+					TCBtext.group.scale.set( s, s, s );
+					TCBtext.group.position.set( 0, startY, -2.4 );
+					// TCBtext.hitBox.visible = true;
+					scene.add( TCBtext.group );
+
+					// logo line 2
+
+					UNLtext = new TextBitmap({
+						imagePath: fontFolder + 'bryant-bold.png',
+						text: 'UNDER NEON LIGHTS',
+						width: 1200,
+						align: 'center',
+						font: font,
+						lineHeight: font.common.lineHeight - 10,
+						letterSpacing: 1,
+						scale: 0.003,
+						color: '#111',
+						outlineColor: '#fdb9b9',
+						outlineDistance: 0.1,
+						threshold: 0.7
+					}, renderer );
+
+					var s = UNLtext.config.scale;
+					UNLtext.group.scale.set( s, s, s );
+					UNLtext.group.position.set( 0, startY - offset, -2.4 );
+					// UNLtext.hitBox.visible = true;
+					scene.add( UNLtext.group );
+
+					// logo line 3
+
+					FSVtext = new TextBitmap({
+						imagePath: fontFolder + 'bryant-bold.png',
+						text: 'FEATURING ST. VINCENT',
+						width: 1200,
+						align: 'center',
+						font: font,
+						lineHeight: font.common.lineHeight - 10,
+						letterSpacing: 1,
+						scale: 0.003,
+						color: '#111',
+						outlineColor: '#a9e0ff',
+						outlineDistance: 0.1,
+						threshold: 0.7
+					}, renderer );
+
+					var s = FSVtext.config.scale;
+					FSVtext.group.scale.set( s, s, s );
+					FSVtext.group.position.set( 0, startY - offset*2, -2.4 );
+					// FSVtext.hitBox.visible = true;
+					scene.add( FSVtext.group );
 
 					// controllers text
 

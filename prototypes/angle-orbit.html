@@ -139,7 +139,7 @@
 				controller1.add( controller1.userData.mesh );
 				controller2.add( controller2.userData.mesh );
 
-				xhr.get( '../release/src/text/roboto-bold.json', function(font){
+				xhr.get( '../release/src/text/bryant-bold.json', function(font){
 					setup();
 
 					font = JSON.parse( font );
@@ -147,6 +147,7 @@
 					function createText() {
 
 						bmtext = new TextBitmap({
+							imagePath: fontFolder + 'bryant-bold.png',
 							bmtext: 'angle',
 							width: 500,
 							align: 'center',
