@@ -687,16 +687,19 @@
 
 				// Forest Assets
 
-				// var forestPath = [root, '/models/forest/'].join('');
+				var forestPath = [root, '/models/forest/'].join('');
 
-				// var forestFiles = [
-				// 	'mdl_env_1_forest_tree_e_v01.fbx',
-				// 	'mdl_env_1_forest_tree_f_v01.fbx',
-				// 	'mdl_env_1_forest_tree_g_v01.fbx',
-				// 	'mdl_env_1_forest_tree_h_v01.fbx',
-				// 	'mdl_env_1_forest_mushroom_b_v01.fbx',
-				// 	'mdl_env_1_forest_mushroom_c_v01.fbx'
-				// ];
+				loader.load(forestPath + 'mdl_env_1_forest_intro.fbx', function(fbx){
+
+					fbx.children[0].material = new THREE.MeshBasicMaterial({
+						vertexColors: THREE.VertexColors,
+						side: THREE.DoubleSide
+					});
+
+					fbx.position.z = -2;
+
+					scene.add(fbx);
+				});
 
 				// ----------------------------------------------------------------
 
