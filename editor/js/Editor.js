@@ -53,7 +53,9 @@ var Editor = function () {
 		durationChanged: new Signal(),
 		playbackRateChanged: new Signal(),
 		timeChanged: new Signal(),
-		timelineScaled: new Signal()
+		timelineScaled: new Signal(),
+
+		windowResized: new Signal()
 
 	};
 

@@ -254,6 +254,12 @@ var Timeline = function ( editor ) {
 
 	} );
 
+	signals.windowResized.add( function () {
+
+		updateMarks();
+
+	} );
+
 	return container;
 
 };
