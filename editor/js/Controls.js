@@ -19,7 +19,15 @@ var Controls = function ( editor ) {
 		editor.isPlaying ? editor.stop() : editor.play();
 
 	} );
-	playButton.onKeyDown( function ( event ) { event.preventDefault(); } ); // Ignore [space]
+	playButton.onKeyDown( function ( event ) {
+
+		switch ( event.keyCode ) {
+
+			case 13: case 32: event.preventDefault();
+
+		}
+
+	} );
 	container.add( playButton );
 
 	signals.playingChanged.add( function ( isPlaying ) {
