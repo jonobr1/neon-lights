@@ -149,7 +149,9 @@ var Code = function ( editor ) {
 		container.setDisplay( '' );
 
 		title.setValue( effect.name );
+
 		codemirror.setValue( effect.source );
+		codemirror.clearHistory();
 
 		currentEffect = effect;
 		currentInclude = null;
@@ -161,7 +163,9 @@ var Code = function ( editor ) {
 		container.setDisplay( '' );
 
 		title.setValue( include.name );
+
 		codemirror.setValue( include.source );
+		codemirror.clearHistory();
 
 		currentEffect = null;
 		currentInclude = include;
@@ -175,7 +179,9 @@ var Code = function ( editor ) {
 		var effect = animation.effect;
 
 		title.setValue( effect.name );
+
 		codemirror.setValue( effect.source );
+		codemirror.clearHistory();
 
 		currentEffect = effect;
 		currentInclude = null;
