@@ -385,13 +385,13 @@
 					models.teenager.userData.eyeRight.animator.currentTile = 2;
 
 					var teenEyeLeft = models.teenager.userData.eyeLeft.mesh;
-					teenEyeLeft.position.set( 0.108, 0.116, 0.146 );
+					teenEyeLeft.position.set( 0.081, 0.116, 0.164 );
 					teenEyeLeft.rotation.x = THREE.Math.degToRad( 15.641 );
 					teenEyeLeft.rotation.y = THREE.Math.degToRad( 33.377 );
 					teenEyeLeft.rotation.z = THREE.Math.degToRad( 0.148 );
 
 					var teenEyeRight = models.teenager.userData.eyeRight.mesh;
-					teenEyeRight.position.set( -0.108, 0.116, 0.146 );
+					teenEyeRight.position.set( -0.081, 0.116, 0.164 );
 					teenEyeRight.rotation.x = THREE.Math.degToRad( 15.641 );
 					teenEyeRight.rotation.y = THREE.Math.degToRad( -33.377 );
 					teenEyeRight.rotation.z = THREE.Math.degToRad( 0.148 );
@@ -407,13 +407,13 @@
 					models.adult.userData.eyeRight.animator.currentTile = 2;
 
 					var adultEyeLeft = models.adult.userData.eyeLeft.mesh;
-					adultEyeLeft.position.set( 0.113, 0.132, 0.156 );
+					adultEyeLeft.position.set( 0.099, 0.139, 0.165 );
 					adultEyeLeft.rotation.x = THREE.Math.degToRad( 5.452 );
 					adultEyeLeft.rotation.y = THREE.Math.degToRad( 30.268 );
 					adultEyeLeft.scale.set( 1.2, 1.2, 1.2 );
 
 					var adultEyeRight = models.adult.userData.eyeRight.mesh;
-					adultEyeRight.position.set( -0.113, 0.132, 0.156 );
+					adultEyeRight.position.set( -0.099, 0.139, 0.165 );
 					adultEyeRight.rotation.x = THREE.Math.degToRad( 5.452 );
 					adultEyeRight.rotation.y = THREE.Math.degToRad( -30.268 );
 					adultEyeRight.scale.set( 1.2, 1.2, 1.2 );
@@ -568,6 +568,8 @@
 
 						document.body.appendChild( container );
 						annie.userData.age('child');
+						// annie.userData.age('teenager');
+						// annie.userData.age('adult');
 						annie.userData.play('idle');
 						loop();
 
@@ -737,8 +739,9 @@
 
 				var eyeTime = clock.getElapsedTime() % 5;
 				var eyeTile = storyline.get( 'eyes', eyeTime );
-				annie.userData.model.userData.eyeLeft.animator.currentTile = eyeTile
-				annie.userData.model.userData.eyeRight.animator.currentTile = eyeTile
+				var offset = annie.userData.model == annie.userData.models.child ? 0 : 2;
+				annie.userData.model.userData.eyeLeft.animator.currentTile = eyeTile + offset;
+				annie.userData.model.userData.eyeRight.animator.currentTile = eyeTile + offset;
 
 				// if ( annie.userData.model.userData.skeletonHelper.visible ) {
 				// 	annie.userData.model.userData.skeletonHelper.update();
