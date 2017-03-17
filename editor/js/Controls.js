@@ -38,6 +38,7 @@ var Controls = function ( editor ) {
 
 	var timeText = new UI.Text();
 	timeText.setColor( '#bbb' );
+	timeText.setWidth( '50px' );
 	timeText.setMarginLeft( '10px' );
 	timeText.setValue( '0:00.00' );
 	container.add( timeText );
