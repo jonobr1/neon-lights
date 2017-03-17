@@ -45,7 +45,7 @@
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
 				scene.add( camera );
 
-				var setup = _.after(1, function(){
+				var setup = _.after(2, function(){
 					document.body.appendChild( container );
 					loop();
 				});
@@ -73,6 +73,10 @@
 				controls.vr.standing = true;
 				controls.orbit.target.set( 0, 0, -1 );
 
+				var loader = new THREE.FBXLoader();
+				var isLocal = /localhost/i.test(window.location.href);
+				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+
 				// controllers
 
 				controller1 = new THREE.ViveController( 0 );
@@ -87,14 +91,17 @@
 				controller2.addEventListener( 'triggerup', onTriggerUp );
 				scene.add( controller2 );
 
-				var cubeGeo = new THREE.BoxBufferGeometry(0.08,0.08,0.08);
-				var cubeMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+				loader.load(root + '/models/controllers/controller-ascii.fbx', function( fbx ) {
+					fbx.scale.setScalar( 0.125 );
 
-				controller1.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
-				controller2.userData.mesh = new THREE.Mesh( cubeGeo, cubeMat.clone() );
+					controller1.userData.mesh = fbx;
+					controller2.userData.mesh = fbx.clone();
 
-				controller1.add( controller1.userData.mesh );
-				controller2.add( controller2.userData.mesh );
+					controller1.add( controller1.userData.mesh );
+					controller2.add( controller2.userData.mesh );
+
+					setup();
+				});
 
 				//
 
@@ -134,14 +141,10 @@
 				annie.position.set( 0, 0, -1 );
 				scene.add( annie );
 
-				var loader = new THREE.FBXLoader();
+				var path = [root, '/models/annie/'].join('');
 
-				var isLocal = /localhost/i.test(window.location.href);
-				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
-				root = [root, '/models/forest/'].join('');
-
-				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {
-					var mesh = obj.skeleton.bones[0];
+				loader.load(path + 'ani_chr_1-forest_bindpose_v02.fbx', function(obj) {
+					var mesh = obj.getObjectByName('annieBodyGEO');
 					mesh.material = new THREE.MeshBasicMaterial({
 						vertexColors: THREE.VertexColors,
 						side: THREE.DoubleSide
@@ -158,12 +161,12 @@
 
 			function onTriggerDown(e) {
 				var controller = e.target;
-				controller.userData.mesh.material.color.setHex( 0xff0000 );
+				// controller.userData.mesh.material.color.setHex( 0xff0000 );
 			}
 
 			function onTriggerUp(e) {
 				var controller = e.target;
-				controller.userData.mesh.material.color.setHex( 0xcccccc );
+				// controller.userData.mesh.material.color.setHex( 0xcccccc );
 			}
 
 			function resize() {
