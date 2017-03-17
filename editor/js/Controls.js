@@ -19,7 +19,15 @@ var Controls = function ( editor ) {
 		editor.isPlaying ? editor.stop() : editor.play();
 
 	} );
-	playButton.onKeyDown( function ( event ) { event.preventDefault(); } ); // Ignore [space]
+	playButton.onKeyDown( function ( event ) {
+
+		switch ( event.keyCode ) {
+
+			case 13: case 32: event.preventDefault();
+
+		}
+
+	} );
 	container.add( playButton );
 
 	signals.playingChanged.add( function ( isPlaying ) {
@@ -30,6 +38,7 @@ var Controls = function ( editor ) {
 
 	var timeText = new UI.Text();
 	timeText.setColor( '#bbb' );
+	timeText.setWidth( '50px' );
 	timeText.setMarginLeft( '10px' );
 	timeText.setValue( '0:00.00' );
 	container.add( timeText );
