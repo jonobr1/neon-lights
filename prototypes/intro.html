@@ -4,54 +4,51 @@
 		<title>neon lights intro</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-		<style>
-			body {
-				font-family: Monospace;
-				background-color: #333333;
-				color: #fff;
-				margin: 0px;
-				overflow: hidden;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="../release/styles/intro.css">
 	</head>
 	<body>
 
-		<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> -->
-		<script src="../release/third-party/has.js"></script>
-		<script src="../release/third-party/three.js"></script>
-		<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
-		<script src="../release/third-party/three/js/controls/VRControls.js"></script>
-		<script src="../release/third-party/three/js/effects/VREffect.js"></script>
-		<script src="../release/third-party/three/js/vr/ViveController.js"></script>
-		<script src="../release/third-party/three/js/vr/DaydreamController.js"></script>
-		<script src="../release/third-party/orientation-arm-model.js"></script>
-		<script src="../release/third-party/three/js/vr/WebVR.js"></script>
-		<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
-		<script src="../release/third-party/texture-animator.js"></script>
-		<script src="../release/third-party/storyline.js"></script>
+		<div class="scripts" style="display: none;">
+			<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+			<script src="../release/third-party/has.js"></script>
+			<script src="../release/third-party/three.js"></script>
+			<script src="../release/third-party/three/js/controls/OrbitControls.js"></script>
+			<script src="../release/third-party/three/js/controls/VRControls.js"></script>
+			<script src="../release/third-party/three/js/effects/VREffect.js"></script>
+			<script src="../release/third-party/three/js/vr/ViveController.js"></script>
+			<script src="../release/third-party/three/js/vr/DaydreamController.js"></script>
+			<script src="../release/third-party/orientation-arm-model.js"></script>
+			<script src="../release/third-party/webvr.js"></script>
+			<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+			<script src="../release/third-party/texture-animator.js"></script>
+			<script src="../release/third-party/storyline.js"></script>
 
-		<script src="../release/third-party/xhr.js"></script>
-		<script src="../release/src/text/three-bmfont-text-bundle.js"></script>
-		<script src="../release/src/text/sdf-shader.js"></script>
-		<script src="../release/src/text/text-bitmap.js"></script>
+			<script src="../release/third-party/xhr.js"></script>
+			<script src="../release/src/text/three-bmfont-text-bundle.js"></script>
+			<script src="../release/src/text/sdf-shader.js"></script>
+			<script src="../release/src/text/text-bitmap.js"></script>
+		</div>
 
 		<script>
 
 
 			var container;
 			var camera, scene, renderer;
-			var effect, controls;
+			var vreffect, controls;
 			var controllers;
 
 			var annie;
 			var clock = new THREE.Clock();
 			var storyline;
 
+			var annieZ = -2;
+
 			init();
 
 			function init() {
 
 				container = document.createElement( 'div' );
+				container.classList.add('container');
 
 				scene = new THREE.Scene();
 				scene.fog = new THREE.FogExp2( 0x111111, 0.2 );
@@ -68,21 +65,33 @@
 				// var gridHelper = new THREE.GridHelper( 5, 10, 0xDDDDDD );
 				// scene.add( gridHelper );
 
-				// grass
+				// ground
+				var planeGeo = new THREE.PlaneBufferGeometry( 50, 50 );
+				var planeMat = window.planeMat = new THREE.MeshBasicMaterial({
+					// color: 0x45bd7f // green
+					// color: scene.fog.color
+					color: 0x222222
+				});
+				var plane = new THREE.Mesh( planeGeo, planeMat );
+				plane.position.set( 0, -0.01, annieZ );
+				plane.rotation.x = - Math.PI / 2;
+				scene.add( plane );
+
+				// grass / spotlight circle
 				var circleGeo = new THREE.CircleBufferGeometry( 0.5, 20 );
-				var circleMat = new THREE.MeshBasicMaterial({ color: 0x002b07 });
+				var circleMat = new THREE.MeshBasicMaterial({
+					// color: 0x002b07 // green
+					color: 0x333333
+				});
 				var circle = new THREE.Mesh( circleGeo, circleMat );
-				circle.position.z = -2;
+				circle.position.z = annieZ;
 				circle.rotation.x = - Math.PI/2;
 				scene.add( circle );
-
-				var aLight = new THREE.AmbientLight( 0xffffff );
-				scene.add( aLight );
 
 				//
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setClearColor( 0x111111 );
+				renderer.setClearColor( scene.fog.color );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.sortObjects = false;
@@ -94,7 +103,7 @@
 				};
 
 				controls.vr.standing = true;
-				controls.orbit.target.set( 0, 0.7, -2 );
+				controls.orbit.target.set( 0, 0.7, annieZ );
 
 				controls.orbit.minPolarAngle = Math.PI / 6;
 				controls.orbit.maxPolarAngle = Math.PI / 2;
@@ -157,15 +166,15 @@
 
 				//
 
-				effect = new THREE.VREffect( renderer );
+				vreffect = new THREE.VREffect( renderer );
 
 				if ( WEBVR.isAvailable() ) {
 
 					window.addEventListener( 'vrdisplaypresentchange', function() {
-						if ( !effect.isPresenting ) {
+						if ( !vreffect.isPresenting ) {
 							// reset camera
 							camera.position.set( 0, 1, 0 );
-							controls.orbit.target.set( 0, 0.7, -2 );
+							controls.orbit.target.set( 0, 0.7, annieZ );
 							// hide controllers
 							controllers.daydream.visible =
 							controllers.left.visible =
@@ -183,11 +192,11 @@
 						}
 					}, false);
 
-					document.body.appendChild( WEBVR.getButton( effect ) );
+					container.appendChild( WEBVR.getButton( vreffect ) );
 
 				} else {
 
-					document.body.appendChild( WEBVR.getMessage() );
+					container.appendChild( WEBVR.getMessage() );
 
 				}
 
@@ -223,7 +232,7 @@
 				});
 
 				annie = new THREE.Group();
-				annie.position.set( 0, 0, -2 );
+				annie.position.set( 0, 0, annieZ );
 				scene.add( annie );
 
 				var path = [root, '/models/annie/'].join('');
@@ -753,7 +762,7 @@
 						side: THREE.DoubleSide
 					});
 
-					fbx.position.z = -2;
+					fbx.position.z = annieZ;
 
 					scene.add(fbx);
 
@@ -831,14 +840,14 @@
 			function resize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-				effect.setSize( window.innerWidth, window.innerHeight );
+				vreffect.setSize( window.innerWidth, window.innerHeight );
 			}
 
 			//
 
 			function loop() {
 
-				effect.requestAnimationFrame( loop );
+				vreffect.requestAnimationFrame( loop );
 
 				var delta = clock.getDelta();
 
@@ -854,7 +863,7 @@
 				// 	annie.userData.model.userData.skeletonHelper.update();
 				// }
 
-				if ( effect.isPresenting ) {
+				if ( vreffect.isPresenting ) {
 					if ( has.mobile ) {
 
 						var daydream = controllers.daydream;
@@ -881,15 +890,16 @@
 						controllers.left.update();
 						controllers.right.update();
 					}
-				}
 
-				if ( effect.isPresenting ) {
 					controls.vr.update();
+
 				} else {
+
 					controls.orbit.update();
+
 				}
 
-				effect.render( scene, camera );
+				vreffect.render( scene, camera );
 
 			}
 
