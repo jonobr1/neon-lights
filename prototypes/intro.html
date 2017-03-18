@@ -101,7 +101,7 @@
 
 				var spotLightHelper = window.spotLightHelper = new THREE.SpotLightHelper( spotLight );
 				scene.add( spotLightHelper );
-				// spotLightHelper.visible = false;
+				spotLightHelper.visible = false;
 
 				// or try replacing with
 				// https://threejs.org/examples/webgl_lights_arealight
@@ -246,11 +246,20 @@
 				
 				// var annieMat = new THREE.MeshBasicMaterial({
 				// var annieMat = new THREE.MeshPhongMaterial({
-				var annieMat = new THREE.MeshLambertMaterial({
+				// var annieMat = new THREE.MeshLambertMaterial({
+				// 	vertexColors: THREE.VertexColors,
+				// 	side: THREE.DoubleSide,
+				// 	skinning: true,
+				// 	fog: false
+				// });
+
+				var annieMat = window.annieMat = new THREE.MeshStandardMaterial({
 					vertexColors: THREE.VertexColors,
 					side: THREE.DoubleSide,
 					skinning: true,
-					fog: false
+					fog: false,
+					roughness: 0.6,
+					metalness: 0.0
 				});
 
 				annie = new THREE.Group();
@@ -671,14 +680,15 @@
 							align: 'center',
 							font: font,
 							lineHeight: font.common.lineHeight - 10,
-							letterSpacing: 1,
+							letterSpacing: 5,
 							scale: 0.0004,
 							color: "#fff"
 						}, renderer );
 
 						var s = bmtext.config.scale;
 						bmtext.group.scale.set( s, s, s );
-						bmtext.group.position.y = 0.1;
+						bmtext.group.position.y = 0.08;
+						bmtext.group.position.z = - 0.12;
 
 						return bmtext;
 					}
