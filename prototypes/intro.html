@@ -51,6 +51,7 @@
 				container = document.createElement( 'div' );
 
 				scene = new THREE.Scene();
+				scene.fog = new THREE.FogExp2( 0x111111, 0.2 );
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
 				camera.position.set( 0, 1, 0 );
@@ -187,7 +188,8 @@
 				var material = new THREE.MeshBasicMaterial({
 					vertexColors: THREE.VertexColors,
 					side: THREE.DoubleSide,
-					skinning: true
+					skinning: true,
+					fog: false
 				});
 
 				annie = new THREE.Group();
@@ -222,8 +224,15 @@
 				annie.userData.animations = { child: {}, teenager: {}, adult: {} };
 				annie.userData.model = null;
 
+				otherAssets = {};
+
+				// files.models length (3), face sprite (1)
 				enhance( annie.userData.models, 4 );
+
 				enhance( annie.userData.animations, 6 );
+
+				// bitmap font (1), intro forest (1), logo models (2)
+				enhance( otherAssets, 4 );
 
 				annie.userData.age = function ( age ) {
 					annie.userData.models.complete.ready( function () {
@@ -431,7 +440,10 @@
 					var texture = this.texture = new THREE.Texture( faceImage );
 					this.animator = new TextureAnimator( texture, 4, 4 );
 					this.animator.currentTile = 0;
-					var material = new THREE.MeshBasicMaterial({ transparent: true, map: texture });
+					var material = new THREE.MeshBasicMaterial({
+						transparent: true,
+						map: texture
+					});
 					var mesh = this.mesh = new THREE.Mesh( facePlaneGeo, material );
 					parent.add( mesh );
 				}
@@ -565,14 +577,14 @@
 
 				annie.userData.models.complete.ready( function () {
 					annie.userData.animations.complete.ready( function () {
+						otherAssets.complete.ready( function () {
 
-						document.body.appendChild( container );
-						annie.userData.age('child');
-						// annie.userData.age('teenager');
-						// annie.userData.age('adult');
-						annie.userData.play('idle');
-						loop();
+							document.body.appendChild( container );
+							annie.userData.age('child');
+							annie.userData.play('idle');
+							loop();
 
+						});
 					});
 				});
 
@@ -581,89 +593,17 @@
 
 				var fontFolder = '../release/src/text/';
 
-				xhr.get( fontFolder + 'bryant-bold.json', function(font){
-					// setup();
+				xhr.get( fontFolder + 'bryant-bold.json', function(font) {
 
 					font = JSON.parse( font );
-
-					var startY = 2.0;
-					var offset = 0.22;
-
-					// logo line 1
-
-					TCBtext = new TextBitmap({
-						imagePath: fontFolder + 'bryant-bold.png',
-						text: 'THE CHEMICAL BROTHERS',
-						width: 1500,
-						align: 'center',
-						font: font,
-						lineHeight: font.common.lineHeight - 10,
-						letterSpacing: 7,
-						scale: 0.003,
-						color: '#111',
-						outlineColor: '#ffaffc',
-						outlineDistance: 0.1,
-						threshold: 0.7
-					}, renderer );
-
-					var s = TCBtext.config.scale;
-					TCBtext.group.scale.set( s, s, s );
-					TCBtext.group.position.set( 0, startY, -2.4 );
-					// TCBtext.hitBox.visible = true;
-					scene.add( TCBtext.group );
-
-					// logo line 2
-
-					UNLtext = new TextBitmap({
-						imagePath: fontFolder + 'bryant-bold.png',
-						text: 'UNDER NEON LIGHTS',
-						width: 1500,
-						align: 'center',
-						font: font,
-						lineHeight: font.common.lineHeight - 10,
-						letterSpacing: 7,
-						scale: 0.003,
-						color: '#111',
-						outlineColor: '#fdb9b9',
-						outlineDistance: 0.1,
-						threshold: 0.7
-					}, renderer );
-
-					var s = UNLtext.config.scale;
-					UNLtext.group.scale.set( s, s, s );
-					UNLtext.group.position.set( 0, startY - offset, -2.4 );
-					// UNLtext.hitBox.visible = true;
-					scene.add( UNLtext.group );
-
-					// logo line 3
-
-					FSVtext = new TextBitmap({
-						imagePath: fontFolder + 'bryant-bold.png',
-						text: 'FEATURING ST. VINCENT',
-						width: 1500,
-						align: 'center',
-						font: font,
-						lineHeight: font.common.lineHeight - 10,
-						letterSpacing: 7,
-						scale: 0.003,
-						color: '#111',
-						outlineColor: '#a9e0ff',
-						outlineDistance: 0.1,
-						threshold: 0.7
-					}, renderer );
-
-					var s = FSVtext.config.scale;
-					FSVtext.group.scale.set( s, s, s );
-					FSVtext.group.position.set( 0, startY - offset*2, -2.4 );
-					// FSVtext.hitBox.visible = true;
-					scene.add( FSVtext.group );
 
 					// controllers text
 
 					function createText() {
 
 						var bmtext = new TextBitmap({
-							text: 'Start',
+							imagePath: fontFolder + 'bryant-bold.png',
+							text: 'START',
 							width: 500,
 							align: 'center',
 							font: font,
@@ -685,6 +625,88 @@
 
 					controller2.bmtext = createText();
 					controller2.add( controller2.bmtext.group );
+
+					// -------------------------------------------------------
+
+					// logo text
+
+					// var startY = 2.0;
+					// var offset = 0.22;
+
+					// -------------------------------------------------------
+
+					// logo line 1
+
+					// TCBtext = new TextBitmap({
+					// 	imagePath: fontFolder + 'bryant-bold.png',
+					// 	text: 'THE CHEMICAL BROTHERS',
+					// 	width: 1500,
+					// 	align: 'center',
+					// 	font: font,
+					// 	lineHeight: font.common.lineHeight - 10,
+					// 	letterSpacing: 7,
+					// 	scale: 0.003,
+					// 	color: '#111',
+					// 	outlineColor: '#ffaffc',
+					// 	outlineDistance: 0.1,
+					// 	threshold: 0.6
+					// }, renderer );
+
+					// var s = TCBtext.config.scale;
+					// TCBtext.group.scale.set( s, s, s );
+					// TCBtext.group.position.set( 0, startY, -2.4 );
+					// scene.add( TCBtext.group );
+
+					// -------------------------------------------------------
+
+					// logo line 2
+
+					// UNLtext = new TextBitmap({
+					// 	imagePath: fontFolder + 'bryant-bold.png',
+					// 	text: 'UNDER NEON LIGHTS',
+					// 	width: 1500,
+					// 	align: 'center',
+					// 	font: font,
+					// 	lineHeight: font.common.lineHeight - 10,
+					// 	letterSpacing: 7,
+					// 	scale: 0.003,
+					// 	color: '#111',
+					// 	outlineColor: '#fdb9b9',
+					// 	outlineDistance: 0.1,
+					// 	threshold: 0.6
+					// }, renderer );
+
+					// var s = UNLtext.config.scale;
+					// UNLtext.group.scale.set( s, s, s );
+					// UNLtext.group.position.set( 0, startY - offset, -2.4 );
+					// scene.add( UNLtext.group );
+
+					// -------------------------------------------------------
+
+					// logo line 3
+
+					// FSVtext = new TextBitmap({
+					// 	imagePath: fontFolder + 'bryant-bold.png',
+					// 	text: 'FEATURING ST. VINCENT',
+					// 	width: 1500,
+					// 	align: 'center',
+					// 	font: font,
+					// 	lineHeight: font.common.lineHeight - 10,
+					// 	letterSpacing: 7,
+					// 	scale: 0.003,
+					// 	color: '#111',
+					// 	outlineColor: '#a9e0ff',
+					// 	outlineDistance: 0.1,
+					// 	threshold: 0.6
+					// }, renderer );
+
+					// var s = FSVtext.config.scale;
+					// FSVtext.group.scale.set( s, s, s );
+					// FSVtext.group.position.set( 0, startY - offset*2, -2.4 );
+					// scene.add( FSVtext.group );
+
+					otherAssets.complete();
+
 				});
 
 				// Forest Assets
@@ -701,6 +723,62 @@
 					fbx.position.z = -2;
 
 					scene.add(fbx);
+
+					otherAssets.complete();
+				});
+
+				// Logo Models
+
+				var bufferGeoLoader = new THREE.BufferGeometryLoader();
+
+				var logoPath = [root, '/models/logo/'].join('');
+
+				var logoMat = new THREE.MeshBasicMaterial({
+					vertexColors: THREE.VertexColors,
+					side: THREE.DoubleSide,
+					fog: false
+				});
+
+				var logoGroup = new THREE.Group();
+				scene.add( logoGroup );
+				logoGroup.position.set( 0, 2, -3 );
+
+				bufferGeoLoader.load(logoPath + 'mdl_env_1-forest_TCB_title.json', function( geometry ){
+
+					var mesh = new THREE.Mesh( geometry, logoMat );
+
+					mesh.position.y = 0.3;
+					mesh.rotation.x = - Math.PI / 2;
+					mesh.scale.setScalar( 0.1 );
+					mesh.scale.multiplyScalar( 0.5 );
+					logoGroup.add( mesh );
+
+					otherAssets.complete();
+				});
+
+				bufferGeoLoader.load(logoPath + 'mdl_env_1-forst_UNL_title.json', function( geometry ){
+
+					var mesh = new THREE.Mesh( geometry, logoMat );
+
+					mesh.position.z = 0.02;
+					mesh.rotation.x = - Math.PI / 2;
+					mesh.scale.setScalar( 0.1 );
+					logoGroup.add( mesh );
+
+					otherAssets.complete();
+				});
+
+				bufferGeoLoader.load(logoPath + 'mdl_env_1-forst_STVincnt_title.json', function( geometry ){
+
+					var mesh = new THREE.Mesh( geometry, logoMat );
+
+					mesh.position.y = -0.3;
+					mesh.rotation.x = - Math.PI / 2;
+					mesh.scale.setScalar( 0.1 );
+					mesh.scale.multiplyScalar( 0.5 )
+					logoGroup.add( mesh );
+
+					otherAssets.complete();
 				});
 
 				// ----------------------------------------------------------------
