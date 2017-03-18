@@ -15,6 +15,7 @@ var fs = require('fs');
 
     var markdown = [
       '<!doctype html><head><title>Neon Lights: Instructions</title>',
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">',
       '<link type="text/css" rel="stylesheet" href="',
       (i <= 0) ? '.' : '..',
       '/release/styles/github-markdown.css">',
