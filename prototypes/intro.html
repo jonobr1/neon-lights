@@ -67,7 +67,7 @@
 
 				// ground
 				var planeGeo = new THREE.PlaneBufferGeometry( 50, 50 );
-				var planeMat = window.planeMat = new THREE.MeshBasicMaterial({
+				var planeMat = new THREE.MeshBasicMaterial({
 					// color: 0x45bd7f // green
 					// color: scene.fog.color
 					color: 0x222222
@@ -87,6 +87,26 @@
 				circle.position.z = annieZ;
 				circle.rotation.x = - Math.PI/2;
 				scene.add( circle );
+
+				var aLight = new THREE.AmbientLight( 0xffffff );
+				scene.add( aLight );
+
+				// actual spotlight / light from neon sign?
+				var spotLight = window.spotLight = new THREE.SpotLight( 0xFFC4FF );
+				spotLight.angle = Math.PI / 6;
+				spotLight.position.set( 0, 2, -3 ); // same position as logoGroup
+				spotLight.target.position.set( 0, 0.5, annieZ );
+				scene.add( spotLight.target );
+				scene.add( spotLight );
+
+				var spotLightHelper = window.spotLightHelper = new THREE.SpotLightHelper( spotLight );
+				scene.add( spotLightHelper );
+				// spotLightHelper.visible = false;
+
+				// or try replacing with
+				// https://threejs.org/examples/webgl_lights_arealight
+				// https://threejs.org/examples/webgl_lights_rectarealight
+				// to better fit shape of logo models
 
 				//
 
@@ -224,7 +244,9 @@
 				// var dolly = FRAME.getResource( 'dolly' );
 				// var material = FRAME.getResource( 'materials' ).annie.skinned;
 				
-				var material = new THREE.MeshBasicMaterial({
+				// var annieMat = new THREE.MeshBasicMaterial({
+				// var annieMat = new THREE.MeshPhongMaterial({
+				var annieMat = new THREE.MeshLambertMaterial({
 					vertexColors: THREE.VertexColors,
 					side: THREE.DoubleSide,
 					skinning: true,
@@ -498,7 +520,7 @@
 							if ( child.isMesh ) {
 
 								var lambert = child.material;
-								child.material = material.clone();
+								child.material = annieMat.clone();
 								lambert.dispose();
 
 								child.geometry.computeBoundingBox();
@@ -622,6 +644,8 @@
 							annie.userData.age('child');
 							annie.userData.play('idle');
 							loop();
+
+							spotLightHelper.update();
 
 						});
 					});
