@@ -9,13 +9,6 @@ var Timeline = function ( editor ) {
 	var container = new UI.Panel();
 	container.setId( 'timeline' );
 
-	var panel = new UI.Panel();
-	panel.setPosition( 'absolute' );
-	panel.setWidth( '300px' );
-	panel.setHeight( '100%' );
-	panel.dom.style.background = '#555';
-	container.add( panel );
-
 	// controls
 
 	/*

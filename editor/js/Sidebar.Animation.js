@@ -235,34 +235,24 @@ Sidebar.Animation = function ( editor ) {
 		row.add( new UI.Text( 'Enabled' ).setWidth( '90px' ) );
 		container.add( row );
 
-		var animationName = new UI.Checkbox( animation.enabled )
-		animationName.onChange( function () {
+		var animationEnabled = new UI.Checkbox( animation.enabled )
+		animationEnabled.onChange( function () {
 
 			animation.enabled = this.getValue();
 			signals.animationModified.dispatch( animation );
 
 		} );
-		row.add( animationName );
+		row.add( animationEnabled );
 
 		//
 
-		container.add( new UI.HorizontalRule() );
+		container.add( new UI.HorizontalRule().setMargin( '20px 0px' ) );
 
 		//
 
-		var parameters = animation.effect.program.parameters;
-
-		for ( var key in parameters ) {
-
-			container.add( createParameterRow( key, parameters[ key ] ) );
-
-		}
-
-		//
-
-		container.add( new UI.Break(), new UI.Break() );
-		container.add( new UI.Text( 'Effect' ).setTextTransform( 'uppercase' ) );
-		container.add( new UI.Break(), new UI.Break() );
+		var row = new UI.Row();
+		row.add( new UI.Text( 'Effect' ).setWidth( '90px' ) );
+		container.add( row );
 
 		var effects = editor.effects;
 		var options = {};
@@ -273,7 +263,7 @@ Sidebar.Animation = function ( editor ) {
 
 		}
 
-		var effectsSelect = new UI.Select().setMarginLeft( '90px' );
+		var effectsSelect = new UI.Select().setWidth( '130px' );
 		effectsSelect.setOptions( options ).setValue( effects.indexOf( animation.effect ) );
 		effectsSelect.onChange( function () {
 
@@ -285,9 +275,16 @@ Sidebar.Animation = function ( editor ) {
 			build();
 
 		} );
-		container.add( effectsSelect );
+		row.add( effectsSelect );
 
-		container.add( new UI.Break(), new UI.Break() );
+		var edit = new UI.Button( 'EDIT' ).setMarginLeft( '4px' );
+		edit.onClick( function () {
+
+			editor.selectEffect( animation.effect );
+
+		} );
+		row.add( edit );
+
 
 		var row = new UI.Row();
 		row.add( new UI.Text( 'Name' ).setWidth( '90px' ) );
@@ -302,13 +299,16 @@ Sidebar.Animation = function ( editor ) {
 		} );
 		row.add( effectName );
 
-		var edit = new UI.Button( 'EDIT' ).setMarginLeft( '4px' );
-		edit.onClick( function () {
+		//
 
-			editor.selectEffect( animation.effect );
+		var parameters = animation.effect.program.parameters;
 
-		} );
-		row.add( edit );
+		for ( var key in parameters ) {
+
+			container.add( createParameterRow( key, parameters[ key ] ) );
+
+		}
+
 
 	}
 
