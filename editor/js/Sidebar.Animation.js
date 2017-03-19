@@ -190,10 +190,10 @@ Sidebar.Animation = function ( editor ) {
 		} );
 		row.add( animationName );
 
-		// Start
+		// Time
 
 		var row = new UI.Row();
-		row.add( new UI.Text( 'Position' ).setWidth( '90px' ) );
+		row.add( new UI.Text( 'Time' ).setWidth( '90px' ) );
 		container.add( row );
 
 		var animationStart = new UI.Number( animation.start ).setWidth( '80px' );
@@ -213,6 +213,36 @@ Sidebar.Animation = function ( editor ) {
 
 		} );
 		row.add( animationEnd );
+
+		// Layer
+
+		var row = new UI.Row();
+		row.add( new UI.Text( 'Layer' ).setWidth( '90px' ) );
+		container.add( row );
+
+		var animationLayer = new UI.Integer( animation.layer ).setWidth( '80px' );
+		animationLayer.onChange( function () {
+
+			animation.layer = this.getValue();
+			signals.animationModified.dispatch( animation );
+
+		} );
+		row.add( animationLayer );
+
+		// Enabled
+
+		var row = new UI.Row();
+		row.add( new UI.Text( 'Enabled' ).setWidth( '90px' ) );
+		container.add( row );
+
+		var animationName = new UI.Checkbox( animation.enabled )
+		animationName.onChange( function () {
+
+			animation.enabled = this.getValue();
+			signals.animationModified.dispatch( animation );
+
+		} );
+		row.add( animationName );
 
 		//
 
