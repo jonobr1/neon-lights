@@ -513,6 +513,7 @@
 
 				var FacePlane = function( parent ) {
 					var texture = this.texture = new THREE.Texture( faceImage );
+					texture.premultiplyAlpha = true;
 					this.animator = new TextureAnimator( texture, 4, 4 );
 					this.animator.currentTile = 0;
 					var material = new THREE.MeshBasicMaterial({
