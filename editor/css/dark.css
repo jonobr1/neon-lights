@@ -58,8 +58,16 @@
 		background-color: #8f8;
 		border-left: 1px solid #afa;
 		border-top: 1px solid #afa;
-		border-right: 1px solid #4a4;
-		border-bottom: 1px solid #4a4;
+		border-right: 1px solid #5f5;
+		border-bottom: 1px solid #5f5;
+	}
+
+	#timeline .block.disabled {
+		background: repeating-linear-gradient( 45deg, #88f, #88f 5px, #77f 5px, #77f 10px );
+	}
+
+	#timeline .block.disabled.selected {
+		background: repeating-linear-gradient( 45deg, #8f8, #8f8 5px, #5f5 5px, #5f5 10px );
 	}
 
 #menubar {

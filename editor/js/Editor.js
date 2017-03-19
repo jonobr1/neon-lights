@@ -470,7 +470,8 @@ Editor.prototype = {
 					data[ 1 ],
 					data[ 2 ],
 					data[ 3 ],
-					scope.effects[ data[ 4 ] ]
+					scope.effects[ data[ 4 ] ],
+					data[ 5 ]
 				);
 
 				scope.addAnimation( animation );
@@ -566,7 +567,8 @@ Editor.prototype = {
 				animation.start,
 				animation.end,
 				animation.layer,
-				this.effects.indexOf( animation.effect )
+				this.effects.indexOf( animation.effect ),
+				animation.enabled
 			] );
 
 		}

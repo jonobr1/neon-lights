@@ -190,7 +190,7 @@ Sidebar.Animation = function ( editor ) {
 		} );
 		row.add( animationName );
 
-		// Start
+		// Position
 
 		var row = new UI.Row();
 		row.add( new UI.Text( 'Position' ).setWidth( '90px' ) );
@@ -213,6 +213,21 @@ Sidebar.Animation = function ( editor ) {
 
 		} );
 		row.add( animationEnd );
+
+		// Enabled
+
+		var row = new UI.Row();
+		row.add( new UI.Text( 'Enabled' ).setWidth( '90px' ) );
+		container.add( row );
+
+		var animationName = new UI.Checkbox( animation.enabled )
+		animationName.onChange( function () {
+
+			animation.enabled = this.getValue();
+			signals.animationModified.dispatch( animation );
+
+		} );
+		row.add( animationName );
 
 		//
 

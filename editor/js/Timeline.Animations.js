@@ -185,17 +185,19 @@ Timeline.Animations = function ( editor ) {
 
 		function select() {
 
-			dom.className = 'block selected';
+			dom.classList.add( 'selected' );
 
 		}
 
 		function deselect() {
 
-			dom.className = 'block';
+			dom.classList.remove( 'selected' );
 
 		}
 
 		function update() {
+
+			animation.enabled === false ? dom.classList.add( 'disabled' ) : dom.classList.remove( 'disabled' );
 
 			dom.style.left = ( animation.start * scale ) + 'px';
 			dom.style.top = ( animation.layer * 32 ) + 'px';
