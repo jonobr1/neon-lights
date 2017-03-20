@@ -43,6 +43,7 @@ var Code = function ( editor ) {
 	header.add( close );
 
 	var delay;
+	var errorLine = null;
 
 	var currentEffect = null;
 	var currentInclude = null;
@@ -64,6 +65,13 @@ var Code = function ( editor ) {
 
 		clearTimeout( delay );
 		delay = setTimeout( function () {
+
+			if ( errorLine ) {
+
+				codemirror.removeLineClass( errorLine, 'CodeMirror-errorLine' );
+				errorLine = null;
+
+			}
 
 			if ( currentInclude !== null ) {
 
@@ -88,6 +96,24 @@ var Code = function ( editor ) {
 				} catch ( e ) {
 
 					error = e.name + ' : ' + e.message; // e.stack, e.columnNumber, e.lineNumber
+
+					if ( /Chrome/i.test( navigator.userAgent ) ) {
+
+						var result = /<anonymous>:([0-9]+):([0-9+])/g.exec( e.stack );
+						if ( result !== null ) errorLine = parseInt( result[ 1 ] ) - 3;
+
+					} else if ( /Firefox/i.test( navigator.userAgent ) ) {
+
+						var result = /Function:([0-9]+):([0-9+])/g.exec( e.stack );
+						if ( result !== null ) errorLine = parseInt( result[ 1 ] ) - 1;
+
+					}
+
+					if ( errorLine !== null ) {
+
+						codemirror.addLineClass( errorLine, 'errorLine', 'CodeMirror-errorLine' );
+
+					}
 
 				}
 

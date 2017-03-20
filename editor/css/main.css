@@ -59,12 +59,14 @@ select.Select {
 }
 
 .CodeMirror {
-
 	position: absolute !important;
 	top: 37px;
 	width: 100% !important;
 	height: calc(100% - 37px) !important;
+}
 
+.CodeMirror-errorLine {
+	background: rgba(200, 50, 0, 0.2) !important;
 }
 
 
