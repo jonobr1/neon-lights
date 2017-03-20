@@ -277,7 +277,7 @@ Sidebar.Animation = function ( editor ) {
 		} );
 		row.add( effectsSelect );
 
-		var edit = new UI.Button( 'EDIT' ).setMarginLeft( '4px' );
+		var edit = new UI.Button( 'EDIT' ).setMarginLeft( '8px' );
 		edit.onClick( function () {
 
 			editor.selectEffect( animation.effect );
