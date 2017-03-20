@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>neon lights intro</title>
+		<title>Neon Lights</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link rel="stylesheet" type="text/css" href="../release/styles/intro.css">
@@ -32,7 +32,6 @@
 
 		<script>
 
-
 			var container;
 			var camera, scene, renderer;
 			var vreffect, controls;
@@ -45,6 +44,7 @@
 			var annieZ = -2;
 
 			var aLight;
+			var lightCircle;
 			var spotLight;
 			var logoMat;
 
@@ -56,14 +56,14 @@
 				container.classList.add('container');
 
 				scene = new THREE.Scene();
-				scene.fog = new THREE.FogExp2( 0x111111, 0.22 ); // hex, densiity
+				scene.fog = new THREE.FogExp2( 0x050505, 0.22 ); // hex, densiity
 				// scene.fog = new THREE.Fog( 0x111111, 0.2, 10 ); // hex, near, far
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
 				camera.position.set( 0, 1, 0 );
 				scene.add( camera );
 
-				// var setup = _.after(1, function(){
+				// var setup = _.after(16, function(){
 				// 	document.body.appendChild( container );
 				// 	loop();
 				// });
@@ -76,7 +76,7 @@
 				var planeMat = new THREE.MeshBasicMaterial({
 					// color: 0x45bd7f // green
 					// color: scene.fog.color
-					color: 0x222222
+					color: 0x111111
 				});
 				var plane = new THREE.Mesh( planeGeo, planeMat );
 				plane.position.set( 0, -0.01, annieZ );
@@ -87,12 +87,12 @@
 				var circleGeo = new THREE.CircleBufferGeometry( 0.5, 20 );
 				var circleMat = new THREE.MeshBasicMaterial({
 					// color: 0x002b07 // green
-					color: 0x333333
+					color: 0x222222
 				});
-				var circle = new THREE.Mesh( circleGeo, circleMat );
-				circle.position.z = annieZ;
-				circle.rotation.x = - Math.PI/2;
-				scene.add( circle );
+				lightCircle = new THREE.Mesh( circleGeo, circleMat );
+				lightCircle.position.z = annieZ;
+				lightCircle.rotation.x = - Math.PI / 2;
+				scene.add( lightCircle );
 
 				// ambient light bc girl's material in Standard, not Basic
 				aLight = new THREE.AmbientLight( 0xffffff, 1.0 );
@@ -109,7 +109,7 @@
 
 				spotLightHelper = spotLight.userData.helper = new THREE.SpotLightHelper( spotLight );
 				scene.add( spotLightHelper );
-				spotLightHelper.visible = true;
+				spotLightHelper.visible = false;
 
 				// or try replacing with
 				// https://threejs.org/examples/webgl_lights_arealight
@@ -795,7 +795,8 @@
 
 					var forestMat = new THREE.MeshBasicMaterial({
 						vertexColors: THREE.VertexColors,
-						side: THREE.DoubleSide
+						side: THREE.DoubleSide,
+						color: 0x555555
 					});
 
 					var mesh = new THREE.Mesh( geometry, forestMat );
@@ -900,7 +901,9 @@
 				var flickerTime = clock.getElapsedTime() % 4;
 				var flicker = storyline.get( 'flicker', flickerTime  );
 				logoMat.color.setHSL( 0, 0, flicker ? 1 : 0.4 );
+				lightCircle.material.color.setHSL( 0, 0, flicker ? 0.13 : 0.1 );
 				spotLight.intensity = flicker;
+				aLight.intensity = flicker ? 1.0 : 0.8;
 
 				TWEEN.update();
 
