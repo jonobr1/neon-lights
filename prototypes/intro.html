@@ -20,6 +20,7 @@
 			<script src="../release/third-party/orientation-arm-model.js"></script>
 			<script src="../release/third-party/webvr.js"></script>
 			<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
+			<script src="../release/third-party/tween.js"></script>
 			<script src="../release/third-party/texture-animator.js"></script>
 			<script src="../release/third-party/storyline.js"></script>
 
@@ -42,6 +43,10 @@
 			var storyline;
 
 			var annieZ = -2;
+
+			var aLight;
+			var spotLight;
+			var logoMat;
 
 			init();
 
@@ -89,20 +94,22 @@
 				circle.rotation.x = - Math.PI/2;
 				scene.add( circle );
 
-				var aLight = new THREE.AmbientLight( 0xffffff );
+				// ambient light bc girl's material in Standard, not Basic
+				aLight = new THREE.AmbientLight( 0xffffff, 1.0 );
+				aLight.userData.tween = tweenProp( aLight, 'intensity', 1.0, 3000, 1000 );
 				scene.add( aLight );
 
 				// actual spotlight / light from neon sign?
-				var spotLight = window.spotLight = new THREE.SpotLight( 0xFFC4FF );
+				spotLight = new THREE.SpotLight( 0xFFC4FF );
 				spotLight.angle = Math.PI / 6;
 				spotLight.position.set( 0, 2, -3 ); // same position as logoGroup
 				spotLight.target.position.set( 0, 0.5, annieZ );
 				scene.add( spotLight.target );
 				scene.add( spotLight );
 
-				var spotLightHelper = window.spotLightHelper = new THREE.SpotLightHelper( spotLight );
+				spotLightHelper = spotLight.userData.helper = new THREE.SpotLightHelper( spotLight );
 				scene.add( spotLightHelper );
-				spotLightHelper.visible = false;
+				spotLightHelper.visible = true;
 
 				// or try replacing with
 				// https://threejs.org/examples/webgl_lights_arealight
@@ -228,16 +235,27 @@
 				// ----------------------------------------------------------------
 
 				storyline = STORYLINE.parseStoryline({
-					"eyes": [
-						"0 cut to 0",
+					'eyes': [
+						'0 cut to 0',
 
-						"2 cut to 1",
-						"2.1 cut to 0",
+						'2 cut to 1',
+						'2.1 cut to 0',
 
-						"4.0 cut to 1",
-						"4.1 cut to 0",
-						"4.2 cut to 1",
-						"4.3 cut to 0"
+						'4.0 cut to 1',
+						'4.1 cut to 0',
+						'4.2 cut to 1',
+						'4.3 cut to 0'
+					],
+					'flicker': [
+						'0 cut to 1',
+
+						'1.0 cut to 0',
+						'1.1 cut to 1',
+
+						'3.0 cut to 0',
+						'3.1 cut to 1',
+						'3.15 cut to 0',
+						'3.2 cut to 1',
 					]
 				});
 
@@ -661,7 +679,9 @@
 							annie.userData.play('idle');
 							loop();
 
-							spotLightHelper.update();
+							spotLight.userData.helper.update();
+
+							// aLight.userData.tween.start();
 
 						});
 					});
@@ -713,36 +733,11 @@
 
 					// logo text
 
-					// var startY = 2.0;
-					// var offset = 0.22;
+					// var bmTextGroup = new THREE.Group();
+					// bmTextGroup.position.set( 0, 1.8, -2.4 );
+					// scene.add( bmTextGroup );
 
-					// -------------------------------------------------------
-
-					// logo line 1
-
-					// TCBtext = new TextBitmap({
-					// 	imagePath: fontFolder + 'bryant-bold.png',
-					// 	text: 'THE CHEMICAL BROTHERS',
-					// 	width: 1500,
-					// 	align: 'center',
-					// 	font: font,
-					// 	lineHeight: font.common.lineHeight - 10,
-					// 	letterSpacing: 7,
-					// 	scale: 0.003,
-					// 	color: '#111',
-					// 	outlineColor: '#ffaffc',
-					// 	outlineDistance: 0.1,
-					// 	threshold: 0.6
-					// }, renderer );
-
-					// var s = TCBtext.config.scale;
-					// TCBtext.group.scale.set( s, s, s );
-					// TCBtext.group.position.set( 0, startY, -2.4 );
-					// scene.add( TCBtext.group );
-
-					// -------------------------------------------------------
-
-					// logo line 2
+					// // logo line 1
 
 					// UNLtext = new TextBitmap({
 					// 	imagePath: fontFolder + 'bryant-bold.png',
@@ -752,41 +747,41 @@
 					// 	font: font,
 					// 	lineHeight: font.common.lineHeight - 10,
 					// 	letterSpacing: 7,
-					// 	scale: 0.003,
+					// 	scale: 0.003 * 1.2,
 					// 	color: '#111',
-					// 	outlineColor: '#fdb9b9',
-					// 	outlineDistance: 0.1,
+					// 	outlineColor: '#FF92FF',
+					// 	outlineDistance: 0.3,
 					// 	threshold: 0.6
 					// }, renderer );
 
 					// var s = UNLtext.config.scale;
 					// UNLtext.group.scale.set( s, s, s );
-					// UNLtext.group.position.set( 0, startY - offset, -2.4 );
-					// scene.add( UNLtext.group );
+					// UNLtext.group.position.y = 0;
+					// bmTextGroup.add( UNLtext.group );
 
-					// -------------------------------------------------------
+					// // logo line 2
 
-					// logo line 3
-
-					// FSVtext = new TextBitmap({
+					// TCBtext = new TextBitmap({
 					// 	imagePath: fontFolder + 'bryant-bold.png',
-					// 	text: 'FEATURING ST. VINCENT',
-					// 	width: 1500,
+					// 	text: 'THE CHEMICAL BROTHERS FEATURING ST. VINCENT',
+					// 	width: 2800,
 					// 	align: 'center',
 					// 	font: font,
 					// 	lineHeight: font.common.lineHeight - 10,
 					// 	letterSpacing: 7,
-					// 	scale: 0.003,
+					// 	scale: 0.00123 * 1.2,
 					// 	color: '#111',
-					// 	outlineColor: '#a9e0ff',
-					// 	outlineDistance: 0.1,
+					// 	outlineColor: '#FF92FF',
+					// 	outlineDistance: 0.2,
 					// 	threshold: 0.6
 					// }, renderer );
 
-					// var s = FSVtext.config.scale;
-					// FSVtext.group.scale.set( s, s, s );
-					// FSVtext.group.position.set( 0, startY - offset*2, -2.4 );
-					// scene.add( FSVtext.group );
+					// var s = TCBtext.config.scale;
+					// TCBtext.group.scale.set( s, s, s );
+					// TCBtext.group.position.y = -0.23  * 1.2;
+					// bmTextGroup.add( TCBtext.group );
+
+					// -------------------------------------------------------
 
 					otherAssets.complete();
 
@@ -814,36 +809,38 @@
 
 				var logoPath = [root, '/models/logo/'].join('');
 
-				var logoMat = new THREE.MeshBasicMaterial({
+				logoMat = new THREE.MeshBasicMaterial({
 					vertexColors: THREE.VertexColors,
 					side: THREE.DoubleSide,
 					fog: false
 				});
 
+				logoMat.color.setHSL( 0, 0, 0.4 );
+
 				var logoGroup = new THREE.Group();
 				scene.add( logoGroup );
 				logoGroup.position.set( 0, 2, -3 );
-
-				bufferGeoLoader.load(logoPath + 'mdl_env_1-forest_TCB_title.json', function( geometry ){
-
-					var mesh = new THREE.Mesh( geometry, logoMat );
-
-					mesh.position.y = 0.3;
-					mesh.rotation.x = - Math.PI / 2;
-					mesh.scale.setScalar( 0.1 );
-					mesh.scale.multiplyScalar( 0.5 );
-					logoGroup.add( mesh );
-
-					otherAssets.complete();
-				});
 
 				bufferGeoLoader.load(logoPath + 'mdl_env_1-forst_UNL_title.json', function( geometry ){
 
 					var mesh = new THREE.Mesh( geometry, logoMat );
 
-					mesh.position.z = 0.02;
 					mesh.rotation.x = - Math.PI / 2;
 					mesh.scale.setScalar( 0.1 );
+					logoGroup.add( mesh );
+
+					otherAssets.complete();
+				});
+
+				bufferGeoLoader.load(logoPath + 'mdl_env_1-forest_TCB_title.json', function( geometry ){
+
+					var mesh = new THREE.Mesh( geometry, logoMat );
+
+					mesh.position.x = - 1.13 + 0.03;
+					mesh.position.y = - 0.3;
+					mesh.rotation.x = - Math.PI / 2;
+					mesh.scale.setScalar( 0.1 );
+					mesh.scale.multiplyScalar( 0.4 );
 					logoGroup.add( mesh );
 
 					otherAssets.complete();
@@ -853,10 +850,11 @@
 
 					var mesh = new THREE.Mesh( geometry, logoMat );
 
+					mesh.position.x = 1.13 + 0.03;
 					mesh.position.y = -0.3;
 					mesh.rotation.x = - Math.PI / 2;
 					mesh.scale.setScalar( 0.1 );
-					mesh.scale.multiplyScalar( 0.5 )
+					mesh.scale.multiplyScalar( 0.4 )
 					logoGroup.add( mesh );
 
 					otherAssets.complete();
@@ -870,11 +868,11 @@
 
 			function onTriggerDown(e) {
 				var controller = e.target;
-				// todo: fade to black and start Frame.js
 			}
 
 			function onTriggerUp(e) {
 				var controller = e.target;
+				// todo: fade to black and start Frame.js
 			}
 
 			function resize() {
@@ -899,9 +897,12 @@
 				annie.userData.model.userData.eyeLeft.animator.currentTile = eyeTile + offset;
 				annie.userData.model.userData.eyeRight.animator.currentTile = eyeTile + offset;
 
-				// if ( annie.userData.model.userData.skeletonHelper.visible ) {
-				// 	annie.userData.model.userData.skeletonHelper.update();
-				// }
+				var flickerTime = clock.getElapsedTime() % 4;
+				var flicker = storyline.get( 'flicker', flickerTime  );
+				logoMat.color.setHSL( 0, 0, flicker ? 1 : 0.4 );
+				spotLight.intensity = flicker;
+
+				TWEEN.update();
 
 				if ( vreffect.isPresenting ) {
 					if ( has.mobile ) {
@@ -939,8 +940,32 @@
 
 				}
 
+				// if ( annie.userData.model.userData.skeletonHelper.visible ) {f
+				// 	annie.userData.model.userData.skeletonHelper.update();
+				// }
+
 				vreffect.render( scene, camera );
 
+			}
+
+			function tweenProp( obj, prop, targetValue, duration, delay, callback ) {
+
+				var callback = callback || _.identity;
+
+				var target = {};
+				target[prop] = targetValue;
+
+				var tween = new TWEEN.Tween( obj )
+					.to( target, duration || 1000 )
+					.easing( TWEEN.Easing.Cubic.Out )
+					.delay( delay || 0 )
+					.onComplete(function() {
+						TWEEN.remove(tween);
+						callback();
+					});
+					// .start();
+
+				return tween;
 			}
 
 		</script>
