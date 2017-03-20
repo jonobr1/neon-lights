@@ -9,17 +9,50 @@ var Controls = function ( editor ) {
 	var container = new UI.Panel();
 	container.setId( 'controls' );
 
+	var row = new UI.Row();
+	row.setPadding( '6px' );
+	container.add( row );
+
+	var prevButton = new UI.Button();
+	prevButton.setBackground( 'url(files/prev.svg)' );
+	prevButton.setWidth( '20px' );
+	prevButton.setHeight( '20px' );
+	prevButton.setMarginRight( '4px' );
+	prevButton.setVerticalAlign( 'middle' );
+	prevButton.onClick( function () {
+
+		editor.setTime( editor.currentTime - 1 );
+
+	} );
+	row.add( prevButton );
+
 	var playButton = new UI.Button();
-	playButton.setLabel( '▶︎' );
-	playButton.setMarginTop( '6px' );
-	playButton.setMarginLeft( '6px' );
-	playButton.setPaddingRight( '4px' );
+	playButton.setBackground( 'url(files/play.svg)' );
+	playButton.setWidth( '20px' );
+	playButton.setHeight( '20px' );
+	playButton.setMarginRight( '4px' );
+	playButton.setVerticalAlign( 'middle' );
 	playButton.onClick( function () {
 
 		editor.isPlaying ? editor.stop() : editor.play();
 
 	} );
-	playButton.onKeyDown( function ( event ) {
+	row.add( playButton );
+
+	var nextButton = new UI.Button();
+	nextButton.setBackground( 'url(files/next.svg)' );
+	nextButton.setWidth( '20px' );
+	nextButton.setHeight( '20px' );
+	nextButton.setMarginRight( '4px' );
+	nextButton.setVerticalAlign( 'middle' );
+	nextButton.onClick( function () {
+
+		editor.setTime( editor.currentTime + 1 );
+
+	} );
+	row.add( nextButton );
+
+	function ignoreKeys( event ) {
 
 		switch ( event.keyCode ) {
 
@@ -27,21 +60,18 @@ var Controls = function ( editor ) {
 
 		}
 
-	} );
-	container.add( playButton );
+	};
 
-	signals.playingChanged.add( function ( isPlaying ) {
-
-		playButton.setLabel( isPlaying ? '❚❚' : '▶︎' )
-
-	} );
+	prevButton.onKeyDown( ignoreKeys );
+	playButton.onKeyDown( ignoreKeys );
+	nextButton.onKeyDown( ignoreKeys );
 
 	var timeText = new UI.Text();
 	timeText.setColor( '#bbb' );
 	timeText.setWidth( '50px' );
 	timeText.setMarginLeft( '10px' );
 	timeText.setValue( '0:00.00' );
-	container.add( timeText );
+	row.add( timeText );
 
 	function updateTimeText( value ) {
 
@@ -57,7 +87,7 @@ var Controls = function ( editor ) {
 	playbackRateText.setColor( '#999' );
 	playbackRateText.setMarginLeft( '8px' );
 	playbackRateText.setValue( '1.0x' );
-	container.add( playbackRateText );
+	row.add( playbackRateText );
 
 	function updatePlaybackRateText( value ) {
 
@@ -73,24 +103,30 @@ var Controls = function ( editor ) {
 		editor.audio.muted = this.getValue();
 
 	} );
-	container.add( muteCheckbox );
+	row.add( muteCheckbox );
 
 	var muteText = new UI.Text( 'Muted' );
 	muteText.setColor( '#999' );
 	muteText.setMarginLeft( '4px' );
-	container.add( muteText );
+	row.add( muteText );
 
 	//
 
-	signals.timeChanged.add( function ( value ) {
+	signals.playingChanged.add( function ( isPlaying ) {
 
-		updateTimeText( value );
+		playButton.setBackground( isPlaying ? 'url(files/pause.svg)' : 'url(files/play.svg)' )
 
 	} );
 
 	signals.playbackRateChanged.add( function ( value ) {
 
 		updatePlaybackRateText( value );
+
+	} );
+
+	signals.timeChanged.add( function ( value ) {
+
+		updateTimeText( value );
 
 	} );
 
