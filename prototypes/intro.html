@@ -25,12 +25,18 @@
 			<script src="../release/third-party/texture-animator.js"></script>
 			<script src="../release/third-party/storyline.js"></script>
 
-			<script src="../release/src/NeonShader.js"></script>
-
 			<script src="../release/third-party/xhr.js"></script>
 			<script src="../release/src/text/three-bmfont-text-bundle.js"></script>
 			<script src="../release/src/text/sdf-shader.js"></script>
 			<script src="../release/src/text/text-bitmap.js"></script>
+
+			<script src="../release/src/NeonShader.js"></script>
+
+			<!-- <script src="../release/third-party/three/js/shaders/CopyShader.js"></script>
+			<script src="../release/third-party/three/js/shaders/SepiaShader.js"></script>
+			<script src="../release/third-party/three/js/postprocessing/EffectComposer.js"></script>
+			<script src="../release/third-party/three/js/postprocessing/RenderPass.js"></script>
+			<script src="../release/third-party/three/js/postprocessing/ShaderPass.js"></script> -->
 		</div>
 
 		<script>
@@ -50,6 +56,8 @@
 			var lightCircle;
 			var spotLight;
 			var logoMat;
+
+			// var composer;
 
 			init();
 
@@ -874,6 +882,16 @@
 
 				// ----------------------------------------------------------------
 
+				// composer = new THREE.EffectComposer( renderer );
+				// composer.addPass( new THREE.RenderPass( scene, camera ) );
+				// var shaderSepia = THREE.SepiaShader;
+				// var effectSepia = window.effectSepia = new THREE.ShaderPass( shaderSepia );
+				// effectSepia.uniforms[ "amount" ].value = 0.9;
+				// effectSepia.renderToScreen = true;
+				// composer.addPass( effectSepia );
+
+				// ----------------------------------------------------------------
+
 				window.addEventListener( 'resize', resize, false );
 
 			}
@@ -959,6 +977,7 @@
 				// }
 
 				vreffect.render( scene, camera );
+				// composer.render( scene, camera );
 
 			}
 
