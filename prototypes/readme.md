@@ -10,6 +10,7 @@
 + [Point and Select](./point-and-select.html)
 + [Face Animation](./face-animation.html)
 + [Intro](./intro.html)
++ [Intro Backlighting](./intro-backlight.html)
 + [Angle Orbit](./angle-orbit.html)
 + [Spline Path](./spline-path.html)
 <!-- + [Door Subtraction](./door-subtract.html) -->
