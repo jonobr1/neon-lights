@@ -47,7 +47,7 @@
 			var logoGroup;
 			var logoMat;
 
-			THREE.neonShader.globals.sepia.value = 1;
+			THREE.neonShader.globals.sepia.value = 2;
 
 			init();
 
@@ -73,7 +73,7 @@
 
 				var floorGeo = new THREE.PlaneBufferGeometry( 50, 50 );
 				var floorMat = window.floorMat = THREE.neonShader.floorShader;
-				floorMat.uniforms.color.value.setHex( 0x333333 );
+				floorMat.uniforms.color.value.setHex( 0x72fa8c );
 				var floor = new THREE.Mesh( floorGeo, floorMat );
 				floor.position.y = -0.01;
 				floor.rotation.x = - Math.PI / 2;
