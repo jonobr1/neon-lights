@@ -195,14 +195,38 @@
 				controllers.left.visible =
 				controllers.right.visible = false;
 
-				objectLoader.load(root + '/models/controllers/controller.json', function( obj ) {
-					obj.scale.setScalar( 0.01 );
+				objectLoader.load( root + '/models/controllers/controller-gray-only.json', function ( obj ) {
+
+					for ( var i = 0; i < obj.children.length; i++ ) {
+						obj.children[i].material = THREE.neonShader.vertexColored.clone();
+						for ( var j in THREE.neonShader.globals ) {
+							obj.children[i].material.uniforms[j] = THREE.neonShader.globals[j];
+						}
+					}
 
 					controllers.left.userData.mesh = obj;
+					controllers.left.add( controllers.left.userData.mesh );
+
+					otherAssets.complete();
+
+				} );
+
+				objectLoader.load(root + '/models/controllers/controller.json', function( obj ) {
+
+					for ( var i = 0; i < obj.children.length; i++ ) {
+						obj.children[i].material = THREE.neonShader.vertexColored.clone();
+						for ( var j in THREE.neonShader.globals ) {
+							obj.children[i].material.uniforms[j] = THREE.neonShader.globals[j];
+						}
+					}
+
+					obj.scale.setScalar( 0.01 );
+
+					// controllers.left.userData.mesh = obj;
 					controllers.right.userData.mesh = obj.clone();
 					controllers.daydream.userData.mesh = obj.clone();
 
-					controllers.left.add( controllers.left.userData.mesh );
+					// controllers.left.add( controllers.left.userData.mesh );
 					controllers.right.add( controllers.right.userData.mesh );
 					controllers.daydream.add( controllers.daydream.userData.mesh );
 
@@ -219,7 +243,7 @@
 						if ( !vreffect.isPresenting ) {
 							// reset camera
 							camera.position.set( 0, 1, 0 );
-							controls.orbit.target.set( 0, 0.7, annieZ );
+							controls.orbit.target.set( 0, 0.7, -2 );
 							// hide controllers
 							controllers.daydream.visible =
 							controllers.left.visible =
@@ -345,8 +369,8 @@
 
 				enhance( annie.userData.animations, 6 );
 
-				// bitmap font json (1), forest (1), logo (2), controller (1)
-				enhance( otherAssets, 5 );
+				// bitmap font json (1), forest (1), logo (2), controllers (2)
+				enhance( otherAssets, 6 );
 
 				annie.userData.age = function ( age ) {
 					annie.userData.models.complete.ready( function () {
