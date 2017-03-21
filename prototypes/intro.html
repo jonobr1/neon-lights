@@ -50,10 +50,10 @@
 			var clock = new THREE.Clock();
 			var storyline;
 
-			var annieZ = -2;
+			var annieZ = 0;
 
-			var aLight;
-			var lightCircle;
+			// var aLight;
+			// var lightCircle;
 			var spotLight;
 			var logoMat;
 
@@ -68,11 +68,13 @@
 
 				scene = new THREE.Scene();
 				// scene.fog = new THREE.FogExp2( 0x050505, 0.22 ); // hex, densiity
-				scene.fog = new THREE.Fog( 0x111111, 0.1, 4 ); // hex, near, far
+				scene.fog = new THREE.Fog( 0x111111, 0.1, 0.5 ); // hex, near, far
+				scene.fog.tween = tweenProp( scene.fog, 'far', 10, 20000, 1000 );
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
 				camera.position.set( 0, 1, 0 );
-				scene.add( camera );
+				scene.add( new THREE.Group().add( camera ) );
+				camera.parent.position.z = 2;
 
 				// var setup = _.after(16, function(){
 				// 	document.body.appendChild( container );
@@ -83,32 +85,32 @@
 				// scene.add( gridHelper );
 
 				// ground
-				var planeGeo = new THREE.PlaneBufferGeometry( 50, 50 );
-				var planeMat = new THREE.MeshBasicMaterial({
-					// color: 0x45bd7f // green
-					// color: scene.fog.color
-					color: 0x111111
-				});
-				var plane = new THREE.Mesh( planeGeo, planeMat );
-				plane.position.set( 0, -0.01, annieZ );
-				plane.rotation.x = - Math.PI / 2;
-				scene.add( plane );
+				var floorGeo = new THREE.PlaneBufferGeometry( 50, 50 );
+				var floorMat = window.floorMat = THREE.neonShader.floorShader;
+				floorMat.uniforms.color.value.setHex( 0x777777 )
+				var floor = new THREE.Mesh( floorGeo, floorMat );
+				floor.position.set( 0, -0.01, annieZ );
+				floor.rotation.x = - Math.PI / 2;
+				scene.add( floor );
+
+				var backdrop = new THREE.Mesh(
+					new THREE.SphereBufferGeometry( camera.far - 1 ),
+					THREE.neonShader.backSided
+				);
+				scene.add( backdrop );
 
 				// grass / spotlight circle
-				var circleGeo = new THREE.CircleBufferGeometry( 0.5, 20 );
-				var circleMat = new THREE.MeshBasicMaterial({
-					// color: 0x002b07 // green
-					color: 0x222222
-				});
-				lightCircle = new THREE.Mesh( circleGeo, circleMat );
-				lightCircle.position.z = annieZ;
-				lightCircle.rotation.x = - Math.PI / 2;
-				scene.add( lightCircle );
+				// var circleGeo = new THREE.CircleBufferGeometry( 0.5, 20 );
+				// var circleMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
+				// lightCircle = new THREE.Mesh( circleGeo, circleMat );
+				// lightCircle.position.z = annieZ;
+				// lightCircle.rotation.x = - Math.PI / 2;
+				// scene.add( lightCircle );
 
 				// ambient light bc girl's material in Standard, not Basic
-				aLight = new THREE.AmbientLight( 0xffffff, 1.0 );
-				aLight.userData.tween = tweenProp( aLight, 'intensity', 1.0, 3000, 1000 );
-				scene.add( aLight );
+				// aLight = new THREE.AmbientLight( 0xffffff, 1.0 );
+				// aLight.userData.tween = tweenProp( aLight, 'intensity', 1.0, 3000, 1000 );
+				// scene.add( aLight );
 
 				// actual spotlight / light from neon sign?
 				spotLight = new THREE.SpotLight( 0xFFC4FF );
@@ -142,7 +144,7 @@
 				};
 
 				controls.vr.standing = true;
-				controls.orbit.target.set( 0, 0.7, annieZ );
+				controls.orbit.target.set( 0, 0.7, -2 );
 
 				controls.orbit.minPolarAngle = Math.PI / 6;
 				controls.orbit.maxPolarAngle = Math.PI / 2;
@@ -173,20 +175,20 @@
 				controllers.left.addEventListener( 'triggerdown', onTriggerDown );
 				controllers.left.addEventListener( 'triggerup', onTriggerUp );
 				controllers.left.name = 'left';
-				scene.add( controllers.left );
+				camera.parent.add( controllers.left );
 
 				controllers.right.standingMatrix = controls.vr.getStandingMatrix();
 				controllers.right.addEventListener( 'triggerdown', onTriggerDown );
 				controllers.right.addEventListener( 'triggerup', onTriggerUp );
 				controllers.right.name = 'right';
-				scene.add( controllers.right );
+				camera.parent.add( controllers.right );
 
 				controllers.daydream.quaternion = new THREE.Quaternion();
 				controllers.daydream.arm = new OrientationArmModel();
 				controllers.daydream.addEventListener( 'touchpaddown', onTriggerDown );
 				controllers.daydream.addEventListener( 'touchpadup', onTriggerUp );
 				controllers.daydream.name = 'daydream';
-				scene.add( controllers.daydream );
+				camera.parent.add( controllers.daydream );
 
 				controllers.daydream.visible =
 				controllers.left.visible =
@@ -701,6 +703,7 @@
 							spotLight.userData.helper.update();
 
 							// aLight.userData.tween.start();
+							scene.fog.tween.start();
 
 						});
 					});
@@ -812,11 +815,16 @@
 
 				bufferGeoLoader.load(forestPath + 'mdl_env_1_forest_intro_v02.json', function( geometry ){
 
-					var forestMat = new THREE.MeshBasicMaterial({
-						vertexColors: THREE.VertexColors,
-						side: THREE.DoubleSide,
-						color: 0x555555
-					});
+					// var forestMat = new THREE.MeshBasicMaterial({
+					// 	vertexColors: THREE.VertexColors,
+					// 	side: THREE.DoubleSide,
+					// 	color: 0x555555
+					// });
+
+					var forestMat = THREE.neonShader.vertexColored.clone();
+					for ( var j in THREE.neonShader.globals ) {
+						forestMat.uniforms[j] = THREE.neonShader.globals[j];
+					}
 
 					var mesh = new THREE.Mesh( geometry, forestMat );
 					mesh.position.z = annieZ;
@@ -839,7 +847,7 @@
 
 				var logoGroup = new THREE.Group();
 				scene.add( logoGroup );
-				logoGroup.position.set( 0, 2, -3 );
+				logoGroup.position.set( 0, 2, -1 );
 
 				bufferGeoLoader.load(logoPath + 'mdl_env_1-forst_UNL_title.json', function( geometry ){
 
@@ -930,9 +938,9 @@
 				var flickerTime = clock.getElapsedTime() % 4;
 				var flicker = storyline.get( 'flicker', flickerTime  );
 				logoMat.color.setHSL( 0, 0, flicker ? 1 : 0.4 );
-				lightCircle.material.color.setHSL( 0, 0, flicker ? 0.13 : 0.1 );
+				// lightCircle.material.color.setHSL( 0, 0, flicker ? 0.13 : 0.1 );
 				spotLight.intensity = flicker;
-				aLight.intensity = flicker ? 1.0 : 0.8;
+				// aLight.intensity = flicker ? 1.0 : 0.8;
 
 				TWEEN.update();
 
@@ -990,7 +998,7 @@
 
 				var tween = new TWEEN.Tween( obj )
 					.to( target, duration || 1000 )
-					.easing( TWEEN.Easing.Cubic.Out )
+					.easing( TWEEN.Easing.Quadratic.InOut )
 					.delay( delay || 0 )
 					.onComplete(function() {
 						TWEEN.remove(tween);
