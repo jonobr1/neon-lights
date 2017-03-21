@@ -55,6 +55,7 @@
 			// var aLight;
 			// var lightCircle;
 			var spotLight;
+			var logoGroup;
 			var logoMat;
 
 			// var composer;
@@ -704,6 +705,7 @@
 
 							// aLight.userData.tween.start();
 							scene.fog.tween.start();
+							logoGroup.userData.tween.start();
 
 						});
 					});
@@ -840,14 +842,16 @@
 				logoMat = new THREE.MeshBasicMaterial({
 					vertexColors: THREE.VertexColors,
 					side: THREE.DoubleSide,
-					fog: false
+					// fog: false
 				});
 
 				logoMat.color.setHSL( 0, 0, 0.4 );
 
-				var logoGroup = new THREE.Group();
+				logoGroup = new THREE.Group();
 				scene.add( logoGroup );
 				logoGroup.position.set( 0, 2, -1 );
+				logoGroup.position.z = -2;
+				logoGroup.userData.tween = tweenProp( logoGroup.position, 'z', -1, 10000 );
 
 				bufferGeoLoader.load(logoPath + 'mdl_env_1-forst_UNL_title.json', function( geometry ){
 
