@@ -44,8 +44,6 @@
 			var clock = new THREE.Clock();
 			var storyline;
 
-			var annieZ = 0;
-
 			var logoGroup;
 			var logoMat;
 
@@ -77,7 +75,7 @@
 				var floorMat = window.floorMat = THREE.neonShader.floorShader;
 				floorMat.uniforms.color.value.setHex( 0x333333 );
 				var floor = new THREE.Mesh( floorGeo, floorMat );
-				floor.position.set( 0, -0.01, annieZ );
+				floor.position.y = -0.01;
 				floor.rotation.x = - Math.PI / 2;
 				scene.add( floor );
 
@@ -264,7 +262,6 @@
 				}
 
 				annie = new THREE.Group();
-				annie.position.set( 0, 0, annieZ );
 				scene.add( annie );
 
 				var path = [root, '/models/annie/'].join('');
@@ -730,7 +727,6 @@
 					}
 
 					var mesh = new THREE.Mesh( geometry, forestMat );
-					mesh.position.z = annieZ;
 					scene.add( mesh );
 
 					otherAssets.complete();
