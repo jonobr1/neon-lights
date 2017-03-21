@@ -87,7 +87,7 @@
 				// ground
 				var floorGeo = new THREE.PlaneBufferGeometry( 50, 50 );
 				var floorMat = window.floorMat = THREE.neonShader.floorShader;
-				floorMat.uniforms.color.value.setHex( 0x777777 )
+				floorMat.uniforms.color.value.setHex( 0x333333 );
 				var floor = new THREE.Mesh( floorGeo, floorMat );
 				floor.position.set( 0, -0.01, annieZ );
 				floor.rotation.x = - Math.PI / 2;
