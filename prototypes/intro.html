@@ -46,6 +46,9 @@
 
 			var logoGroup;
 			var logoMat;
+			var blackPlane;
+
+			var fading = false;
 
 			THREE.neonShader.globals.sepia.value = 2;
 
@@ -512,7 +515,7 @@
 					var material = new THREE.MeshBasicMaterial({
 						transparent: true,
 						map: texture,
-						// blending: THREE.MultiplyBlending
+						fog: false // so that the eyes don't look white / in front of black plane
 					});
 					var mesh = this.mesh = new THREE.Mesh( facePlaneGeo, material );
 					parent.add( mesh );
@@ -794,6 +797,29 @@
 
 				// ----------------------------------------------------------------
 
+				// black plane in foreground for fading gallery and player out and in
+				blackPlane = new THREE.Mesh(
+					new THREE.PlaneBufferGeometry(4,2),
+					new THREE.MeshBasicMaterial({
+						color: 0x000000,
+						transparent: true,
+						opacity: 0,
+						depthTest: false
+					})
+				);
+				blackPlane.userData.fadeIn = tweenProp( blackPlane.material, 'opacity', 0 );
+				blackPlane.userData.fadeOut = tweenProp( blackPlane.material, 'opacity', 1 );
+
+				// camera near clipping plane is 0.1
+				// if an object is between 0.1 and 0.2 away from the camera,
+				// the black plane won't cover it
+				blackPlane.position.z = - ( camera.near + 0.1 );
+
+				// blackPlane.renderOrder = 2;
+				camera.add( blackPlane );
+
+				// ----------------------------------------------------------------
+
 				window.addEventListener( 'resize', resize, false );
 
 			}
@@ -804,7 +830,16 @@
 
 			function onTriggerUp(e) {
 				var controller = e.target;
-				// todo: fade to black and start Frame.js
+
+				fading = !fading;
+
+				if (fading) {
+					fadeOut();
+					// todo: start Frame.js
+				} else {
+					fadeIn();
+				}
+
 			}
 
 			function resize() {
@@ -887,7 +922,7 @@
 				target[prop] = targetValue;
 
 				var tween = new TWEEN.Tween( obj )
-					.to( target, duration || 1000 )
+					.to( target, duration || 2000 )
 					.easing( TWEEN.Easing.Quadratic.InOut )
 					.delay( delay || 0 )
 					.onComplete(function() {
@@ -897,6 +932,34 @@
 					// .start();
 
 				return tween;
+			}
+
+			function fadeIn(callback) {
+
+				blackPlane.userData.fadeOut.stop().onComplete(_.identity);
+				blackPlane.userData.fadeIn.onComplete(function() {
+					TWEEN.remove(blackPlane.userData.fadeIn);
+					if (_.isFunction(callback)) {
+						callback();
+					}
+				});
+
+				// vreffect.requestAnimationFrame(function() {
+					blackPlane.userData.fadeIn.start();
+				// });
+
+			}
+
+			function fadeOut(callback) {
+
+				blackPlane.userData.fadeIn.stop().onComplete(_.identity);
+				blackPlane.userData.fadeOut.onComplete(function() {
+					TWEEN.remove(blackPlane.userData.fadeOut);
+					if (_.isFunction(callback)) {
+						callback();
+					}
+				}).start();
+
 			}
 
 		</script>
