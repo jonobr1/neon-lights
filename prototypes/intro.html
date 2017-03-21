@@ -25,12 +25,18 @@
 			<script src="../release/third-party/texture-animator.js"></script>
 			<script src="../release/third-party/storyline.js"></script>
 
-			<script src="../release/src/NeonShader.js"></script>
-
 			<script src="../release/third-party/xhr.js"></script>
 			<script src="../release/src/text/three-bmfont-text-bundle.js"></script>
 			<script src="../release/src/text/sdf-shader.js"></script>
 			<script src="../release/src/text/text-bitmap.js"></script>
+
+			<script src="../release/src/NeonShader.js"></script>
+
+			<!-- <script src="../release/third-party/three/js/shaders/CopyShader.js"></script>
+			<script src="../release/third-party/three/js/shaders/SepiaShader.js"></script>
+			<script src="../release/third-party/three/js/postprocessing/EffectComposer.js"></script>
+			<script src="../release/third-party/three/js/postprocessing/RenderPass.js"></script>
+			<script src="../release/third-party/three/js/postprocessing/ShaderPass.js"></script> -->
 		</div>
 
 		<script>
@@ -51,6 +57,8 @@
 			var spotLight;
 			var logoMat;
 
+			// var composer;
+
 			init();
 
 			function init() {
@@ -59,8 +67,8 @@
 				container.classList.add('container');
 
 				scene = new THREE.Scene();
-				scene.fog = new THREE.FogExp2( 0x050505, 0.22 ); // hex, densiity
-				// scene.fog = new THREE.Fog( 0x111111, 0.2, 10 ); // hex, near, far
+				// scene.fog = new THREE.FogExp2( 0x050505, 0.22 ); // hex, densiity
+				scene.fog = new THREE.Fog( 0x111111, 0.1, 4 ); // hex, near, far
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
 				camera.position.set( 0, 1, 0 );
@@ -268,7 +276,7 @@
 
 				// var dolly = FRAME.getResource( 'dolly' );
 				// var material = FRAME.getResource( 'materials' ).annie.skinned;
-				
+
 				// var annieMat = new THREE.MeshBasicMaterial({
 				// var annieMat = new THREE.MeshPhongMaterial({
 				// var annieMat = new THREE.MeshLambertMaterial({
@@ -278,22 +286,22 @@
 				// 	fog: false
 				// });
 
-				var annieMat = new THREE.MeshStandardMaterial({
-					vertexColors: THREE.VertexColors,
-					side: THREE.DoubleSide,
-					skinning: true,
-					fog: false,
-					roughness: 0.6,
-					metalness: 0.0
-				});
+				// var annieMat = new THREE.MeshStandardMaterial({
+				// 	vertexColors: THREE.VertexColors,
+				// 	side: THREE.DoubleSide,
+				// 	skinning: true,
+				// 	fog: false,
+				// 	roughness: 0.6,
+				// 	metalness: 0.0
+				// });
 
-				// THREE.neonShader.globals.sepia.value = 1;
+				THREE.neonShader.globals.sepia.value = 1;
 
-				// var annieMat = THREE.neonShader.basicShader.clone();
+				var annieMat = THREE.neonShader.skinnedShader.clone();
 
-				// for ( var j in THREE.neonShader.globals ) {
-				// 	annieMat.uniforms[j] = THREE.neonShader.globals[j];
-				// }
+				for ( var j in THREE.neonShader.globals ) {
+					annieMat.uniforms[j] = THREE.neonShader.globals[j];
+				}
 
 				annie = new THREE.Group();
 				annie.position.set( 0, 0, annieZ );
@@ -351,7 +359,7 @@
 						}
 
 						// model.userData.skeletonHelper.visible = true;
-						
+
 						annie.userData.model = model;
 
 						var bb = model.userData.boundingBox;
@@ -395,7 +403,7 @@
 						var model = annie.userData.model;
 						var animations = model.userData.animations;
 						var current = model.userData.currentAnimation;
-						
+
 						if ( current && current.type === action ) {
 							return;
 						}
@@ -422,7 +430,7 @@
 						}
 
 					} );
-					
+
 				};
 
 				for ( var age in files.models ) {
@@ -559,13 +567,13 @@
 					return function ( fbx ) {
 
 						annie.userData.models[ age ] = fbx;
-						
+
 						fbx.traverse( function ( child ) {
 
 							if ( child.isMesh ) {
 
 								var lambert = child.material;
-								child.material = annieMat.clone();
+								child.material = annieMat;
 								lambert.dispose();
 
 								child.geometry.computeBoundingBox();
@@ -603,11 +611,11 @@
 						annie.userData.models.complete();
 
 					};
-					
+
 				}
 
 				function animationLoaded ( age, action ) {
-					
+
 					return function ( fbx ) {
 
 						annie.userData.models.complete.ready( function () {
@@ -629,9 +637,9 @@
 							annie.userData.animations.complete();
 
 						} );
-						
+
 					};
-					
+
 				}
 
 				function setClipRange ( obj, clipStart, clipEnd )  {
@@ -874,6 +882,16 @@
 
 				// ----------------------------------------------------------------
 
+				// composer = new THREE.EffectComposer( renderer );
+				// composer.addPass( new THREE.RenderPass( scene, camera ) );
+				// var shaderSepia = THREE.SepiaShader;
+				// var effectSepia = window.effectSepia = new THREE.ShaderPass( shaderSepia );
+				// effectSepia.uniforms[ "amount" ].value = 0.9;
+				// effectSepia.renderToScreen = true;
+				// composer.addPass( effectSepia );
+
+				// ----------------------------------------------------------------
+
 				window.addEventListener( 'resize', resize, false );
 
 			}
@@ -959,6 +977,7 @@
 				// }
 
 				vreffect.render( scene, camera );
+				// composer.render( scene, camera );
 
 			}
 
