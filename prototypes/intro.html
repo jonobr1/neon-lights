@@ -50,7 +50,19 @@
 
 			var fading = false;
 
-			THREE.neonShader.globals.sepia.value = 2;
+			function neonOff() {
+				THREE.neonShader.globals.sepia.value = 2;
+				THREE.neonShader.globals.neon.value = 0;
+				THREE.neonShader.globals.saturation.value = 0.2;
+			}
+
+			function neonOn() {
+				THREE.neonShader.globals.sepia.value = 0;
+				THREE.neonShader.globals.neon.value = 0.78;
+				THREE.neonShader.globals.saturation.value = 1;
+			}
+
+			neonOff();
 
 			init();
 
