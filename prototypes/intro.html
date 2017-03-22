@@ -688,7 +688,7 @@
 							lineHeight: font.common.lineHeight - 10,
 							letterSpacing: 5,
 							scale: 0.0004,
-							color: "#fff"
+							color: '#fff'
 						}, renderer );
 
 						var s = bmtext.config.scale;
@@ -834,8 +834,9 @@
 				fading = !fading;
 
 				if (fading) {
-					fadeOut();
-					// todo: start Frame.js
+					fadeOut(function(){
+						// todo: start Frame.js
+					});
 				} else {
 					fadeIn();
 				}
