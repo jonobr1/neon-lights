@@ -205,6 +205,10 @@
 
 				//
 
+				var buttonContainer = document.createElement( 'div' );
+				buttonContainer.classList.add('abs-bc');
+				container.appendChild( buttonContainer );
+
 				vreffect = new THREE.VREffect( renderer );
 
 				if ( WEBVR.isAvailable() ) {
@@ -231,13 +235,34 @@
 						}
 					}, false);
 
-					container.appendChild( WEBVR.getButton( vreffect ) );
+					buttonContainer.appendChild( WEBVR.getButton( vreffect ) );
 
 				} else {
 
 					container.appendChild( WEBVR.getMessage() );
 
 				}
+
+				// ----------------------------------------------------------------
+
+				var button = document.createElement( 'a' );
+				button.classList.add('button');
+				button.innerHTML = 'Play';
+				button.onclick = function(e) {
+					e.preventDefault();
+
+					fading = !fading;
+
+					if (fading) {
+						fadeOut(function(){
+							// todo: start Frame.js
+						});
+					} else {
+						fadeIn();
+					}
+				};
+
+				buttonContainer.appendChild( button );
 
 				// ----------------------------------------------------------------
 				// ----------------------------------------------------------------
