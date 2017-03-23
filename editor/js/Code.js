@@ -89,7 +89,7 @@ var Code = function ( editor ) {
 				try {
 
 					currentEffect.source = codemirror.getValue();
-					currentEffect.compile();
+					currentEffect.compile( editor.player );
 
 					editor.signals.effectCompiled.dispatch();
 
@@ -117,7 +117,7 @@ var Code = function ( editor ) {
 
 				}
 
-				editor.timeline.update( editor.currentTime );
+				editor.timeline.update( editor.player.currentTime );
 
 				if ( error !== undefined ) {
 

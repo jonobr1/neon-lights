@@ -50,7 +50,6 @@ var Editor = function () {
 		// events
 
 		playingChanged: new Signal(),
-		durationChanged: new Signal(),
 		playbackRateChanged: new Signal(),
 		timeChanged: new Signal(),
 		timelineScaled: new Signal(),
@@ -59,11 +58,10 @@ var Editor = function () {
 
 	};
 
-	this.audio = null;
 	this.config = new Config( 'framejs-editor' );
 
-	this.isPlaying = false;
-	this.currentTime = 0;
+	this.player = new FRAME.Player();
+	this.duration = 500;
 
 	this.libraries = [];
 	this.includes = [];
@@ -80,19 +78,19 @@ var Editor = function () {
 
 		scope.timeline.reset();
 		scope.timeline.sort();
-		scope.timeline.update( scope.currentTime );
+		scope.timeline.update( scope.player.currentTime );
 
 	} );
 
 	this.signals.effectCompiled.add( function () {
 
-		scope.timeline.update( scope.currentTime );
+		scope.timeline.update( scope.player.currentTime );
 
 	} );
 
 	this.signals.timeChanged.add( function () {
 
-		scope.timeline.update( scope.currentTime );
+		scope.timeline.update( scope.player.currentTime );
 
 	} );
 
@@ -100,35 +98,23 @@ var Editor = function () {
 
 	var prevTime = 0;
 
-	function animate() {
+	function animate( time ) {
 
-		if ( scope.audio !== null ) {
+		scope.player.tick( time - prevTime );
 
-			if ( scope.isPlaying ) {
+		if ( scope.player.isPlaying ) {
 
-				scope.signals.timeChanged.dispatch( scope.currentTime );
-
-			}
-
-		} else {
-
-			var currentTime = performance.now();
-
-			if ( scope.isPlaying ) {
-
-				scope.setTime( scope.currentTime + ( currentTime - prevTime ) / 1000 );
-
-			}
-
-			prevTime = currentTime;
+			scope.signals.timeChanged.dispatch( scope.player.currentTime );
 
 		}
+
+		prevTime = time;
 
 		requestAnimationFrame( animate );
 
 	}
 
-	animate();
+	requestAnimationFrame( animate );
 
 };
 
@@ -136,49 +122,29 @@ Editor.prototype = {
 
 	play: function () {
 
-		if ( this.audio !== null ) {
-
-			this.audio.play();
-
-		}
-
-		this.isPlaying = true;
+		this.player.play();
 		this.signals.playingChanged.dispatch( true );
 
 	},
 
 	stop: function () {
 
-		if ( this.audio !== null ) {
-
-			this.audio.pause();
-
-		}
-
-		this.isPlaying = false;
+		this.player.pause();
 		this.signals.playingChanged.dispatch( false );
 
 	},
 
 	speedUp: function () {
 
-		if ( this.audio !== null ) {
-
-			this.audio.playbackRate += 0.1;
-			this.signals.playbackRateChanged.dispatch( this.audio.playbackRate );
-
-		}
+		this.player.playbackRate += 0.1;
+		this.signals.playbackRateChanged.dispatch( this.player.playbackRate );
 
 	},
 
 	speedDown: function () {
 
-		if ( this.audio !== null ) {
-
-			this.audio.playbackRate -= 0.1;
-			this.signals.playbackRateChanged.dispatch( this.audio.playbackRate );
-
-		}
+		this.player.playbackRate -= 0.1;
+		this.signals.playbackRateChanged.dispatch( this.player.playbackRate );
 
 	},
 
@@ -186,30 +152,8 @@ Editor.prototype = {
 
 		// location.hash = time;
 
-		if ( this.audio !== null ) {
-
-			this.audio.currentTime = Math.max( 0, time );
-
-		}
-
-		this.currentTime = Math.max( 0, time );
-		this.signals.timeChanged.dispatch( this.currentTime );
-
-	},
-
-	//
-
-	setAudio: function ( audio ) {
-
-		this.audio = audio;
-
-		var scope = this;
-
-		audio.addEventListener( 'durationchange', function () {
-
-			scope.signals.durationChanged.dispatch( audio.duration );
-
-		}, false );
+		this.player.currentTime = Math.max( 0, time );
+		this.signals.timeChanged.dispatch( this.player.currentTime );
 
 	},
 
@@ -339,6 +283,14 @@ Editor.prototype = {
 
 	addAnimation: function ( animation ) {
 
+		var effect = animation.effect;
+
+		if ( effect.program === null ) {
+
+			effect.compile( this.player );
+
+		}
+
 		this.timeline.add( animation );
 		this.signals.animationAdded.dispatch( animation );
 
@@ -429,11 +381,10 @@ Editor.prototype = {
 		var scope = this;
 
 		var libraries = json.libraries || [];
-		var includes = json.includes;
-		var effects = json.effects;
-		var animations = json.animations;
 
 		loadLibraries( libraries, function () {
+
+			var includes = json.includes;
 
 			for ( var i = 0, l = includes.length; i < l; i ++ ) {
 
@@ -448,6 +399,8 @@ Editor.prototype = {
 
 			}
 
+			var effects = json.effects;
+
 			for ( var i = 0, l = effects.length; i < l; i ++ ) {
 
 				var data = effects[ i ];
@@ -460,6 +413,8 @@ Editor.prototype = {
 				scope.addEffect( new FRAME.Effect( name, source ) );
 
 			}
+
+			var animations = json.animations;
 
 			for ( var i = 0, l = animations.length; i < l; i ++ ) {
 

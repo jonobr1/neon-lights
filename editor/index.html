@@ -39,25 +39,11 @@
 
 		<!-- Project specific files -->
 
-		<audio id="audio"></audio>
-
 		<script>
 
-			var audio = document.getElementById( 'audio' );
-			var src = /localhost/.test(window.location.href) ? '../assets/audio/03 Under Neon Lights' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets/audio/03 Under Neon Lights';
-			src += has.Chromium ? '.ogg' : '.mp3';
-			audio.src = src;
+			FRAME.addResource( 'debug', true );
 
 			var editor = new Editor();
-			editor.setAudio( audio );
-
-			// TOFIX:
-
-			Object.defineProperty( editor, 'currentTime', {
-				get: function() { return this.audio.currentTime }
-			} );
-
-			FRAME.addResource( 'debug', true );
 
 			var viewport = new Viewport( editor );
 			document.body.appendChild( viewport.dom );
@@ -99,14 +85,6 @@
 
 					editor.config.setKey( 'state', JSON.stringify( editor.toJSON() ) );
 
-					var effect = FRAME.getResource( 'effect' );
-					var camera = FRAME.getResource( 'camera' );
-					var scene = FRAME.getResource( 'scene' );
-
-					if ( effect && camera && scene ) {
-						effect.render( scene, camera );
-					}
-
 				}, 1000 );
 
 			}
@@ -147,15 +125,15 @@
 						event.preventDefault();
 						break;
 					case 32:
-						editor.isPlaying ? editor.stop() : editor.play();
+						editor.player.isPlaying ? editor.stop() : editor.play();
 						break;
 					case 37:
 						event.preventDefault();
-						editor.setTime( editor.currentTime - 1 );
+						editor.setTime( editor.player.currentTime - 1 );
 						break;
 					case 39:
 						event.preventDefault();
-						editor.setTime( editor.currentTime + 1 );
+						editor.setTime( editor.player.currentTime + 1 );
 						break;
 					case 38:
 						event.preventDefault();
@@ -211,6 +189,8 @@
 				editor.signals.windowResized.dispatch();
 
 			} );
+
+			editor.signals.windowResized.dispatch();
 
 		</script>
 	</body>

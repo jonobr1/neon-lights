@@ -57,12 +57,12 @@ Sidebar.Project = function ( editor ) {
 
 			var effect = effects[ j ];
 
-			effect.compile();
+			effect.compile( editor.player );
 
 		}
 
 		editor.timeline.reset();
-		editor.timeline.update( editor.currentTime );
+		editor.timeline.update( editor.player.currentTime );
 
 	} );
 	reload.setMarginLeft( '4px' );

@@ -5,6 +5,7 @@
 var Timeline = function ( editor ) {
 
 	var signals = editor.signals;
+	var player = editor.player;
 
 	var container = new UI.Panel();
 	container.setId( 'timeline' );
@@ -48,10 +49,8 @@ var Timeline = function ( editor ) {
 	document.addEventListener( 'keydown', function ( event ) { keysDown[ event.keyCode ] = true; } );
 	document.addEventListener( 'keyup',   function ( event ) { keysDown[ event.keyCode ] = false; } );
 
-	var time = 0;
 	var scale = 32;
 	var prevScale = scale;
-	var duration = 60;
 
 	var timeline = new UI.Panel();
 	timeline.setPosition( 'absolute' );
@@ -116,6 +115,7 @@ var Timeline = function ( editor ) {
 
 		context.translate( - scroller.scrollLeft, 0 );
 
+		var duration = editor.duration;
 		var width = duration * scale;
 		var scale4 = scale / 4;
 
@@ -175,14 +175,12 @@ var Timeline = function ( editor ) {
 
 	function updateContainers() {
 
-		var width = duration * scale;
+		var width = editor.duration * scale;
 
 		elements.setWidth( width + 'px' );
 		// curves.setWidth( width + 'px' );
 
 	}
-
-	updateContainers();
 
 	//
 
@@ -210,24 +208,13 @@ var Timeline = function ( editor ) {
 
 	function updateTimeMark() {
 
-		timeMark.style.left = ( time * scale ) - scroller.scrollLeft - 8 + 'px';
+		timeMark.style.left = ( player.currentTime * scale ) - scroller.scrollLeft - 8 + 'px';
 
 	}
 
 	// signals
 
-	signals.durationChanged.add( function ( value ) {
-
-		duration = value;
-
-		updateMarks();
-		updateContainers();
-
-	} );
-
-	signals.timeChanged.add( function ( value ) {
-
-		time = value;
+	signals.timeChanged.add( function () {
 
 		updateTimeMark();
 
@@ -250,6 +237,7 @@ var Timeline = function ( editor ) {
 	signals.windowResized.add( function () {
 
 		updateMarks();
+		updateContainers();
 
 	} );
 

@@ -21,7 +21,7 @@ var Controls = function ( editor ) {
 	prevButton.setVerticalAlign( 'middle' );
 	prevButton.onClick( function () {
 
-		editor.setTime( editor.currentTime - 1 );
+		editor.setTime( editor.player.currentTime - 1 );
 
 	} );
 	row.add( prevButton );
@@ -34,7 +34,7 @@ var Controls = function ( editor ) {
 	playButton.setVerticalAlign( 'middle' );
 	playButton.onClick( function () {
 
-		editor.isPlaying ? editor.stop() : editor.play();
+		editor.player.isPlaying ? editor.stop() : editor.play();
 
 	} );
 	row.add( playButton );
@@ -47,7 +47,7 @@ var Controls = function ( editor ) {
 	nextButton.setVerticalAlign( 'middle' );
 	nextButton.onClick( function () {
 
-		editor.setTime( editor.currentTime + 1 );
+		editor.setTime( editor.player.currentTime + 1 );
 
 	} );
 	row.add( nextButton );
@@ -68,7 +68,7 @@ var Controls = function ( editor ) {
 
 	var timeText = new UI.Text();
 	timeText.setColor( '#bbb' );
-	timeText.setWidth( '50px' );
+	timeText.setWidth( '60px' );
 	timeText.setMarginLeft( '10px' );
 	timeText.setValue( '0:00.00' );
 	row.add( timeText );
@@ -100,7 +100,11 @@ var Controls = function ( editor ) {
 	muteCheckbox.setMarginLeft( '20px' );
 	muteCheckbox.onChange( function () {
 
-		editor.audio.muted = this.getValue();
+		if ( editor.player.audio ) {
+
+			editor.player.audio.muted = this.getValue();
+
+		}
 
 	} );
 	row.add( muteCheckbox );
