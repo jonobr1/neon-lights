@@ -95,25 +95,6 @@ var Controls = function ( editor ) {
 
 	}
 
-	var muteCheckbox = new UI.Checkbox( false );
-	muteCheckbox.setColor( '#999' );
-	muteCheckbox.setMarginLeft( '20px' );
-	muteCheckbox.onChange( function () {
-
-		if ( editor.player.audio ) {
-
-			editor.player.audio.muted = this.getValue();
-
-		}
-
-	} );
-	row.add( muteCheckbox );
-
-	var muteText = new UI.Text( 'Muted' );
-	muteText.setColor( '#999' );
-	muteText.setMarginLeft( '4px' );
-	row.add( muteText );
-
 	//
 
 	signals.playingChanged.add( function ( isPlaying ) {
