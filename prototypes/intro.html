@@ -48,7 +48,11 @@
 			var logoMat;
 			var blackPlane;
 
-			var fading = false;
+			var isNeon = false;
+			var isFading = false;
+
+			var mouse = new THREE.Vector2();
+			mouse.moved = false;
 
 			function neonOff() {
 				THREE.neonShader.globals.sepia.value = 2;
@@ -102,12 +106,37 @@
 
 				//
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer = new THREE.WebGLRenderer({ antialias: true });
 				renderer.setClearColor( scene.fog.color );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.sortObjects = false;
 				container.appendChild( renderer.domElement );
+
+				var canvas = {
+					hover: function(e){
+						mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+						mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+					},
+					mousedown: function(e){
+						renderer.domElement.addEventListener('mousemove', canvas.mousemove, false);
+						renderer.domElement.addEventListener('mouseup', canvas.mouseup, false);
+					},
+					mousemove: function(e){
+						mouse.moved = true;
+					},
+					mouseup: function(e){
+						if(!mouse.moved) {
+							isNeon = !isNeon;
+							isNeon ? neonOn() : neonOff();
+						}
+						mouse.moved = false;
+						renderer.domElement.removeEventListener('mousemove', canvas.mousemove, false);
+						renderer.domElement.removeEventListener('mouseup', canvas.mouseup, false);
+					}
+				}
+
+				renderer.domElement.addEventListener('mousedown', canvas.mousedown, false);
 
 				controls = {
 					vr: new THREE.VRControls( camera ),
@@ -251,9 +280,9 @@
 				button.onclick = function(e) {
 					e.preventDefault();
 
-					fading = !fading;
+					isFading = !isFading;
 
-					if (fading) {
+					if (isFading) {
 						fadeOut(function(){
 							// todo: start Frame.js
 						});
@@ -868,9 +897,9 @@
 			function onTriggerUp(e) {
 				var controller = e.target;
 
-				fading = !fading;
+				isFading = !isFading;
 
-				if (fading) {
+				if (isFading) {
 					fadeOut(function(){
 						// todo: start Frame.js
 					});
