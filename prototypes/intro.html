@@ -90,7 +90,7 @@
 				// });
 
 				var floorGeo = new THREE.PlaneBufferGeometry( 50, 50 );
-				var floorMat = window.floorMat = THREE.neonShader.floorShader;
+				var floorMat = THREE.neonShader.floorShader;
 				floorMat.uniforms.color.value.setHex( 0x72fa8c );
 				var floor = new THREE.Mesh( floorGeo, floorMat );
 				floor.position.y = -0.01;
