@@ -263,7 +263,13 @@
 						}
 					}, false);
 
-					buttonContainer.appendChild( WEBVR.getButton( vreffect ) );
+					navigator.getVRDisplays().then(function(displays) {
+						if (displays.length > 0) {
+							buttonContainer.appendChild( WEBVR.getButton( vreffect ) );
+						} else {
+							buttonContainer.appendChild( WEBVR.getMessage({ displays: displays }) );
+						}
+					});
 
 				} else {
 
@@ -763,7 +769,7 @@
 					// 	color: 0x555555
 					// });
 
-					var forestMat = window.forestMat = THREE.neonShader.vertexColoredDoubleSided.clone();
+					var forestMat = THREE.neonShader.vertexColoredDoubleSided.clone();
 					for ( var j in THREE.neonShader.globals ) {
 						forestMat.uniforms[j] = THREE.neonShader.globals[j];
 					}
