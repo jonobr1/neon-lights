@@ -9,7 +9,7 @@
 	<body>
 
 		<div class="scripts" style="display: none;">
-			<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+			<script src="../release/third-party/underscore.js"></script>
 			<script src="../release/third-party/url.js"></script>
 			<script src="../release/third-party/has.js"></script>
 			<script src="../release/third-party/three.js"></script>
@@ -19,7 +19,7 @@
 			<script src="../release/third-party/three/js/vr/ViveController.js"></script>
 			<script src="../release/third-party/three/js/vr/DaydreamController.js"></script>
 			<script src="../release/third-party/orientation-arm-model.js"></script>
-			<script src="../release/third-party/webvr.js"></script>
+			<!-- <script src="../release/third-party/webvr.js"></script> -->
 			<script src="../release/third-party/three/js/loaders/FBXLoader2.js"></script>
 			<script src="../release/third-party/tween.js"></script>
 			<script src="../release/third-party/texture-animator.js"></script>
@@ -237,9 +237,33 @@
 				buttonContainer.classList.add('abs-bc');
 				container.appendChild( buttonContainer );
 
+				var icon = '<img src="../release/images/cardboard.svg" alt="VR Headset" />';
+
+				var vrButton = document.createElement( 'a' );
+				vrButton.classList.add('button');
+				vrButton.classList.add('webvr-not-available');
+				buttonContainer.appendChild( vrButton );
+
+				var buttonBox = document.createElement('div');
+				buttonBox.innerHTML = icon + 'Start in VR';
+				buttonBox.classList.add('button-box');
+				vrButton.appendChild( buttonBox );
+
+				function errorMessage() {
+					var message = document.createElement('div');
+					message.innerHTML = 'Requires a VR headset';
+					message.classList.add('message');
+					vrButton.appendChild( message );
+
+					vrButton.addEventListener('mouseup', function(e) {
+						e.preventDefault();
+						window.open('http://webvr.info','_blank');
+					});
+				}
+
 				vreffect = new THREE.VREffect( renderer );
 
-				if ( WEBVR.isAvailable() ) {
+				if ( navigator.getVRDisplays ) { // webvr is available
 
 					window.addEventListener( 'vrdisplaypresentchange', function() {
 						if ( !vreffect.isPresenting ) {
@@ -265,26 +289,30 @@
 
 					navigator.getVRDisplays().then(function(displays) {
 						if (displays.length > 0) {
-							buttonContainer.appendChild( WEBVR.getButton( vreffect ) );
+
+							vrButton.classList.remove('webvr-not-available');
+
+							vrButton.addEventListener('mouseup', function(e) {
+								e.preventDefault();
+								effect.isPresenting ? effect.exitPresent() : effect.requestPresent();
+							});
+
 						} else {
-							buttonContainer.appendChild( WEBVR.getMessage({ displays: displays }) );
+							errorMessage();
 						}
 					});
 
 				} else {
 
-					container.appendChild( WEBVR.getMessage() );
+					errorMessage();
 
 				}
 
 				// ----------------------------------------------------------------
 
-				var button = document.createElement( 'a' );
-				button.classList.add('button');
-				button.innerHTML = 'Play';
-				button.onclick = function(e) {
+				var onPlayButton = function(e) {
 					e.preventDefault();
-
+					
 					isFading = !isFading;
 
 					if (isFading) {
@@ -294,9 +322,19 @@
 					} else {
 						fadeIn();
 					}
-				};
 
-				buttonContainer.appendChild( button );
+				}
+
+				var playButton = document.createElement( 'a' );
+				playButton.classList.add('button');
+				buttonContainer.appendChild( playButton );
+
+				var playButtonBox = document.createElement('div');
+				playButtonBox.innerHTML = 'Start in 2D';
+				playButtonBox.classList.add('button-box');
+				playButton.appendChild( playButtonBox );
+
+				playButton.addEventListener('mouseup', onPlayButton, false);
 
 				// ----------------------------------------------------------------
 				// ----------------------------------------------------------------
