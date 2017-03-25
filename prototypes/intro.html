@@ -244,10 +244,10 @@
 				vrButton.classList.add('webvr-not-available');
 				buttonContainer.appendChild( vrButton );
 
-				var buttonBox = document.createElement('div');
-				buttonBox.innerHTML = icon + 'Start in VR';
-				buttonBox.classList.add('button-box');
-				vrButton.appendChild( buttonBox );
+				var vrButtonBox = document.createElement('div');
+				vrButtonBox.innerHTML = icon + 'Start in VR';
+				vrButtonBox.classList.add('button-box');
+				vrButton.appendChild( vrButtonBox );
 
 				function errorMessage() {
 					var message = document.createElement('div');
@@ -266,6 +266,8 @@
 				if ( navigator.getVRDisplays ) { // webvr is available
 
 					window.addEventListener( 'vrdisplaypresentchange', function() {
+						vrButtonBox.innerHTML = icon + ( effect.isPresenting ? 'Exit VR' : 'Start in VR' );
+						
 						if ( !vreffect.isPresenting ) {
 							// reset camera
 							camera.position.set( 0, 1, 0 );
@@ -799,7 +801,7 @@
 
 				var forestPath = [root, '/models/forest/'].join('');
 
-				bufferGeoLoader.load(forestPath + 'mdl_env_1_forest_intro_v02.json', function( geometry ){
+				bufferGeoLoader.load(forestPath + 'mdl_env_1_forest_intro_v03.json', function( geometry ){
 
 					// var forestMat = new THREE.MeshBasicMaterial({
 					// 	vertexColors: THREE.VertexColors,
