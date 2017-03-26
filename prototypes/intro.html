@@ -234,7 +234,7 @@
 				//
 
 				var buttonContainer = document.createElement( 'div' );
-				buttonContainer.classList.add('abs-bc');
+				buttonContainer.classList.add('button-container');
 				container.appendChild( buttonContainer );
 
 				var icon = '<img src="../release/images/cardboard.svg" alt="VR Headset" />';
@@ -266,8 +266,8 @@
 				if ( navigator.getVRDisplays ) { // webvr is available
 
 					window.addEventListener( 'vrdisplaypresentchange', function() {
-						vrButtonBox.innerHTML = icon + ( effect.isPresenting ? 'Exit VR' : 'Start in VR' );
-						
+						vrButtonBox.innerHTML = icon + ( vreffect.isPresenting ? 'Exit VR' : 'Start in VR' );
+
 						if ( !vreffect.isPresenting ) {
 							// reset camera
 							camera.position.set( 0, 1, 0 );
@@ -296,7 +296,7 @@
 
 							vrButton.addEventListener('mouseup', function(e) {
 								e.preventDefault();
-								effect.isPresenting ? effect.exitPresent() : effect.requestPresent();
+								vreffect.isPresenting ? vreffect.exitPresent() : vreffect.requestPresent();
 							});
 
 						} else {
@@ -735,6 +735,10 @@
 						otherAssets.complete.ready( function () {
 
 							document.body.appendChild( container );
+
+							 // why does .button-container opacity still jump in instead of fading with this?
+							document.body.classList.add('intro');
+
 							annie.userData.age('child');
 							annie.userData.play('idle');
 							loop();
