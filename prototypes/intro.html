@@ -266,7 +266,7 @@
 				if ( navigator.getVRDisplays ) { // webvr is available
 
 					window.addEventListener( 'vrdisplaypresentchange', function() {
-						vrButtonBox.innerHTML = icon + ( effect.isPresenting ? 'Exit VR' : 'Start in VR' );
+						vrButtonBox.innerHTML = icon + ( vreffect.isPresenting ? 'Exit VR' : 'Start in VR' );
 
 						if ( !vreffect.isPresenting ) {
 							// reset camera
