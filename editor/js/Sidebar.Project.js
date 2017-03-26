@@ -19,9 +19,9 @@ Sidebar.Project = function ( editor ) {
 
 	container.add( new UI.Break(), new UI.Break() );
 
-	// Includes
+	// Scripts
 
-	container.add( new UI.Text( 'Includes' ).setTextTransform( 'uppercase' ) );
+	container.add( new UI.Text( 'Scripts' ).setTextTransform( 'uppercase' ) );
 	container.add( new UI.Break(), new UI.Break() );
 
 	var includesContainer = new UI.Row();
@@ -46,7 +46,7 @@ Sidebar.Project = function ( editor ) {
 	cleanEffects.setMarginLeft( '4px' );
 	container.add( cleanEffects );
 
-	var reload = new UI.Button( 'Reload Includes' );
+	var reload = new UI.Button( 'Reload Scripts' );
 	reload.onClick( function () {
 
 		editor.reloadIncludes();

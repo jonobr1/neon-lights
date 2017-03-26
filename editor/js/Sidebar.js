@@ -11,11 +11,11 @@ var Sidebar = function ( editor ) {
 
 	var animationTab = new UI.Text( 'ANIMATION' ).onClick( onClick );
 	var projectTab = new UI.Text( 'PROJECT' ).onClick( onClick );
-	var settingsTab = new UI.Text( 'SETTINGS' ).onClick( onClick );
+	// var settingsTab = new UI.Text( 'SETTINGS' ).onClick( onClick );
 
 	var tabs = new UI.Div();
 	tabs.setId( 'tabs' );
-	tabs.add( animationTab, projectTab, settingsTab );
+	tabs.add( animationTab, projectTab/*, settingsTab*/ );
 	container.add( tabs );
 
 	function onClick( event ) {
@@ -35,11 +35,12 @@ var Sidebar = function ( editor ) {
 		new Sidebar.Project( editor )
 	);
 	container.add( project );
-
+	/*
 	var settings = new UI.Span().add(
 		new Sidebar.Settings( editor )
 	);
 	container.add( settings );
+	*/
 
 	//
 
@@ -47,11 +48,11 @@ var Sidebar = function ( editor ) {
 
 		animationTab.setClass( '' );
 		projectTab.setClass( '' );
-		settingsTab.setClass( '' );
+		// settingsTab.setClass( '' );
 
 		animation.setDisplay( 'none' );
 		project.setDisplay( 'none' );
-		settings.setDisplay( 'none' );
+		// settings.setDisplay( 'none' );
 
 		switch ( section ) {
 			case 'ANIMATION':
@@ -62,10 +63,12 @@ var Sidebar = function ( editor ) {
 				projectTab.setClass( 'selected' );
 				project.setDisplay( '' );
 				break;
+			/*
 			case 'SETTINGS':
 				settingsTab.setClass( 'selected' );
 				settings.setDisplay( '' );
 				break;
+			*/
 		}
 
 	}
