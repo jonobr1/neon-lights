@@ -163,7 +163,7 @@ Editor.prototype = {
 
 		var script = document.createElement( 'script' );
 		script.id = 'library-' + this.libraries.length;
-		script.textContent = '( function () { ' + content + ' } )()';
+		script.textContent = content;
 		document.head.appendChild( script );
 
 		this.libraries.push( url );
