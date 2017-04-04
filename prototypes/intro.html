@@ -29,7 +29,7 @@
 			<script src="../release/src/text/sdf-shader.js"></script>
 			<script src="../release/src/text/text-bitmap.js"></script>
 
-			<script src="../release/src/NeonShader.js"></script>
+			<script src="../release/src/utils/NeonShader.js"></script>
 		</div>
 
 		<script>
@@ -73,6 +73,7 @@
 
 				container = document.createElement( 'div' );
 				container.classList.add('container');
+				container.classList.add('unl-container');
 
 				scene = new THREE.Scene();
 				// scene.fog = new THREE.FogExp2( 0x050505, 0.22 ); // hex, densiity
@@ -237,7 +238,7 @@
 				buttonContainer.classList.add('unl-button-container');
 				container.appendChild( buttonContainer );
 
-				var icon = '<img src="../release/images/cardboard.svg" alt="VR Headset" />';
+				var icon = '<img src="../assets/images/cardboard.svg" alt="VR Headset" />';
 
 				var vrButton = document.createElement( 'a' );
 				vrButton.classList.add('unl-button');
