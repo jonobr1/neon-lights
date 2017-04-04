@@ -139,8 +139,10 @@
 				controller1.add( controller1.userData.mesh );
 				controller2.add( controller2.userData.mesh );
 
-				xhr.get( '../release/src/text/bryant-bold.json', function(font){
-					setup();
+				var fontFolder = '../release/src/text/';
+
+				xhr.get( fontFolder + 'bryant-bold.json', function(font){
+					console.log('loaded font');
 
 					font = JSON.parse( font );
 
@@ -170,6 +172,8 @@
 
 					controller2.bmtext = createText();
 					controller2.add( controller2.bmtext.group );
+					
+					setup();
 				});
 
 				//
@@ -222,25 +226,29 @@
 						side: THREE.DoubleSide
 					});
 					annie.add( mesh );
+
+					console.log('loaded annie');
 					setup();
 				});
 
 				//
 
+				// 'slide',
+				// 'bed',
+				// 'closet',
+
+				// 'castle',
+				// 'tent',
+
 				var files = [
-					'slide',
 					'ball-blue',
 					'ball-purple',
-					'bed',
 					'ball-green',
 					'bunny',
-					// 'castle',
-					'closet',
 					'elephant',
 					'giraffe',
-					'teddy',
-					// 'tent',
-					'tricycle'
+					'tricycle',
+					'teddy'
 				];
 
 				var TWO_PI = 2 * Math.PI;
@@ -249,9 +257,12 @@
 				scene.add( roomGroup );
 
 				files.forEach(function(file, i) {
-					loader.load(root + '/models/bedroom/' + file + '.fbx', function(obj) {
+				// for(var i = 0; i < files.length; i++) {
+					var file = files[i];
 
-						setup();
+					loader.load(root + '/models/bedroom/interactive/' + file + '.fbx', function(obj) {
+
+						console.log('loaded', file);
 
 						var mesh = obj.skeleton.bones[0];
 						mesh.material = new THREE.MeshBasicMaterial({
@@ -273,8 +284,11 @@
 						roomGroup.add( mesh );
 
 						scene.userData[file] = mesh;
+						
+						setup();
 
 					});
+				// }
 				});
 
 				// ----------------------------------------------------------------
@@ -437,8 +451,9 @@
 				var setup = _.after(2 + files.length, function(){
 					document.body.appendChild( container );
 					// scene.userData.bed.rotation.y = Math.PI/2;
-					scene.userData.slide.rotation.y = -Math.PI;
-					scene.userData.closet.rotation.y = -Math.PI/2;
+					
+					// scene.userData.slide.rotation.y = -Math.PI;
+					// scene.userData.closet.rotation.y = -Math.PI/2;
 
 					var roomGroup2 = roomGroup.clone();
 					roomGroup2.position.z = -roomDepth;
