@@ -4,7 +4,7 @@
 		<title>Neon Lights</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-		<link rel="stylesheet" type="text/css" href="../release/styles/intro.css">
+		<link rel="stylesheet" type="text/css" href="../release/styles/neon-lights.css">
 	</head>
 	<body>
 
@@ -30,7 +30,7 @@
 			<script src="../release/src/text/sdf-shader.js"></script>
 			<script src="../release/src/text/text-bitmap.js"></script>
 
-			<script src="../release/src/NeonShader.js"></script>
+			<script src="../release/src/utils/NeonShader.js"></script>
 
 			<!-- <script src="../release/third-party/three/js/shaders/CopyShader.js"></script>
 			<script src="../release/third-party/three/js/shaders/SepiaShader.js"></script>
@@ -826,7 +826,7 @@
 
 				var forestPath = [root, '/models/forest/'].join('');
 
-				bufferGeoLoader.load(forestPath + 'mdl_env_1_forest_intro_v02.json', function( geometry ){
+				bufferGeoLoader.load(forestPath + 'forest-intro-update.json', function( geometry ){
 
 					// var forestMat = new THREE.MeshBasicMaterial({
 					// 	vertexColors: THREE.VertexColors,
