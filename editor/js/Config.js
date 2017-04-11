@@ -4,27 +4,9 @@
 
 var Config = function ( name ) {
 
-	var storage = {
-		'autosave': true,
-		'theme': 'css/light.css',
+	var storage = {};
 
-		'project/renderer': 'WebGLRenderer',
-		'project/renderer/antialias': true,
-		'project/renderer/shadows': true,
-		'project/editable': false,
-		'project/vr': false,
-
-		'settings/history': false,
-
-		'ui/sidebar/animation/collapsed': true,
-		'ui/sidebar/script/collapsed': true
-	};
-
-	if ( window.localStorage[ name ] === undefined ) {
-
-		window.localStorage[ name ] = JSON.stringify( storage );
-
-	} else {
+	if ( window.localStorage[ name ] !== undefined ) {
 
 		var data = JSON.parse( window.localStorage[ name ] );
 
