@@ -6217,7 +6217,15 @@
 				"",
 				"}",
 				"",
-				"function update( progress ) {}"
+				"function update( progress ) {",
+				"",
+				"\tif ( !player.isPlaying && !audio.paused ) {",
+				"\t\taudio.pause();",
+				"\t} else if ( player.isPlaying && audio.paused ) {",
+				"\t\taudio.play();",
+				"\t}",
+				"",
+				"}"
 			]
 		],
 		[
