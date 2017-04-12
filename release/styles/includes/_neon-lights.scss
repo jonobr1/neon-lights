@@ -186,6 +186,7 @@ $yellow: #eceba8;
 }
 
 .unl-modal {
+	overflow: auto;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -274,60 +275,24 @@ body.has-mobile .unl-modal-img {
 
 .unl-modal-error {
 
-	overflow: auto;
+	.unl-cell-container { max-width: 450px; }
 
-	.unl-modal-error-wrapper {
+	.unl-modal-error-title {
+		font-size: 2em;
+		line-height: 1.25em;
+		font-weight: 300;
+		text-transform: none;
+		margin: 1em auto;
+	}
 
-		text-align: center;
-
-		.unl-modal-error-title {
-			h3 {
-				font-size: 2em;
-				line-height: 1.25em;
-				font-weight: 300;
-				text-transform: none;
-				max-width: 450px;
-				margin: 1em auto;
-			}
+	.unl-modal-error-body {
+		p {
+			font-size: 1.25em;
+			font-weight: 300;
+			text-transform: none;
+			margin: 1em auto;
 		}
-
-		.unl-modal-error-body {
-			p {
-				font-size: 1.25em;
-				font-weight: 300;
-				text-transform: none;
-				max-width: 450px;
-				margin: 1em auto;
-			}
-			margin-bottom: 3em;
-		}
-
-		.unl-modal-error-more-info {
-
-			display: inline-block;
-			font-weight: 600;
-			text-transform: uppercase;
-			border: 1px solid $yellow;
-			border-radius: 4px;
-			font-size: 13px;
-			color: $yellow;
-			letter-spacing: 2px;
-			cursor: pointer;
-
-			@include transition(opacity 0.35s $ease-in-out-circ, color 0.35s $ease-in-out-circ, border-color 0.35s $ease-in-out-circ);
-
-			p {
-				line-height: 0;
-				padding: 13px 26px;
-			}
-
-			&:hover {
-				color: white;
-				border-color: white;
-			}
-
-		}
-
+		margin-bottom: 3em;
 	}
 
 }
