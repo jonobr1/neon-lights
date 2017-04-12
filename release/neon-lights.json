@@ -162,6 +162,7 @@
 				"",
 				"\tif (window.console && window.console.log && !(/localhost/i.test(window.location.href))) {",
 				"\t\tconsole.log('Think Under Neon Lights is pretty clever? There’s more where that came from! http://github.com/within-unlimited/under-neon-lights/');",
+				"\t\tconsole.log('Think Under Neon Lights is clever? There is more where that came from! http://github.com/within-unlimited/under-neon-lights/');",
 				"\t}",
 				"",
 				"})();",
