@@ -99,6 +99,26 @@
 
 			}
 
+			//
+
+			var hash = window.location.hash;
+
+			if ( hash.substr( 1, 5 ) === 'file=' ) {
+
+				var file = hash.substr( 6 );
+
+				var xhr = new XMLHttpRequest();
+				xhr.addEventListener( 'load', function ( event ) {
+
+					editor.fromJSON( JSON.parse( event.target.responseText ) );
+					window.location.hash = '';
+
+				} );
+				xhr.open( 'GET' , file );
+				xhr.send();
+
+			}
+
 			// Short-cuts
 
 			document.addEventListener( 'keydown', function ( event ) {
