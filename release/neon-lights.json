@@ -4757,7 +4757,7 @@
 				"",
 				"\twindow.addEventListener( 'vrdisplaypresentchange', function() {",
 				"\t\tvrButtonBox.innerHTML = vrIcon + ( effect.isPresenting ? 'Exit VR' : 'Start in VR' );",
-				"\t\tplayButtonBox.innerHTML = startIcon + ( effect.isPresenting || has.iOS ) ? 'Start' : 'Start in 2D';",
+				"\t\tplayButtonBox.innerHTML = ( effect.isPresenting || has.iOS ) ? 'Start' : startIcon + 'Start in 2D';",
 				"",
 				"\t\tif ( !effect.isPresenting ) {",
 				"\t\t\t// reset camera",
