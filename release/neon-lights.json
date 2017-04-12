@@ -4767,7 +4767,7 @@
 				"\ttitle.classList.add('unl-modal-error-title');",
 				"\ttitle.innerHTML = '<h3>Your web browser may support WebVR later this year.</h3>';",
 				"",
-				"\tvar deviceCopy = has.mobile ? 'device' : 'computer';",
+				"\tvar deviceCopy = has.mobile ? 'device' : 'desktop';",
 				"\tvar body = document.createElement('div');",
 				"\tbody.classList.add('unl-modal-error-body');",
 				"\tbody.innerHTML = '<p>In the meantime, this is a sneak peek of \"Under Neon Lights\" you can play on your ' + deviceCopy + '.</p><p><em>No headset required.</em></p>';",
