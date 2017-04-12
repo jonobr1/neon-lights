@@ -3,6 +3,7 @@
 $font-family: "proxima-nova", "Proxima Nova", sans-serif;
 $pink: #c0538d;
 $red: #FF1177;
+$yellow: #eceba8;
 
 .unl-container * {
 	box-sizing: border-box;
@@ -269,6 +270,65 @@ body.has-mobile .unl-modal-img {
 	&:hover { cursor: pointer; }
 
 	&.unl-tab-active { background: #eceba9; }
+}
+
+.unl-modal-error {
+
+	overflow: auto;
+
+	.unl-modal-error-wrapper {
+
+		text-align: center;
+
+		.unl-modal-error-title {
+			h3 {
+				font-size: 2em;
+				line-height: 1.25em;
+				font-weight: 300;
+				text-transform: none;
+				max-width: 450px;
+				margin: 1em auto;
+			}
+		}
+
+		.unl-modal-error-body {
+			p {
+				font-size: 1.25em;
+				font-weight: 300;
+				text-transform: none;
+				max-width: 450px;
+				margin: 1em auto;
+			}
+			margin-bottom: 3em;
+		}
+
+		.unl-modal-error-more-info {
+
+			display: inline-block;
+			font-weight: 600;
+			text-transform: uppercase;
+			border: 1px solid $yellow;
+			border-radius: 3px;
+			font-size: 13px;
+			color: $yellow;
+			letter-spacing: 2px;
+			cursor: pointer;
+
+			@include transition(opacity 0.35s $ease-in-out-circ, color 0.35s $ease-in-out-circ, border-color 0.35s $ease-in-out-circ);
+
+			p {
+				padding: 0 26px;
+			}
+
+			&:hover {
+				color: white;
+				border-color: white;
+			}
+
+		}
+
+	}
+
 }
 
 .unl-modal-x {
