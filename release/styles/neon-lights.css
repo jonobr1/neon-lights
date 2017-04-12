@@ -229,7 +229,7 @@ body.has-mobile .unl-modal-img {
       font-weight: 600;
       text-transform: uppercase;
       border: 1px solid #eceba8;
-      border-radius: 3px;
+      border-radius: 4px;
       font-size: 13px;
       color: #eceba8;
       letter-spacing: 2px;
@@ -238,6 +238,7 @@ body.has-mobile .unl-modal-img {
       -moz-transition: opacity 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86), color 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86), border-color 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86);
       transition: opacity 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86), color 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86), border-color 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86); }
       .unl-modal-error .unl-modal-error-wrapper .unl-modal-error-more-info p {
+        line-height: 0;
         padding: 13px 26px; }
       .unl-modal-error .unl-modal-error-wrapper .unl-modal-error-more-info:hover {
         color: white;

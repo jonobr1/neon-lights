@@ -308,7 +308,7 @@ body.has-mobile .unl-modal-img {
 			font-weight: 600;
 			text-transform: uppercase;
 			border: 1px solid $yellow;
-			border-radius: 3px;
+			border-radius: 4px;
 			font-size: 13px;
 			color: $yellow;
 			letter-spacing: 2px;
@@ -317,6 +317,7 @@ body.has-mobile .unl-modal-img {
 			@include transition(opacity 0.35s $ease-in-out-circ, color 0.35s $ease-in-out-circ, border-color 0.35s $ease-in-out-circ);
 
 			p {
+				line-height: 0;
 				padding: 13px 26px;
 			}
 
