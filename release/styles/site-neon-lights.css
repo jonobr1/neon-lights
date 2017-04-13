@@ -98,6 +98,8 @@
 
 .unl-button-controls {
   margin-top: 20px; }
+  .unl-button-controls .unl-button-text {
+    vertical-align: baseline; }
 
 @media (max-width: 485px) {
   .unl-button-container {
@@ -116,7 +118,10 @@
     margin-top: 10px; } }
 @media (min-width: 486px) {
   .unl-button + .unl-button {
-    margin-left: 20px; } }
+    margin-left: 20px; }
+
+  .unl-button-controls .unl-button-text {
+    width: auto; } }
 .unl-instructions-button {
   display: inline-block;
   opacity: 0.6;

@@ -142,7 +142,11 @@ $yellow: #eceba8;
 	}
 }
 
-.unl-button-controls { margin-top: 20px; }
+.unl-button-controls {
+	margin-top: 20px;
+
+	.unl-button-text { vertical-align: baseline; }
+}
 
 @media (max-width: 485px) {
 	.unl-button-container { bottom: 20px; }
@@ -166,6 +170,8 @@ $yellow: #eceba8;
 	.unl-button + .unl-button {
 		margin-left: 20px;
 	}
+
+	.unl-button-controls .unl-button-text { width: auto; }
 }
 
 // instructions
