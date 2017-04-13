@@ -122,6 +122,13 @@
 
   .unl-button-controls .unl-button-text {
     width: auto; } }
+@media (max-height: 700px) {
+  .unl-button-container {
+    bottom: 20px; } }
+@media (max-height: 490px) {
+  .unl-button-container {
+    bottom: 0;
+    transform: scale(0.66); } }
 .unl-instructions-button {
   display: inline-block;
   opacity: 0.6;
