@@ -25,7 +25,7 @@
 .unl-button {
   position: relative;
   display: inline-block;
-  width: 200px;
+  width: 210px;
   text-decoration: none;
   cursor: pointer;
   color: #fff;
@@ -34,10 +34,10 @@
   user-select: none;
   z-index: 999; }
   .unl-button .unl-button-box {
-    padding: 11px;
+    padding: 10px;
     background-color: transparent;
     letter-spacing: 2px;
-    line-height: 30px;
+    line-height: 34px;
     border-radius: 6px;
     font-size: 16px;
     opacity: 0.8;
@@ -52,28 +52,32 @@
     text-shadow: 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #FF1177, 0 0 30px #FF1177, 0 0 40px #FF1177, 0 0 50px #FF1177, 0 0 60px #FF1177;
     box-shadow: 0 0 10px #fff, 0 0 40px #FF1177, 0 0 10px #fff inset, 0 0 40px #FF1177 inset; }
   .unl-button img {
-    width: 30px;
-    vertical-align: middle;
-    margin-right: 10px; }
+    width: 33px;
+    vertical-align: top;
+    margin-right: 10px;
+    display: inline-block; }
   .unl-button .unl-message {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    line-height: 1;
     letter-spacing: 1px;
     font-size: 10px;
     font-weight: normal;
-    padding: 5px 10px 8px 43px;
-    width: 100%;
+    opacity: 0.7; }
+  .unl-button.webvr-not-available .unl-button-box,
+  .unl-button.webvr-not-available .unl-message {
+    opacity: 0.5; }
+  .unl-button.webvr-not-available .unl-message {
     -webkit-transition: opacity 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86), text-shadow 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86);
     -moz-transition: opacity 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86), text-shadow 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86);
     transition: opacity 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86), text-shadow 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86); }
-  .unl-button.webvr-not-available .unl-button-box,
-  .unl-button.webvr-not-available .unl-message {
-    opacity: 0.4; }
   .unl-button.webvr-not-available:hover .unl-message {
     opacity: 1;
     text-shadow: 0 0 10px #c0538d; }
+
+.unl-button-text {
+  display: inline-block;
+  text-align: left;
+  line-height: 1.2;
+  vertical-align: top;
+  width: 140px; }
 
 .unl-button-container {
   position: absolute;
@@ -95,7 +99,7 @@
 .unl-button-controls {
   margin-top: 20px; }
 
-@media (max-width: 469px) {
+@media (max-width: 485px) {
   .unl-button-container {
     bottom: 20px; }
 
@@ -110,7 +114,7 @@
 
   .unl-button-controls {
     margin-top: 10px; } }
-@media (min-width: 470px) {
+@media (min-width: 486px) {
   .unl-button + .unl-button {
     margin-left: 20px; } }
 .unl-instructions-button {
