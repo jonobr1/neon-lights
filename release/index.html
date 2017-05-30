@@ -80,20 +80,21 @@
 
 				};
 				complete.index = 0;
-				complete.amount = 2;
+				complete.amount = 3;
 
 				for ( var k in models ) {
 					complete.amount++;
 					models[ k ].ready( complete );
 				}
 
-				annie.userData.models.complete.ready( complete );
-				annie.userData.animations.complete.ready( complete );
-
 				for ( var k in textures ) {
 					complete.amount++;
 					textures[ k ].ready( complete );
 				}
+
+				annie.userData.models.complete.ready( complete );
+				annie.userData.animations.complete.ready( complete );
+				FRAME.getResource( 'progress' ).onComplete( complete );
 
 			} );
 
