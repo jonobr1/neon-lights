@@ -20,7 +20,7 @@ function WebAudio( context ) {
 	var paused = true;
 	var startAt = 0;
 
-	var volume;
+	var volume, onLoad;
 
 	if ( context ) {
 
@@ -47,6 +47,9 @@ function WebAudio( context ) {
 
 		context.decodeAudioData( binary, function ( data ) {
 			buffer = data;
+			if ( onLoad ) {
+				onLoad();
+			}
 			if ( paused === false ) play();
 		} );
 
@@ -144,6 +147,9 @@ function WebAudio( context ) {
 		},
 		set src( url ) {
 			load( url );
+		},
+		set onLoad( callback ) {
+			onLoad = callback;
 		},
 		get loop() {
 			return loop;
