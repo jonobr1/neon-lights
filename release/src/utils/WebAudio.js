@@ -20,7 +20,7 @@ function WebAudio( context ) {
 	var paused = true;
 	var startAt = 0;
 
-	var volume, onLoad;
+	var volume, onLoad, loaded = false;
 
 	if ( context ) {
 
@@ -35,8 +35,12 @@ function WebAudio( context ) {
 		request.responseType = 'arraybuffer';
 		request.addEventListener( 'load', function ( event ) {
 			binary = event.target.response;
+			loaded = true;
 			if ( context ) {
 				decode();
+			}
+			if ( onLoad ) {
+				onLoad();
 			}
 		} );
 		request.send();
@@ -47,9 +51,6 @@ function WebAudio( context ) {
 
 		context.decodeAudioData( binary, function ( data ) {
 			buffer = data;
-			if ( onLoad ) {
-				onLoad();
-			}
 			if ( paused === false ) play();
 		} );
 
@@ -149,7 +150,11 @@ function WebAudio( context ) {
 			load( url );
 		},
 		set onLoad( callback ) {
-			onLoad = callback;
+			if ( loaded && callback ) {
+				callback();
+			} else {
+				onLoad = callback;
+			}
 		},
 		get loop() {
 			return loop;
