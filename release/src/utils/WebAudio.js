@@ -152,7 +152,7 @@ function WebAudio( context ) {
 		set onLoad( callback ) {
 			if ( loaded && callback ) {
 				callback();
-			} else {
+			} else if ( callback ) {
 				onLoad = callback;
 			}
 		},
