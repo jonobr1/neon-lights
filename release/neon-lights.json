@@ -407,7 +407,7 @@
 				"",
 				"// webgl preloader / splash screen",
 				"var preloadScene = new THREE.Scene();",
-				"var preloadGeo = new THREE.PlaneBufferGeometry( .4, .4 );",
+				"var preloadGeo = new THREE.PlaneBufferGeometry( .8, .8 );",
 				"var preloadLogo =  root + '/textures/within-logo.png';",
 				"var preloadMat = new THREE.MeshBasicMaterial({",
 				"\ttransparent: true,",
