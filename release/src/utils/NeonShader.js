@@ -320,6 +320,8 @@ THREE.neonShader.basicShader = new THREE.ShaderMaterial( {
 } );
 
 THREE.neonShader.faceShader = THREE.neonShader.basicShader.clone();
+THREE.neonShader.faceShader.transparent = true;
+THREE.neonShader.faceShader.depthWrite = false;
 THREE.neonShader.faceShader.uniforms = THREE.UniformsUtils.merge( [
 	THREE.neonShader._uniforms, {
 		map: { type: 't', value: new THREE.Texture() },
