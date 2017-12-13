@@ -217,7 +217,7 @@
 				var loader = new THREE.FBXLoader();
 
 				var isLocal = /localhost/i.test(window.location.href);
-				var root = isLocal ? '../assets' : '//player-dev.cabrilleros.com/NEON_LIGHTS/assets';
+				var root = isLocal ? '../assets' : '//gzcdn.devbrilleros.com/541-CHEM_BROS/assets';
 
 				loader.load(root + '/models/forest/mdl_chr_1-forest_girl_v02.fbx', function(obj) {
 					var mesh = obj.skeleton.bones[0];
