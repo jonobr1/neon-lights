@@ -393,7 +393,7 @@
 				"\tdeviceOrientation: new THREE.DeviceOrientationControls( camera ),",
 				"\tupdate: function () {",
 				"",
-				"\t\tif ( controls.hasWebVR ) {",
+				"\t\tif ( controls.hasWebVR && ( effect.isPresenting || has.mobile ) ) {",
 				"\t\t\tcontrols.virtualReality.update();",
 				"\t\t} else if ( has.mobile ) {",
 				"\t\t\tcontrols.deviceOrientation.update();",
