@@ -298,7 +298,8 @@ THREE.neonShader._frag = [
 	"		col = tex.rgb;",
 	"		alpha = tex.a;",
 	"	#endif",
-	"	gl_FragColor = vec4( col, alpha );",
+	// Use vUv so there's no WebGL Shader Warnings on Safari
+	"	gl_FragColor = vec4( col, alpha ) + vec4( vUv.x * 0.0 );",
 	"}",
 ].join( '\n' );
 // NOTE: Uncomment line below to use glsl shader source.
