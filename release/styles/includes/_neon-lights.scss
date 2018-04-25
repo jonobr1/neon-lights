@@ -5,9 +5,9 @@ $pink: #c0538d;
 $red: #FF1177;
 $yellow: #eceba8;
 
-.unl-container * {
-	box-sizing: border-box;
-}
+// .unl-container * {
+// 	box-sizing: border-box;
+// }
 
 .unl-container {
 	font-family: $font-family;
@@ -128,6 +128,7 @@ $yellow: #eceba8;
 	text-align: center;
 	padding: 0 20px;
 	pointer-events: none;
+	box-sizing: border-box;
 
 	opacity: 0;
 	@include transition(opacity 2s $ease-in-out-circ);
@@ -243,7 +244,7 @@ $yellow: #eceba8;
 }
 
 .unl-cell-container {
-	max-width: 800px;
+	max-width: 700px;
 	margin: 0 auto;
 }
 
