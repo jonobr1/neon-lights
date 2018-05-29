@@ -114,7 +114,7 @@ THREE.VRController = function( gamepad ) {
 	//      .wait(  500 ).set( 0.1 )
 	//      .wait( 1000 ).set( 0.0 )
 
-	const vibeChannel = [];
+	var vibeChannel = [];
 	vibeChannel.name = '';
 	vibeChannel.intensity = 0;
 	this.vibeChannels = [ vibeChannel ];
@@ -339,6 +339,10 @@ THREE.VRController = function( gamepad ) {
 		if ( hand !== controller.gamepad.hand ) {
 			if( verbosity >= 0.4 ) console.log( controllerInfo +'hand changed from "'+ hand +'" to "'+ controller.gamepad.hand +'"' );
 			hand = controller.gamepad.hand;
+			if ( this.armModel ) {
+				var isLeftHanded = hand == 'left' ? true : false;
+				this.armModel.setLeftHanded( isLeftHanded );
+			}
 			controller.dispatchEvent({ type: 'hand changed', hand: hand });
 		}
 
@@ -373,7 +377,7 @@ THREE.VRController = function( gamepad ) {
 					// a "Goofy" Y-axis. We’re going to INVERT it so you
 					// don’t have to worry about it!
 					var axesValues = [ axisX, axisY ];
-					if ( this.style === 'vive' && axes[i].name === 'thumbpad' ) {
+					if ( this.style === 'vive' && axes[i].name === 'touchpad' ) {
 						axesValues[ 1 ] *= -1;
 					}
 
@@ -511,7 +515,7 @@ THREE.VRController.prototype.update = function(){
 	//  If we’ve gotten to here then gamepad.pose has a definition
 	//  so now we can set a convenience variable to know if we are 3DOF or 6DOF.
 
-	// this.dof = ( +gamepad.pose.hasOrientation + +gamepad.pose.hasPosition ) * 3;
+	this.dof = gamepad.pose ? 3 * ( +gamepad.pose.hasOrientation + +gamepad.pose.hasPosition ) : 0;
 
 
 	//  ORIENTATION.
@@ -549,6 +553,8 @@ THREE.VRController.prototype.update = function(){
 
 			if ( THREE.VRController.verbosity >= 0.5 ) console.log( '> #'+ gamepad.index +' '+ gamepad.id +' (Hand: '+ this.getHand() +') adding OrientationArmModel' );
 			this.armModel = new OrientationArmModel();
+			var isLeftHanded = gamepad.hand == 'left' ? true : false;
+			this.armModel.setLeftHanded( isLeftHanded );
 
 		}
 
@@ -581,8 +587,10 @@ THREE.VRController.prototype.update = function(){
 	//  Whereas this VRController instance is for the VR controllers that
 	//  you hold in your hands.
 
-	this.matrix.multiplyMatrices( this.standingMatrix, this.matrix );
-	this.matrixWorldNeedsUpdate = true;
+	if ( this.standingMatrix ) { // standingMatrix was removed in three.js r89
+		this.matrix.multiplyMatrices( this.standingMatrix, this.matrix );
+		this.matrixWorldNeedsUpdate = true;
+	}
 
 };
 
@@ -606,7 +614,7 @@ THREE.VRController.prototype.setVibe = function( name, intensity ){
 	}
 	if( typeof name === 'string' ){
 
-		const 
+		var
 		controller = this,
 		o = {}
 
@@ -615,7 +623,7 @@ THREE.VRController.prototype.setVibe = function( name, intensity ){
 		//  otherwise we want to remove any future commands 
 		//  while careful NOT to delete the 'intensity' property.
 
-		let channel = controller.vibeChannels.find( function( channel ){
+		var channel = controller.vibeChannels.find( function( channel ){
 
 			return channel.name === name
 		})
@@ -645,7 +653,7 @@ THREE.VRController.prototype.setVibe = function( name, intensity ){
 			else intensity = 0
 		}
 
-		let cursor = window.performance.now()
+		var cursor = window.performance.now()
 		o.set = function( intensity ){
 
 			channel.push([ cursor, intensity ])
@@ -665,7 +673,7 @@ THREE.VRController.prototype.renderVibes = function(){
 	//  First we need to clear away any past-due commands,
 	//  and update the current intensity value.
 
-	const 
+	var
 	now = window.performance.now(),
 	controller = this
 
@@ -682,7 +690,7 @@ THREE.VRController.prototype.renderVibes = function(){
 
 	//  Now each channel knows its current intensity so we can sum those values.
 
-	const sum = Math.min( 1, Math.max( 0, 
+	var sum = Math.min( 1, Math.max( 0,
 
 		this.vibeChannels.reduce( function( sum, channel ){
 
@@ -698,7 +706,7 @@ THREE.VRController.prototype.applyVibes = function(){
 	if( this.gamepad.hapticActuators && 
 		this.gamepad.hapticActuators[ 0 ]){
 
-		const
+		var
 		renderedIntensity = this.renderVibes(),
 		now = window.performance.now()
 
@@ -918,9 +926,9 @@ THREE.VRController.supported = {
 		//                   ↓
 		//           Bottom: Y = +1
 		
-		axes: [{ name: 'thumbpad', indexes: [ 0, 1 ]}],
-		buttons: [ 'thumbpad' ],
-		primary: 'thumbpad'
+		axes: [{ name: 'touchpad', indexes: [ 0, 1 ]}],
+		buttons: [ 'touchpad' ],
+		primary: 'touchpad'
 	},
 
 	'OpenVR Gamepad': {
@@ -942,7 +950,7 @@ THREE.VRController.supported = {
 		//  make life easier on you WE WILL INVERT ITS AXIS in the code above.
 		//  This way YOU don't have to worry about it. 
 
-		axes: [{ name: 'thumbpad', indexes: [ 0, 1 ]}],
+		axes: [{ name: 'touchpad', indexes: [ 0, 1 ]}],
 		buttons: [
 
 
@@ -952,7 +960,7 @@ THREE.VRController.supported = {
 			//  isTouched: YES has real touch detection.
 			//  isPressed: As expected.
 
-			'thumbpad',
+			'touchpad',
 
 
 			//  TRIGGER
@@ -1117,7 +1125,7 @@ THREE.VRController.supported = {
 			//  Operates exactly the same as the thumbstick but without the
 			//  extra twitchiness.
 
-			{ name: 'thumbpad',   indexes: [ 2, 3 ]}
+			{ name: 'touchpad',   indexes: [ 2, 3 ]}
 		],
 		buttons: [
 
@@ -1180,7 +1188,19 @@ THREE.VRController.supported = {
 			//  isTouched: YES has real touch detection.
 			//  isPressed: As expected.
 
-			'thumbpad'
+			'touchpad'
+		],
+		primary: 'trigger'
+
+	},
+
+	'Oculus Go Controller': {
+
+		style: 'oculus-go',
+		axes: [{ name: 'touchpad', indexes: [ 0, 1 ]}],
+		buttons: [
+			'touchpad',
+			'trigger'
 		],
 		primary: 'trigger'
 
@@ -1189,19 +1209,19 @@ THREE.VRController.supported = {
 	'Gear VR Controller': {
 
 		style: 'gearvr-controller',
-		axes: [{ name: 'thumbpad', indexes: [ 0, 1 ]}],
+		axes: [{ name: 'touchpad', indexes: [ 0, 1 ]}],
 		buttons: [
 			'touchpad',
 			'trigger'
 		],
-		primary: 'touchpad'
+		primary: 'trigger'
 
 	},
 
 	'Gear VR Touchpad': {
 
 		style: 'gearvr-touchpad',
-		axes: [{ name: 'thumbpad', indexes: [ 0, 1 ]}],
+		axes: [{ name: 'touchpad', indexes: [ 0, 1 ]}],
 		buttons: [ 'touchpad' ],
 		primary: 'touchpad'
 
@@ -1211,14 +1231,24 @@ THREE.VRController.supported = {
 
 		style: 'oculus-remote',
 		buttons: [
-			'a',
-			'b',
+			'A',
+			'B',
 			'd-up',
 			'd-down',
 			'd-left',
 			'd-right'
 		],
-		primary: 'a'
+		primary: 'A'
+
+	},
+
+	'Cardboard Button': {
+
+		style: 'cardboard',
+		buttons: [
+			'screen'
+		],
+		primary: 'screen'
 
 	},
 
@@ -1230,10 +1260,10 @@ THREE.VRController.supported = {
 			{ name: 'thumbstick-right', indexes: [ 2, 3 ]}
 		],
 		buttons: [
-			'a',
-			'b',
-			'x',
-			'y',
+			'A',
+			'B',
+			'X',
+			'Y',
 			'bumper-left',
 			'bumper-right',
 			'trigger-left',
@@ -1247,7 +1277,7 @@ THREE.VRController.supported = {
 			'd-left',
 			'd-right'
 		],
-		primary: 'a'
+		primary: 'A'
 	},
 
 };
@@ -1341,15 +1371,16 @@ function OrientationArmModel() {
 
 //  STATICS.
 
-Object.assign( OrientationArmModel, {
-	HEAD_ELBOW_OFFSET       : new THREE.Vector3(  0.155, -0.465, -0.15 ),
-	ELBOW_WRIST_OFFSET      : new THREE.Vector3(  0, 0, -0.25 ),
-	WRIST_CONTROLLER_OFFSET : new THREE.Vector3(  0, 0, 0.05 ),
-	ARM_EXTENSION_OFFSET    : new THREE.Vector3( -0.08, 0.14, 0.08 ),
-	ELBOW_BEND_RATIO        : 0.4,//  40% elbow, 60% wrist.
-	EXTENSION_RATIO_WEIGHT  : 0.4,
-	MIN_ANGULAR_SPEED       : 0.61//  35˚ per second, converted to radians.
-});
+
+OrientationArmModel.HEAD_ELBOW_OFFSET_RIGHTHANDED = new THREE.Vector3( 0.155, -0.465, -0.15 );
+OrientationArmModel.HEAD_ELBOW_OFFSET_LEFTHANDED = new THREE.Vector3( -0.155, -0.465, -0.15 );
+OrientationArmModel.headElbowOffset = OrientationArmModel.HEAD_ELBOW_OFFSET_RIGHTHANDED;
+OrientationArmModel.ELBOW_WRIST_OFFSET = new THREE.Vector3(  0, 0, -0.25 );
+OrientationArmModel.WRIST_CONTROLLER_OFFSET = new THREE.Vector3(  0, 0, 0.05 );
+OrientationArmModel.ARM_EXTENSION_OFFSET = new THREE.Vector3( -0.08, 0.14, 0.08 );
+OrientationArmModel.ELBOW_BEND_RATIO = 0.4;//  40% elbow, 60% wrist.
+OrientationArmModel.EXTENSION_RATIO_WEIGHT = 0.4;
+OrientationArmModel.MIN_ANGULAR_SPEED = 0.61;//  35˚ per second, converted to radians.
 
 
 //  SETTERS.
@@ -1371,9 +1402,14 @@ OrientationArmModel.prototype.setHeadPosition = function( position ) {
 	this.headPos.copy( position );
 
 };
-OrientationArmModel.prototype.setLeftHanded = function( isLeftHanded ) {//  TODO(smus): Implement me!
+OrientationArmModel.prototype.setLeftHanded = function( isLeftHanded ) {
 
 	this.isLeftHanded = isLeftHanded;
+	if ( isLeftHanded ) {
+		OrientationArmModel.headElbowOffset = OrientationArmModel.HEAD_ELBOW_OFFSET_LEFTHANDED;
+	} else {
+		OrientationArmModel.headElbowOffset = OrientationArmModel.HEAD_ELBOW_OFFSET_RIGHTHANDED;
+	}
 
 };
 
@@ -1416,7 +1452,7 @@ OrientationArmModel.prototype.update = function() {
 
 	// Calculate elbow position.
 	var elbowPos = this.elbowPos;
-	elbowPos.copy( this.headPos ).add( OrientationArmModel.HEAD_ELBOW_OFFSET );
+	elbowPos.copy( this.headPos ).add( OrientationArmModel.headElbowOffset );
 	var elbowOffset = new THREE.Vector3().copy( OrientationArmModel.ARM_EXTENSION_OFFSET );
 	elbowOffset.multiplyScalar( extensionRatio );
 	elbowPos.add( elbowOffset );
