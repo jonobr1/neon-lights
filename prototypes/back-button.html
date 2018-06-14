@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<title>WebVR Template</title>
+
+		<style>
+			* { box-sizing: border-box; }
+
+			html { overflow: hidden; }
+
+			body {
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				font-family: Arial, sans-serif;
+				font-size: 13px;
+				line-height: 20px;
+				color: #333;
+				background: #bbb;
+			}
+		</style>
+
+	</head>
+
+	<body>
+
+		<div id="container"></div>
+
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r93/build/three.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r93/examples/js/controls/OrbitControls.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r93/examples/js/vr/WebVR.js"></script>
+		<script src="https://cdn.rawgit.com/davidlyons/THREE.VRController/master/VRController.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r93/examples/js/Detector.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r93/examples/js/loaders/FBXLoader.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.0-0/dat.gui.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.2.0/Tween.min.js"></script>
+
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			// var gui = new dat.GUI();
+
+			var container = document.getElementById( 'container' );
+
+			var scene = new THREE.Scene();
+
+			var renderer = new THREE.WebGLRenderer({
+				antialias: true,
+				preserveDrawingBuffer: true
+			});
+			renderer.setClearColor( 0xBBBBBB, 1 );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			container.appendChild( renderer.domElement );
+
+			document.body.appendChild( WEBVR.createButton( renderer ) );
+
+			var camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, .01, 100000 );
+			// camera.position.y = 1.6;
+			
+			var camGroup = new THREE.Group();
+			// camGroup.position.z = 3;
+			camGroup.position.set( 0, 1.6, 3 );
+
+			// camGroup.add( camera ); // not debug
+			camera.position.set(0.1,0.3,0.3); // debug
+			scene.add( camGroup );
+
+			var controls = new THREE.OrbitControls( camera, renderer.domElement );
+			controls.screenSpacePanning = true;
+			// controls.target.z = -3; // not debug
+
+			window.addEventListener( 'vrdisplaypresentchange', function ( event ) {
+				camera.position.set(0,0,0);
+				camera.quaternion.set(0,0,0,0);
+				var isPresenting = event.display.isPresenting;
+				renderer.vr.enabled = isPresenting;
+				controls.enabled = !isPresenting;
+			});
+
+			var aLight = new THREE.AmbientLight( 0x404040 );
+			scene.add( aLight );
+
+			var dLight1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+			dLight1.position.set( 1, 1, 1 );
+			scene.add( dLight1 );
+
+			var dLight2 = new THREE.DirectionalLight( 0xffffff, 0.3 );
+			dLight2.position.set( -1, -1, -1 );
+			scene.add( dLight2 );
+
+			// var gh = new THREE.GridHelper( 2, 10, 0x000000, 0x808080 );
+			// scene.add( gh );
+
+			var fbxLoader = new THREE.FBXLoader();
+			var textureLoader = new THREE.TextureLoader();
+
+			// --------------------------------------------------------------
+
+			var isLocal = /localhost/i.test(window.location.href);
+			var root = isLocal ? '../assets' : '//gzcdn.devbrilleros.com/541-CHEM_BROS/assets';
+
+			fbxLoader.load( root + '/models/controllers/daydream/daydream.fbx', function ( fbx ) {
+				var daydream = fbx.children[0];
+				daydream.position.x = -.1;
+				scene.add( daydream );
+			});
+
+			fbxLoader.load( root + '/models/controllers/oculus-go/pacific_lp.fbx', function( fbx ) {
+				var goController = fbx.children[0];
+				goController.position.x = .11;
+				scene.add( goController );
+			});
+
+			var circleGroup = new THREE.Group();
+			circleGroup.rotation.x = - Math.PI / 2;
+			scene.add( circleGroup );
+
+			var outlineMat = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+
+			var radius = 0.02;
+			var lineSize = 0.001;
+
+			var circleGeoL = new THREE.CircleBufferGeometry( radius, 16, Math.PI / 2, Math.PI );
+			var circleMatL = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+			var circleL = new THREE.Mesh( circleGeoL, circleMatL );
+			circleGroup.add( circleL );
+
+			var circleGeoR = new THREE.CircleBufferGeometry( radius, 16, 3 * Math.PI / 2, Math.PI );
+			var circleMatR = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+			var circleR = new THREE.Mesh( circleGeoR, circleMatR );
+			circleGroup.add( circleR );
+
+			var circleGeo = new THREE.CircleBufferGeometry( radius + lineSize, 32 );
+			var circle = new THREE.Mesh( circleGeo, outlineMat );
+			circle.position.z = -0.0001;
+			circleGroup.add( circle );
+
+			var lineGeo = new THREE.PlaneBufferGeometry( lineSize, radius * 2 + lineSize );
+			var lineMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+			var line = new THREE.Mesh( lineGeo, lineMat );
+			line.position.z = 0.0001;
+			circleGroup.add( line );
+
+			// text
+
+			var planeGeo = new THREE.PlaneBufferGeometry( 0.05, 0.05 );
+
+			var backMat = new THREE.MeshBasicMaterial({
+				map: textureLoader.load( root + '/textures/back.png'),
+				transparent: true
+			});
+
+			var startMat = new THREE.MeshBasicMaterial({
+				map: textureLoader.load( root + '/textures/start.png'),
+				transparent: true
+			});
+
+			var neonMat = new THREE.MeshBasicMaterial({
+				map: textureLoader.load( root + '/textures/neon.png'),
+				transparent: true
+			});
+
+			var back = new THREE.Mesh( planeGeo, backMat );
+			var start = new THREE.Mesh( planeGeo, startMat );
+			var neon = new THREE.Mesh( planeGeo, neonMat );
+
+			circleGroup.add( back );
+			circleGroup.add( start );
+			circleGroup.add( neon );
+
+			back.position.set( -0.05, 0, 0 );
+			start.position.set( 0.054, 0, 0 );
+			neon.position.set( 0.054, -0.05, 0 );
+
+			// --------------------------------------------------------------
+
+			// VRController
+
+			var blue = new THREE.Color(0x0c89c4);
+			var green = new THREE.Color(0x0cc437);
+
+			function primaryDown(e) {
+				var controller = e.target;
+				if ( controller.userData.mesh ) {
+					controller.userData.mesh.material.color = green;
+				}
+			}
+
+			function primaryUp(e) {
+				var controller = e.target;
+				if ( controller.userData.mesh ) {
+					controller.userData.mesh.material.color = blue;
+				}
+			}
+
+			var touchIsDown = false;
+			var axes = new THREE.Vector2();
+			var axesOnDown = new THREE.Vector2();
+			var delta = new THREE.Vector2();
+
+			function primaryTouchDown(e){
+				var controller = e.target;
+				touchIsDown = true;
+				axesOnDown.fromArray( controller.getAxes('touchpad').value );
+			}
+
+			function primaryTouchUp(e){
+				touchIsDown = false;
+			}
+
+			function axesChanged(e) {
+				var controller = e.target;
+				if ( touchIsDown ) {
+					axes.fromArray( controller.getAxes('touchpad').value );
+					delta.subVectors( axes, axesOnDown );
+					// console.log( delta );
+				}
+			}
+
+			var controllerConnected = function( event ) {
+
+				var controller = event.detail;
+				camera.parent.add( controller );
+
+				// console.log('controller connected, dof: ' + controller.dof);
+
+				controller.standingMatrix = renderer.vr.getStandingMatrix();
+				// controller.head = camera;
+
+				//
+
+				// if ( controller.dof >= 3 ) {
+
+					var laserRadius = 0.001;
+					var laserLength = 1;
+					var laserGeo = new THREE.CylinderBufferGeometry( laserRadius, laserRadius, laserLength, 8, 1, true );
+					// set origin to bottom side for scale.y
+					laserGeo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, laserLength/2, 0 ) );
+					var laserMat = new THREE.MeshBasicMaterial({ color: blue });
+
+					var laser = new THREE.Mesh( laserGeo, laserMat );
+					laser.rotation.x = - Math.PI / 2;
+					laser.userData.defaultLength = 6;
+					laser.scale.y = laser.userData.defaultLength;
+
+					laser.userData.length = new THREE.Vector3();
+
+					controller.add( laser );
+					controller.userData.laser = laser;
+
+					//
+
+					switch ( controller.style ) {
+
+						case 'daydream':
+							fbxLoader.load( root + '/models/controllers/daydream/daydream.fbx', function ( fbx ) {
+								var daydream = fbx.children[0];
+								controller.add( daydream );
+
+								var pointPose = new THREE.Group();
+								pointPose.position.z = -0.053;
+								daydream.add( pointPose );
+								pointPose.add( controller.userData.laser );
+							});
+							break;
+
+						case 'oculus-go':
+							fbxLoader.load( root + '/models/controllers/oculus-go/pacific_lp.fbx', function( fbx ) {
+								var goController = fbx.children[0];
+								controller.add( goController );
+							});
+							break;
+
+						default:
+							var handGeo = new THREE.BoxBufferGeometry( 0.08, 0.08, 0.08 );
+							var handMat = new THREE.MeshPhongMaterial({ color: blue });
+							var handMesh = new THREE.Mesh( handGeo, handMat );
+							controller.userData.mesh = handMesh;
+							controller.add( handMesh );
+							break;
+
+					}
+
+				// }
+
+				//
+
+				controller.addEventListener('primary press began', primaryDown);
+				controller.addEventListener('primary press ended', primaryUp);
+
+				controller.addEventListener('primary touch began', primaryTouchDown);
+				controller.addEventListener('primary touch ended', primaryTouchUp);
+
+				controller.addEventListener('touchpad axes changed', axesChanged);
+
+				controller.addEventListener( 'disconnected', function( event ) {
+					// console.log('controller disconnected');
+					if ( controller.parent ) {
+						controller.parent.remove( controller );
+					}
+				});
+
+			};
+
+			window.addEventListener( 'vr controller connected', controllerConnected );
+
+			// --------------------------------------------------------------
+
+			window.addEventListener( 'resize', resize, false );
+			function resize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			renderer.setAnimationLoop( loop );
+
+			function loop() {
+				if ( controls.enabled ) {
+					controls.update();
+				}
+				// TWEEN.update();
+				THREE.VRController.update();
+				renderer.render( scene, camera );
+			}
+
+			function tweenProp( obj, prop, targetValue ) {
+				var target = {};
+				target[prop] = targetValue;
+
+				var tween = new TWEEN.Tween( obj )
+					.to( target, 400 )
+					.easing( TWEEN.Easing.Quadratic.Out )
+					.start();
+			}
+
+		</script>
+
+	</body>
+</html>
