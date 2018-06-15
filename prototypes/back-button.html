@@ -128,7 +128,7 @@
 			var outlineMat = new THREE.MeshBasicMaterial( { color: 0x000000 } );
 
 			var radius = 0.016; // daydream
-			// var radius = 0.0188; // oculus go
+			// var radius = 0.0188; // oculus go (either need to scale entire group or use different radius for go)
 			var lineSize = 0.0005;
 
 			var circleGeoL = new THREE.CircleBufferGeometry( radius, 16, Math.PI / 2, Math.PI );
@@ -222,6 +222,7 @@
 
 				// goController.add( circleGroup );
 				// circleGroup.position.set( 0, .0005, .0216 );
+				// circleGroup.scale.setScalar( 1.2 );
 			});
 
 			// --------------------------------------------------------------
@@ -333,6 +334,7 @@
 
 								goController.add( circleGroup );
 								circleGroup.position.set( 0, .0005, .0216 );
+								circleGroup.scale.setScalar( 1.2 );
 							});
 							break;
 
