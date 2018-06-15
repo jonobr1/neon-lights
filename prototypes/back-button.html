@@ -127,7 +127,8 @@
 
 			var outlineMat = new THREE.MeshBasicMaterial( { color: 0x000000 } );
 
-			var radius = 0.016;
+			var radius = 0.016; // daydream
+			// var radius = 0.0188; // oculus go
 			var lineSize = 0.0005;
 
 			var circleGeoL = new THREE.CircleBufferGeometry( radius, 16, Math.PI / 2, Math.PI );
@@ -205,19 +206,22 @@
 				scene.add( daydream );
 
 				daydream.add( circleGroup );
-				circleGroup.position.set(0,.0022,-.035);
+				circleGroup.position.set( 0, .0022, -.035 );
 			});
 
 			fbxLoader.load( root + '/models/controllers/oculus-go/pacific_lp-flat.fbx', function( fbx ) {
 				var goController = fbx.children[0];
-				goController.position.x = .2;
 
 				var goMat = new THREE.MeshBasicMaterial();
 				goController.traverse(function(obj){
 					if (obj.isMesh) obj.material = goMat;
 				});
 
+				goController.position.x = .2;
 				scene.add( goController );
+
+				// goController.add( circleGroup );
+				// circleGroup.position.set( 0, .0005, .0216 );
 			});
 
 			// --------------------------------------------------------------
@@ -313,14 +317,22 @@
 								});
 
 								daydream.add( circleGroup );
-								circleGroup.position.set(0,.0022,-.035);
+								circleGroup.position.set( 0, .0022, -.035 );
 							});
 							break;
 
 						case 'oculus-go':
-							fbxLoader.load( root + '/models/controllers/oculus-go/pacific_lp.fbx', function( fbx ) {
+							fbxLoader.load( root + '/models/controllers/oculus-go/pacific_lp-flat.fbx', function( fbx ) {
 								var goController = fbx.children[0];
 								controller.add( goController );
+
+								var goMat = new THREE.MeshBasicMaterial();
+								goController.traverse(function(obj){
+									if (obj.isMesh) obj.material = goMat;
+								});
+
+								goController.add( circleGroup );
+								circleGroup.position.set( 0, .0005, .0216 );
 							});
 							break;
 
