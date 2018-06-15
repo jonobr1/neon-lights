@@ -71,6 +71,7 @@
 			camGroup.position.set( 0, 1.6, 3 );
 
 			// camGroup.add( camera ); // not debug
+			scene.add( camera );
 			camera.position.set(0.1,0.3,0.3); // debug
 			scene.add( camGroup );
 
@@ -106,19 +107,19 @@
 			// --------------------------------------------------------------
 
 			var isLocal = /localhost/i.test(window.location.href);
+			// isLocal = true; // local mobile debug
 			var root = isLocal ? '../assets' : '//web-cdn.devbrilleros.com/541-CHEM_BROS';
 
-			fbxLoader.load( root + '/models/controllers/daydream/daydream.fbx', function ( fbx ) {
-				var daydream = fbx.children[0];
-				daydream.position.x = -.1;
-				scene.add( daydream );
-			});
+			// --------------------------------------------------------------
 
-			fbxLoader.load( root + '/models/controllers/oculus-go/pacific_lp.fbx', function( fbx ) {
-				var goController = fbx.children[0];
-				goController.position.x = .11;
-				scene.add( goController );
-			});
+			var blue = new THREE.Color(0x0c89c4);
+			var green = new THREE.Color(0x0cc437);
+			var darkGreen = new THREE.Color(0x088626);
+			var white = new THREE.Color(0xffffff);
+
+			// --------------------------------------------------------------
+
+			// split the touchpad into two buttons
 
 			var circleGroup = new THREE.Group();
 			circleGroup.rotation.x = - Math.PI / 2;
@@ -126,16 +127,16 @@
 
 			var outlineMat = new THREE.MeshBasicMaterial( { color: 0x000000 } );
 
-			var radius = 0.02;
-			var lineSize = 0.001;
+			var radius = 0.016;
+			var lineSize = 0.0005;
 
 			var circleGeoL = new THREE.CircleBufferGeometry( radius, 16, Math.PI / 2, Math.PI );
-			var circleMatL = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+			var circleMatL = new THREE.MeshBasicMaterial();
 			var circleL = new THREE.Mesh( circleGeoL, circleMatL );
 			circleGroup.add( circleL );
 
 			var circleGeoR = new THREE.CircleBufferGeometry( radius, 16, 3 * Math.PI / 2, Math.PI );
-			var circleMatR = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+			var circleMatR = new THREE.MeshBasicMaterial();
 			var circleR = new THREE.Mesh( circleGeoR, circleMatR );
 			circleGroup.add( circleR );
 
@@ -150,79 +151,138 @@
 			line.position.z = 0.0001;
 			circleGroup.add( line );
 
+			var sphereGeo = new THREE.SphereBufferGeometry( 0.002 );
+			var sphereMat = new THREE.MeshBasicMaterial({ color: blue });
+			var sphere = new THREE.Mesh( sphereGeo, sphereMat );
+			sphere.visible = false;
+			circleGroup.add( sphere );
+
 			// text
 
 			var planeGeo = new THREE.PlaneBufferGeometry( 0.05, 0.05 );
 
 			var backMat = new THREE.MeshBasicMaterial({
 				map: textureLoader.load( root + '/textures/back.png'),
-				transparent: true
+				transparent: true,
+				side: THREE.DoubleSide
 			});
 
 			var startMat = new THREE.MeshBasicMaterial({
 				map: textureLoader.load( root + '/textures/start.png'),
-				transparent: true
+				transparent: true,
+				side: THREE.DoubleSide
 			});
 
-			var neonMat = new THREE.MeshBasicMaterial({
-				map: textureLoader.load( root + '/textures/neon.png'),
-				transparent: true
-			});
+			// var neonMat = new THREE.MeshBasicMaterial({
+			// 	map: textureLoader.load( root + '/textures/neon.png'),
+			// 	transparent: true,
+			// 	side: THREE.DoubleSide
+			// });
 
 			var back = new THREE.Mesh( planeGeo, backMat );
 			var start = new THREE.Mesh( planeGeo, startMat );
-			var neon = new THREE.Mesh( planeGeo, neonMat );
+			// var neon = new THREE.Mesh( planeGeo, neonMat );
 
 			circleGroup.add( back );
 			circleGroup.add( start );
-			circleGroup.add( neon );
+			// circleGroup.add( neon );
 
 			back.position.set( -0.05, 0, 0 );
 			start.position.set( 0.054, 0, 0 );
-			neon.position.set( 0.054, -0.05, 0 );
+			// neon.position.set( 0.054, -0.05, 0 );
+
+			// --------------------------------------------------------------
+
+			fbxLoader.load( root + '/models/controllers/daydream/daydream-flat.fbx', function ( fbx ) {
+				var daydream = fbx.children[0];
+
+				var daydreamMat = new THREE.MeshBasicMaterial();
+				daydream.traverse(function(obj){
+					if (obj.isMesh) obj.material = daydreamMat;
+				});
+
+				daydream.position.x = -.2;
+				scene.add( daydream );
+
+				daydream.add( circleGroup );
+				circleGroup.position.set(0,.0022,-.035);
+			});
+
+			fbxLoader.load( root + '/models/controllers/oculus-go/pacific_lp-flat.fbx', function( fbx ) {
+				var goController = fbx.children[0];
+				goController.position.x = .2;
+
+				var goMat = new THREE.MeshBasicMaterial();
+				goController.traverse(function(obj){
+					if (obj.isMesh) obj.material = goMat;
+				});
+
+				scene.add( goController );
+			});
 
 			// --------------------------------------------------------------
 
 			// VRController
 
-			var blue = new THREE.Color(0x0c89c4);
-			var green = new THREE.Color(0x0cc437);
-
-			function primaryDown(e) {
-				var controller = e.target;
-				if ( controller.userData.mesh ) {
-					controller.userData.mesh.material.color = green;
-				}
-			}
-
-			function primaryUp(e) {
-				var controller = e.target;
-				if ( controller.userData.mesh ) {
-					controller.userData.mesh.material.color = blue;
-				}
-			}
-
-			var touchIsDown = false;
 			var axes = new THREE.Vector2();
-			var axesOnDown = new THREE.Vector2();
-			var delta = new THREE.Vector2();
 
-			function primaryTouchDown(e){
+			function touchpadDown(e) {
 				var controller = e.target;
-				touchIsDown = true;
-				axesOnDown.fromArray( controller.getAxes('touchpad').value );
+
+				if ( axes.x >= 0 ) {
+					circleMatL.color = white;
+					circleMatR.color = darkGreen;
+				} else {
+					circleMatL.color = darkGreen;
+					circleMatR.color = white;
+				}
 			}
 
-			function primaryTouchUp(e){
-				touchIsDown = false;
+			function touchpadUp(e) {
+				var controller = e.target;
+
+				if ( axes >= 0 ) {
+					console.log('right side clicked');
+				} else {
+					console.log('left side clicked');
+				}
 			}
 
-			function axesChanged(e) {
+			function touchpadTouchDown(e){
 				var controller = e.target;
-				if ( touchIsDown ) {
-					axes.fromArray( controller.getAxes('touchpad').value );
-					delta.subVectors( axes, axesOnDown );
-					// console.log( delta );
+
+				sphere.visible = true;
+
+				if ( axes.x >= 0 ) {
+					circleMatL.color = white;
+					circleMatR.color = green;
+				} else {
+					circleMatL.color = green;
+					circleMatR.color = white;
+				}
+			}
+
+			function touchpadTouchUp(e){
+				sphere.visible = false;
+
+				circleMatL.color = white;
+				circleMatR.color = white;
+			}
+
+			function touchpadAxesChanged(e) {
+				var controller = e.target;
+
+				axes.fromArray( controller.getAxes('touchpad').value );
+
+				sphere.position.x = axes.x * radius;
+				sphere.position.y = - axes.y * radius;
+
+				if ( axes.x >= 0 ) {
+					circleMatL.color = white;
+					circleMatR.color = controller.getButton('touchpad').isPressed ? darkGreen : green;
+				} else {
+					circleMatL.color = controller.getButton('touchpad').isPressed ? darkGreen : green;
+					circleMatR.color = white;
 				}
 			}
 
@@ -240,36 +300,20 @@
 
 				// if ( controller.dof >= 3 ) {
 
-					var laserRadius = 0.001;
-					var laserLength = 1;
-					var laserGeo = new THREE.CylinderBufferGeometry( laserRadius, laserRadius, laserLength, 8, 1, true );
-					// set origin to bottom side for scale.y
-					laserGeo.applyMatrix( new THREE.Matrix4().makeTranslation( 0, laserLength/2, 0 ) );
-					var laserMat = new THREE.MeshBasicMaterial({ color: blue });
-
-					var laser = new THREE.Mesh( laserGeo, laserMat );
-					laser.rotation.x = - Math.PI / 2;
-					laser.userData.defaultLength = 6;
-					laser.scale.y = laser.userData.defaultLength;
-
-					laser.userData.length = new THREE.Vector3();
-
-					controller.add( laser );
-					controller.userData.laser = laser;
-
-					//
-
 					switch ( controller.style ) {
 
 						case 'daydream':
-							fbxLoader.load( root + '/models/controllers/daydream/daydream.fbx', function ( fbx ) {
+							fbxLoader.load( root + '/models/controllers/daydream/daydream-flat.fbx', function ( fbx ) {
 								var daydream = fbx.children[0];
 								controller.add( daydream );
 
-								var pointPose = new THREE.Group();
-								pointPose.position.z = -0.053;
-								daydream.add( pointPose );
-								pointPose.add( controller.userData.laser );
+								var daydreamMat = new THREE.MeshBasicMaterial();
+								daydream.traverse(function(obj){
+									if(obj.isMesh) obj.material = daydreamMat;
+								});
+
+								daydream.add( circleGroup );
+								circleGroup.position.set(0,.0022,-.035);
 							});
 							break;
 
@@ -294,13 +338,13 @@
 
 				//
 
-				controller.addEventListener('primary press began', primaryDown);
-				controller.addEventListener('primary press ended', primaryUp);
+				// controller.addEventListener('touchpad press began', touchpadDown);
+				controller.addEventListener('touchpad press ended', touchpadUp);
 
-				controller.addEventListener('primary touch began', primaryTouchDown);
-				controller.addEventListener('primary touch ended', primaryTouchUp);
+				controller.addEventListener('touchpad touch began', touchpadTouchDown);
+				controller.addEventListener('touchpad touch ended', touchpadTouchUp);
 
-				controller.addEventListener('touchpad axes changed', axesChanged);
+				controller.addEventListener('touchpad axes changed', touchpadAxesChanged);
 
 				controller.addEventListener( 'disconnected', function( event ) {
 					// console.log('controller disconnected');
