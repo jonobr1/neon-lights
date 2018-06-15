@@ -84,7 +84,7 @@
 				var loader = new THREE.FBXLoader();
 
 				var isLocal = /localhost/i.test(window.location.href);
-				var root = isLocal ? '../assets' : '//gzcdn.devbrilleros.com/541-CHEM_BROS/assets';
+				var root = isLocal ? '../assets' : '//web-cdn.devbrilleros.com/541-CHEM_BROS';
 				root = [root, '/models/forest/'].join('');
 
 				loader.load(root + 'mdl_chr_1-forest_girl_v02.fbx', function(obj) {

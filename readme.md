@@ -12,7 +12,7 @@ There are three main resources for this project:
 
 These folders all require you run a local server on your computer. A good cross-platform way to get that started is by installing [Node.js](https://nodejs.org/en/), opening up a command line prompt, and typing `npm install -g http-server`. Once you have that, point your command line to this project's root directory and type `http-server`. This will create a local server at `http://localhost:8080`. The following instructions will use this local server's details as the example.
 
-In addition you'll need to have the song and a few other assets. You can download them here: [http://media-dev.vrse.com/NEON_LIGHTS/assets/assets.zip](http://media-dev.vrse.com/NEON_LIGHTS/assets/assets.zip). Unzip it and place the entire folder at the root so there is a `/assets` directory in your project.
+In addition you'll need to have the song and a few other assets. You can download them here: [http://web-cdn.devbrilleros.com/541-CHEM_BROS/assets/assets.zip](http://web-cdn.devbrilleros.com/541-CHEM_BROS/assets/assets.zip). Unzip it and place the entire folder at the root so there is a `/assets` directory in your project.
 
 Below are more details for each of the pages and how to use them.
 
