@@ -8,7 +8,7 @@
 		<meta name="description" content="">
 		<meta name="author" content="">
 
-		<title>WebVR Template</title>
+		<title>Back Button</title>
 
 		<style>
 			* { box-sizing: border-box; }
@@ -119,6 +119,8 @@
 
 			// --------------------------------------------------------------
 
+			// back button UI
+
 			// split the touchpad into two buttons
 
 			var circleGroup = new THREE.Group();
@@ -127,38 +129,42 @@
 
 			var outlineMat = new THREE.MeshBasicMaterial( { color: 0x000000 } );
 
-			var radius = 0.016; // daydream
-			// var radius = 0.0188; // oculus go (either need to scale entire group or use different radius for go)
+			var radius = 0.016; // 0.0188 for oculus go if you're not scaling up, but we are
 			var lineSize = 0.0005;
 
+			// left
 			var circleGeoL = new THREE.CircleBufferGeometry( radius, 16, Math.PI / 2, Math.PI );
 			var circleMatL = new THREE.MeshBasicMaterial();
 			var circleL = new THREE.Mesh( circleGeoL, circleMatL );
 			circleGroup.add( circleL );
 
+			// right
 			var circleGeoR = new THREE.CircleBufferGeometry( radius, 16, 3 * Math.PI / 2, Math.PI );
 			var circleMatR = new THREE.MeshBasicMaterial();
 			var circleR = new THREE.Mesh( circleGeoR, circleMatR );
 			circleGroup.add( circleR );
 
+			// outside outline
 			var circleGeo = new THREE.CircleBufferGeometry( radius + lineSize, 32 );
 			var circle = new THREE.Mesh( circleGeo, outlineMat );
 			circle.position.z = -0.0001;
 			circleGroup.add( circle );
 
+			// middle line
 			var lineGeo = new THREE.PlaneBufferGeometry( lineSize, radius * 2 + lineSize );
 			var lineMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
 			var line = new THREE.Mesh( lineGeo, lineMat );
 			line.position.z = 0.0001;
 			circleGroup.add( line );
 
+			// axes vector visualization
 			var sphereGeo = new THREE.SphereBufferGeometry( 0.002 );
 			var sphereMat = new THREE.MeshBasicMaterial({ color: blue });
 			var sphere = new THREE.Mesh( sphereGeo, sphereMat );
 			sphere.visible = false;
 			circleGroup.add( sphere );
 
-			// text
+			// text labels
 
 			var planeGeo = new THREE.PlaneBufferGeometry( 0.05, 0.05 );
 
@@ -174,23 +180,23 @@
 				side: THREE.DoubleSide
 			});
 
-			// var neonMat = new THREE.MeshBasicMaterial({
-			// 	map: textureLoader.load( root + '/textures/neon.png'),
-			// 	transparent: true,
-			// 	side: THREE.DoubleSide
-			// });
+			var neonMat = new THREE.MeshBasicMaterial({
+				map: textureLoader.load( root + '/textures/neon.png'),
+				transparent: true,
+				side: THREE.DoubleSide
+			});
 
 			var back = new THREE.Mesh( planeGeo, backMat );
 			var start = new THREE.Mesh( planeGeo, startMat );
-			// var neon = new THREE.Mesh( planeGeo, neonMat );
+			var neon = new THREE.Mesh( planeGeo, neonMat );
+
+			back.position.set( -0.05, 0, 0 );
+			start.position.set( 0.054, 0, 0 );
+			neon.position.set( 0.054, 0, 0 );
 
 			circleGroup.add( back );
 			circleGroup.add( start );
 			// circleGroup.add( neon );
-
-			back.position.set( -0.05, 0, 0 );
-			start.position.set( 0.054, 0, 0 );
-			// neon.position.set( 0.054, -0.05, 0 );
 
 			// --------------------------------------------------------------
 
