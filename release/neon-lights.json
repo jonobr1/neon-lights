@@ -419,6 +419,8 @@
 				"\teffect = new THREE.VREffect( renderer );",
 				"}",
 				"",
+				"effect.userHeight = controls.virtualReality.userHeight;",
+				"",
 				"// webgl preloader / splash screen",
 				"var preloadScene = new THREE.Scene();",
 				"var preloadGeo = new THREE.PlaneBufferGeometry( .8, .8 );",
