@@ -471,6 +471,7 @@
 				"\t\t\twindow.addEventListener( 'vrdisplaypresentchange', function () {",
 				"\t\t\t\tif ( !effect.isPresenting ) {",
 				"\t\t\t\t\tcamera.position.y = camera.userData.targetY;",
+				"\t\t\t\t\tcamera.quaternion.set(0,0,0,1);",
 				"\t\t\t\t}",
 				"\t\t\t\tdolly.userData.reset();",
 				"",
