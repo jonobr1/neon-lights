@@ -17,22 +17,22 @@
 
 
 	Why is this useful?
-	
-	1. This creates a THREE.Object3D() per connected Gamepad instance and 
-	   passes it to you through a Window event for inclusion in your scene. 
+
+	1. This creates a THREE.Object3D() per connected Gamepad instance and
+	   passes it to you through a Window event for inclusion in your scene.
 	   It then handles copying the live positions and orientations from the
 	   Gamepad instance to this Object3D.
 	2. It also broadcasts Gamepad button and axes events to you on this
 	   Object3D instance. For your convenience button names are mapped to
-	   objects in the buttons array on supported devices. (And this support 
+	   objects in the buttons array on supported devices. (And this support
 	   is easy to extend.) For implicitly supported devices you can continue
 	   to use the buttons array indexes.
 	3. This one JS file explicitly supports several existing VR controllers,
 	   and implicitly supports any controllers that operate similarly!
 
-	
+
 	What do I have to do?
-	
+
 	1. Include THREE.VRController.update() in your animation loop and listen
 	   for controller connection events like so:
 	   window.addEventlistener('vr controller connected', (controller)=>{}).
@@ -75,7 +75,7 @@ THREE.VRController = function( gamepad ) {
 	//    controller.standingMatrix = renderer.vr.getStandingMatrix()
 	//  And for 3DOF controllers:
 	//    controller.head = camera
-	//  DOF = Degrees of Freedom. If you can rotate about 
+	//  DOF = Degrees of Freedom. If you can rotate about
 	//  3 axes and also move along 3 axes then 3 + 3 = 6 degrees of freedom.
 
 	this.standingMatrix = new THREE.Matrix4();
@@ -86,7 +86,7 @@ THREE.VRController = function( gamepad ) {
 
 
 	//  Reference to the actual gamepad
-	//  It has .pose for position and orientation updates, 
+	//  It has .pose for position and orientation updates,
 	//  and also goodies like .id, .index and haptics
 
 	this.gamepad       = gamepad;
@@ -102,7 +102,7 @@ THREE.VRController = function( gamepad ) {
 	var scope = this;
 
 	//  If the gamepad has a hapticActuators Array with something valid in
-	//  the first slot then we can send it an intensity (from 0 to 1) and a 
+	//  the first slot then we can send it an intensity (from 0 to 1) and a
 	//  duration in milliseconds like so:
 	//    gamepad.hapticActuators[ 0 ].pulse( 0.3, 200 )
 	//  Or we can use our own shortcut here which does NOT take a duration:
@@ -538,6 +538,21 @@ THREE.VRController.prototype.update = function(){
 		this.position.fromArray( pose.position );
 		this.matrix.compose( this.position, this.quaternion, this.scale );
 
+		//  Ok, we know where the this ought to be so let’s set that.
+		//  For 6DOF controllers it’s necessary to set controller.standingMatrix
+		//  to reference your VRControls.standingMatrix, otherwise your controllers
+		//  will be on the floor instead of up in your hands!
+		//  NOTE: “VRControls” and “VRController” are similarly named but two
+		//  totally different things! VRControls is what reads your headset’s
+		//  position and orientation, then moves your camera appropriately.
+		//  Whereas this VRController instance is for the VR controllers that
+		//  you hold in your hands.
+
+		if ( this.standingMatrix ) { // standingMatrix was removed in three.js r89
+			this.matrix.multiplyMatrices( this.standingMatrix, this.matrix );
+			this.matrixWorldNeedsUpdate = true;
+		}
+
 	} else {
 
 		//  POSITION -- NOPE ;(
@@ -576,22 +591,6 @@ THREE.VRController.prototype.update = function(){
 
 	}
 
-
-	//  Ok, we know where the this ought to be so let’s set that.
-	//  For 6DOF controllers it’s necessary to set controller.standingMatrix
-	//  to reference your VRControls.standingMatrix, otherwise your controllers
-	//  will be on the floor instead of up in your hands!
-	//  NOTE: “VRControls” and “VRController” are similarly named but two
-	//  totally different things! VRControls is what reads your headset’s
-	//  position and orientation, then moves your camera appropriately.
-	//  Whereas this VRController instance is for the VR controllers that
-	//  you hold in your hands.
-
-	if ( this.standingMatrix ) { // standingMatrix was removed in three.js r89
-		this.matrix.multiplyMatrices( this.standingMatrix, this.matrix );
-		this.matrixWorldNeedsUpdate = true;
-	}
-
 };
 
 
@@ -620,7 +619,7 @@ THREE.VRController.prototype.setVibe = function( name, intensity ){
 
 
 		//  If this channel does not exist yet we must create it,
-		//  otherwise we want to remove any future commands 
+		//  otherwise we want to remove any future commands
 		//  while careful NOT to delete the 'intensity' property.
 
 		var channel = controller.vibeChannels.find( function( channel ){
@@ -647,7 +646,7 @@ THREE.VRController.prototype.setVibe = function( name, intensity ){
 
 			if( typeof channel.intensity === 'number' ) intensity = channel.intensity
 
-			
+
 			//  But if we're SOL then we need to default to zero.
 
 			else intensity = 0
@@ -703,7 +702,7 @@ THREE.VRController.prototype.renderVibes = function(){
 }
 THREE.VRController.prototype.applyVibes = function(){
 
-	if( this.gamepad.hapticActuators && 
+	if( this.gamepad.hapticActuators &&
 		this.gamepad.hapticActuators[ 0 ]){
 
 		var
@@ -917,7 +916,7 @@ THREE.VRController.supported = {
 
 
 		//  THUMBPAD
-		//  Both a 2D trackpad and a button with both touch and press. 
+		//  Both a 2D trackpad and a button with both touch and press.
 		//  The Y-axis is "Regular".
 		//
 		//              Top: Y = -1
@@ -925,7 +924,7 @@ THREE.VRController.supported = {
 		//    Left: X = -1 ←─┼─→ Right: X = +1
 		//                   ↓
 		//           Bottom: Y = +1
-		
+
 		axes: [{ name: 'touchpad', indexes: [ 0, 1 ]}],
 		buttons: [ 'touchpad' ],
 		primary: 'touchpad'
@@ -948,7 +947,7 @@ THREE.VRController.supported = {
 		//
 		//  Vive is the only goofy-footed y-axis in our support lineup so to
 		//  make life easier on you WE WILL INVERT ITS AXIS in the code above.
-		//  This way YOU don't have to worry about it. 
+		//  This way YOU don't have to worry about it.
 
 		axes: [{ name: 'touchpad', indexes: [ 0, 1 ]}],
 		buttons: [
@@ -986,7 +985,7 @@ THREE.VRController.supported = {
 
 			//  GRIP
 			//  Each Vive controller has two grip buttons, one on the left and
-			//  one on the right. They are not distinguishable -- pressing 
+			//  one on the right. They are not distinguishable -- pressing
 			//  either one will register as a press with no knowledge of which
 			//  one was pressed.
 			//  --------------------------------------------------------------
@@ -1037,8 +1036,8 @@ THREE.VRController.supported = {
 
 
 			//  TRIGGER
-			//  Oculus's trigger in Chromium is far more fire-happy than 
-			//  Vive's. Compare these thresholds to Vive's trigger. 
+			//  Oculus's trigger in Chromium is far more fire-happy than
+			//  Vive's. Compare these thresholds to Vive's trigger.
 			//
 			//  Chromium
 			//  if( value >  0.0 ) isTouched = true else isTouched = false
@@ -1142,8 +1141,8 @@ THREE.VRController.supported = {
 			//  TRIGGER
 			//  Its physical range of motion noticably exceeds the range of
 			//  values reported. For example when engaging you can continue
-			//  to squueze beyond when the value reports 1. And when 
-			//  releasing you will reach value === 0 before the trigger is 
+			//  to squueze beyond when the value reports 1. And when
+			//  releasing you will reach value === 0 before the trigger is
 			//  completely released. The value property dictates touch and
 			//  press states as follows:
 			//
