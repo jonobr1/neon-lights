@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/within-unlimited/neon-lights.git"
+    "url": "git+https://github.com/jonobr1/neon-lights.git"
   },
   "keywords": [
     "music",
@@ -20,9 +20,9 @@
   "author": "@jonobr1",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/within-unlimited/neon-lights/issues"
+    "url": "https://github.com/jonobr1/neon-lights/issues"
   },
-  "homepage": "https://github.com/within-unlimited/neon-lights#readme",
+  "homepage": "https://github.com/jonobr1/neon-lights#readme",
   "dependencies": {
     "http-server": "^0.9.0",
     "marked": "^0.3.6"

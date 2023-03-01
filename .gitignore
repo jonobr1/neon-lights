@@ -3,3 +3,4 @@ assets
 *.sass-cache
 *bourbon
 node_modules
+package-lock.json
